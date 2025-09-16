@@ -116,7 +116,7 @@ const isModalOpen = ref(false);
       <div
         class="relative -mt-7.5 h-[calc(100vh-230px)] w-full rounded-t-3xl bg-white px-4 py-6"
       >
-        <div class="relative rounded-2xl bg-[#F6F6F6] px-4 py-6">
+        <div class="bg-neutral-8 relative rounded-2xl px-4 py-6">
           <NuxtImg
             src="/images/reminder-image.svg"
             alt="Reminder Image"
@@ -154,7 +154,7 @@ const isModalOpen = ref(false);
           <NuxtLink
             v-for="menu in mainMenu.slice(0, 5)"
             :key="menu.id"
-            class="flex h-20 w-full flex-col items-center justify-center gap-2 rounded-xl border border-[#E9E9E9] bg-white"
+            class="border-neutral-9 flex h-20 w-full flex-col items-center justify-center gap-2 rounded-xl border bg-white"
             :to="menu.to"
           >
             <NuxtImg
@@ -165,7 +165,7 @@ const isModalOpen = ref(false);
             <span class="text-gray-4 text-center text-xs">{{ menu.name }}</span>
           </NuxtLink>
           <div
-            class="flex h-20 w-full flex-col items-center justify-center gap-2 rounded-xl border border-[#E9E9E9] bg-white"
+            class="border-neutral-9 flex h-20 w-full flex-col items-center justify-center gap-2 rounded-xl border bg-white"
             @click="isModalOpen = true"
           >
             <NuxtImg
@@ -189,7 +189,7 @@ const isModalOpen = ref(false);
           <NuxtLink
             v-for="menu in mainMenu"
             :key="menu.id"
-            class="flex h-20 w-full flex-col items-center justify-center gap-2 rounded-xl border border-[#E9E9E9] bg-white"
+            class="border-neutral-9 flex h-20 w-full flex-col items-center justify-center gap-2 rounded-xl border bg-white"
             :to="menu.to"
           >
             <NuxtImg
