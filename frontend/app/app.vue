@@ -1,5 +1,6 @@
 <template>
   <AuthLoaderComponent />
+  <ServiceWorkerStatusComponent />
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
