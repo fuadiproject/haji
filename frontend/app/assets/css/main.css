@@ -1,0 +1,19 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+* {
+  font-family: Roboto, sans-serif;
+}
+
+@theme {
+  --color-primary-main: #019eab;
+  --color-secondary-main: #ffcf56;
+  --color-secondary-main-2: #f4b923;
+  --color-gray-3: #777777;
+  --color-gray-4: #666666;
+  --color-gray-5: #444444;
+  --color-gray-title: #222222;
+  --color-gray-subtitle: #444444;
+  --color-neutral-6: #838a9a;
+  --color-neutral-7: #35405a;
+}

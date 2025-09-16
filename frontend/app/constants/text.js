@@ -1,0 +1,15 @@
+export const TEXT = {
+  title: "Kementerian Haji dan Umrah",
+  welcome: "Selamat Datang",
+  welcomeDescription: "di Kementerian Haji dan Umrah App",
+  reminderDescription: "Jangan lupa catat kehadiranmu hari ini.",
+  clockIn: "Absen Masuk",
+  clockOut: "Absen Keluar",
+  lainnya: "Lainnya",
+  presensi: "Presensi",
+  kepegawaian: "Kepegawaian",
+  persuratan: "Persuratan",
+  sop: "SOP",
+  laporan: "Laporan",
+  semuaMenu: "Menu",
+};
