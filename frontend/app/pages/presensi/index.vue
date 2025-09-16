@@ -84,23 +84,23 @@ onUnmounted(() => {
       </div>
 
       <div
-        class="flex w-full flex-wrap items-center justify-between gap-x-4 gap-y-2"
+        class="flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-2"
       >
-        <ButtonComponent class="min-w-fit flex-1">
+        <ButtonComponent class="min-w-fit flex-1 text-xs">
           <NuxtImg
             src="/images/icons/SignInWhite.svg"
             alt="Clock In"
-            class="h-5 w-5"
+            class="h-3 w-3"
           />
           {{ TEXT.clockIn }}
         </ButtonComponent>
 
-        <ButtonComponent class="min-w-fit flex-1">
+        <ButtonComponent class="min-w-fit flex-1 text-xs">
           {{ TEXT.clockOut }}
           <NuxtImg
             src="/images/icons/SignOutWhite.svg"
             alt="Clock Out"
-            class="h-5 w-5"
+            class="h-3 w-3"
           />
         </ButtonComponent>
       </div>
