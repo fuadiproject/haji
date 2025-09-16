@@ -6,6 +6,7 @@ const handleBack = () => {
 
 <template>
   <TemplateDetailComponent
+    is-full-width
     variant="default"
     title="Persuratan"
     @back="handleBack"
