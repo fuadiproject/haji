@@ -8,6 +8,10 @@ defineProps({
     type: String,
     default: "default",
   },
+  isFullWidth: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(["back"]);
@@ -15,7 +19,10 @@ const emit = defineEmits(["back"]);
 
 <template>
   <Transition name="fade" mode="out-in" appear>
-    <div>
+    <div
+      class="mx-auto"
+      :class="isFullWidth ? 'w-full max-w-5xl' : 'w-full max-w-[767px]'"
+    >
       <div
         class="relative h-[260px] w-full bg-gradient-to-l from-[#FDFFFF42] to-[#C6F0F395]"
       >

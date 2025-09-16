@@ -81,10 +81,10 @@ const isModalOpen = ref(false);
 <template>
   <ClientOnly>
     <div
-      class="mx-auto h-screen max-w-[440px] overflow-y-auto bg-gradient-to-l from-[#FDFFFF42] to-[#C6F0F395]"
+      class="mx-auto h-screen max-w-[767px] overflow-y-auto bg-gradient-to-l from-[#FDFFFF42] to-[#C6F0F395]"
     >
       <!-- Banner Slider -->
-      <div class="relative h-[260px] w-full">
+      <div class="relative h-[260px] w-full sm:h-[360px]">
         <BannerSliderComponent
           v-model:current-index="currentBannerIndex"
           :banners="bannerList"

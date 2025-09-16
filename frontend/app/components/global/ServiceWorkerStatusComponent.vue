@@ -1,5 +1,5 @@
 <template>
-  <div v-if="updateAvailable" class="update-banner">
+  <!-- <div v-if="updateAvailable" class="update-banner">
     <div class="update-content">
       <div class="update-icon">
         <svg
@@ -24,7 +24,7 @@
         <button class="dismiss-button" @click="dismissUpdate">Nanti</button>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <!-- Offline indicator -->
   <div v-if="!isOnline" class="offline-indicator">
@@ -49,16 +49,17 @@
 </template>
 
 <script setup>
-const { updateAvailable, updateServiceWorker, isOnline } = useServiceWorker();
+const { /*updateAvailable, updateServiceWorker,*/ isOnline } =
+  useServiceWorker();
 
-const updateApp = () => {
-  updateServiceWorker();
-};
+// const updateApp = () => {
+//   updateServiceWorker();
+// };
 
-const dismissUpdate = () => {
-  // Hide update banner for this session
-  updateAvailable.value = false;
-};
+// const dismissUpdate = () => {
+//   // Hide update banner for this session
+//   updateAvailable.value = false;
+// };
 </script>
 
 <style scoped>

@@ -42,7 +42,7 @@ const isActive = (id) => {
 
 <template>
   <div
-    class="fixed bottom-0 left-1/2 flex h-[70px] w-full max-w-[440px] -translate-x-1/2 items-center bg-white px-4 py-3 shadow-[0px_-4px_10px_0px_#8484841A]"
+    class="fixed bottom-0 left-1/2 flex h-[70px] w-full max-w-[767px] -translate-x-1/2 items-center bg-white px-4 py-3 shadow-[0px_-4px_10px_0px_#8484841A]"
   >
     <NuxtLink
       v-for="menu in bottomMenu"
