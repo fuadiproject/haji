@@ -12,4 +12,13 @@ export const TEXT = {
   sop: "SOP",
   laporan: "Laporan",
   semuaMenu: "Menu",
+  laporanKehadiran: "Laporan Kehadiran",
+  jadwalKerja: "Jadwal Kerja",
+  stafKhusus: "Staf Khusus",
+  stafKhususDescription: "08:00 - 17:00",
+  persenPemotongan: "Persentase Pemotongan",
+  infoKehadiran: "Klik tombol di atas untuk mencatat kehadiran Anda",
+  riwayatKehadiran: "Riwayat Kehadiran",
+  lihatSemua: "Lihat Semua",
+  belumAdaDataKehadiranHariIni: "Belum ada data kehadiran hari ini",
 };
