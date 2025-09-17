@@ -1,37 +1,78 @@
-import { useStorage } from "@vueuse/core";
 import { useRouter, useRoute } from "vue-router";
+import { useStorage } from "@vueuse/core";
+
+import { useServiceBphapi } from "@/composables/useServiceBphapi";
 
 export const useAuth = () => {
   const router = useRouter();
   const route = useRoute();
+  const toast = useToast();
+  const bphapiService = useServiceBphapi();
 
   // State untuk loading autentikasi
   const isLoading = ref(true);
 
-  // Menggunakan useStorage dengan opsi untuk menghindari SSR issues
-  const isAuthenticated = useStorage("auth-status", false, undefined, {
-    // Hanya jalankan di client-side
+  const jwtToken = useStorage("t", "", undefined, {
     initOnMounted: true,
-    // Listen perubahan storage
     listenToStorageChanges: true,
+  });
+
+  /**
+   * {
+        "nama": "Test",
+        "nip": "1",
+        "iat": 1758102939,
+        "exp": 1758106539
+      }
+   */
+  const jwtInfo = computed(() => {
+    return jwtToken.value
+      ? JSON.parse(atob(jwtToken.value.split(".")[1]))
+      : null;
+  });
+
+  // watch 'exp' in jwtInfo and if its current time is greater than exp, logout
+  watch(jwtInfo, (newVal) => {
+    if (newVal?.exp && newVal?.exp < Date.now() / 1000) {
+      logout();
+    }
+  });
+
+  const isAuthenticated = computed(() => {
+    return Boolean(jwtToken.value);
   });
 
   // Set loading false setelah localStorage terbaca
   onMounted(() => {
     // Tunggu sebentar untuk memastikan localStorage sudah terbaca
     setTimeout(() => {
-      isLoading.value = false;
+      checkAuth();
     }, 100);
   });
 
   // Fungsi untuk login
-  const login = () => {
-    isAuthenticated.value = true;
+  const login = async () => {
+    try {
+      const data = await bphapiService.login({ nip: "1", password: "1" });
+      jwtToken.value = data.token;
+      router.push("/");
+    } catch (error) {
+      toast.add({
+        title: "Error",
+        description:
+          error?.message ||
+          error?.data?.message ||
+          "Terjadi kesalahan, silahkan coba lagi",
+        color: "error",
+      });
+    } finally {
+      isLoading.value = false;
+    }
   };
 
   // Fungsi untuk logout
   const logout = () => {
-    isAuthenticated.value = false;
+    jwtToken.value = "";
     router.push("/auth/login");
   };
 
@@ -40,7 +81,6 @@ export const useAuth = () => {
     // Hanya jalankan di client-side
     if (import.meta.server) return isAuthenticated.value;
 
-    // Tunggu sampai localStorage terbaca
     if (!import.meta.client || isLoading.value) return isAuthenticated.value;
 
     // Jika tidak ada autentikasi dan bukan di halaman login, redirect ke login
@@ -64,6 +104,8 @@ export const useAuth = () => {
   };
 
   return {
+    token: jwtToken,
+    userInfo: jwtInfo,
     isAuthenticated,
     isLoading,
     login,

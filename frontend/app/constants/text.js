@@ -28,4 +28,13 @@ export const TEXT = {
   batal: "Batal",
   konfirmasiAbsenMasuk: "Konfirmasi Absen Masuk",
   konfirmasiAbsenKeluar: "Konfirmasi Absen Keluar",
+  harapIzinkanAksesLokasiUntukMelakukanAbsen:
+    "Harap izinkan akses lokasi untuk melakukan absen",
+  peringatan: "Peringatan",
+  terjadiKesalahan: "Terjadi kesalahan, silahkan coba lagi",
+  sukses: "Sukses",
+  absenBerhasil: "Absen berhasil",
+  absenMasukBerhasil: "Absen masuk berhasil",
+  absenKeluarBerhasil: "Absen keluar berhasil",
+  loginSSO: "Login SSO",
 };
