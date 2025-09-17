@@ -3,12 +3,16 @@ import { TEXT } from "@/constants/text";
 import WelcomeBannerComponent from "@/components/home/WelcomeBannerComponent.vue";
 import BannerSliderComponent from "@/components/home/BannerSliderComponent.vue";
 
-const { requestLocationPermission } = useLocationPermission();
+const {
+  isModalAbsenConfirm,
+  isModalAbsenConfirmType,
+  handleAbsen,
+  handleCloseModalAbsenConfirm,
+  handleConfirmAbsen,
+} = useActionPresensi();
 
 const currentBannerIndex = ref(0);
 const isModalOpen = ref(false);
-const isModalAbsenConfirm = ref(false);
-const isModalAbsenConfirmType = ref("absenMasuk");
 
 const mainMenu = [
   {
@@ -79,40 +83,15 @@ const bannerList = [
 const goToBanner = (index) => {
   currentBannerIndex.value = index;
 };
-
-const handleAbsen = (type) => {
-  requestLocationPermission((permission, position) => {
-    if (permission) {
-      if (type === "absenMasuk") {
-        isModalAbsenConfirm.value = true;
-        isModalAbsenConfirmType.value = "absenMasuk";
-        console.log("Latitude:", position?.coords?.latitude);
-        console.log("Longitude:", position?.coords?.longitude);
-      } else {
-        isModalAbsenConfirm.value = true;
-        isModalAbsenConfirmType.value = "absenKeluar";
-        console.log("Latitude:", position?.coords?.latitude);
-        console.log("Longitude:", position?.coords?.longitude);
-      }
-    } else {
-      console.log("Location permission denied");
-    }
-  });
-};
-
-const handleCloseModalAbsenConfirm = () => {
-  isModalAbsenConfirm.value = false;
-  isModalAbsenConfirmType.value = "";
-};
 </script>
 
 <template>
   <ClientOnly>
     <div
-      class="mx-auto h-screen max-w-[767px] overflow-y-auto bg-gradient-to-l from-[#FDFFFF42] to-[#C6F0F395]"
+      class="mx-auto h-screen max-w-[1027px] overflow-y-auto bg-gradient-to-l from-[#FDFFFF42] to-[#C6F0F395]"
     >
       <!-- Banner Slider -->
-      <div class="relative h-[260px] w-full sm:h-[360px]">
+      <div class="relative h-[260px] w-full sm:h-[360px] lg:h-[400px]">
         <BannerSliderComponent
           v-model:current-index="currentBannerIndex"
           :banners="bannerList"
@@ -239,7 +218,7 @@ const handleCloseModalAbsenConfirm = () => {
                 : TEXT.batal,
           },
         ]"
-        @confirm="handleCloseModalAbsenConfirm"
+        @confirm="handleConfirmAbsen(isModalAbsenConfirmType)"
         @cancel="handleCloseModalAbsenConfirm"
         @close="handleCloseModalAbsenConfirm"
       >
