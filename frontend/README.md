@@ -2,7 +2,38 @@
 
 Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
-## Setup
+## 🚀 Quick Start dengan Docker
+
+```bash
+# 1. Pastikan file .env ada
+cp .env.example .env
+
+# 2. Edit file .env sesuai kebutuhan
+# API_BASE_URL=http://localhost:8000/api
+# API_BPH_URL=http://localhost:8000/bph
+
+# 3. Build dan jalankan aplikasi
+docker-compose up --build
+
+# 4. Akses aplikasi di http://localhost:3000
+```
+
+### Perintah Docker Lainnya
+
+```bash
+# Jalankan di background
+docker-compose up -d --build
+
+# Stop aplikasi
+docker-compose down
+
+# Lihat logs
+docker-compose logs -f
+```
+
+## Development (Lokal)
+
+### Setup
 
 Make sure to install dependencies:
 
@@ -20,7 +51,7 @@ yarn install
 bun install
 ```
 
-## Development Server
+### Development Server
 
 Start the development server on `http://localhost:3000`:
 
