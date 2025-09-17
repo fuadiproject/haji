@@ -171,9 +171,7 @@ onUnmounted(() => {
 
       <div v-else>
         <div class="flex flex-col gap-4">
-          <div
-            class="border-neutral-9 flex items-center justify-between rounded-xl border bg-white p-4"
-          >
+          <CardComponent class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <NuxtImg
                 src="/images/icons/SignIn.svg"
@@ -210,11 +208,9 @@ onUnmounted(() => {
                 class="text-neutral-5 h-4 w-4"
               /> -->
             </div>
-          </div>
+          </CardComponent>
 
-          <div
-            class="border-neutral-9 flex items-center justify-between rounded-xl border bg-white p-4"
-          >
+          <CardComponent class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <NuxtImg
                 src="/images/icons/SignOut.svg"
@@ -251,7 +247,7 @@ onUnmounted(() => {
                 class="text-neutral-5 h-4 w-4"
               /> -->
             </div>
-          </div>
+          </CardComponent>
         </div>
       </div>
     </div>

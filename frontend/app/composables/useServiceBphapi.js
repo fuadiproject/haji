@@ -1,11 +1,7 @@
-import { useStorage } from "@vueuse/core";
+import { jwtToken } from "@/composables/useAuth";
 
 export const useServiceBphapi = () => {
   const config = useRuntimeConfig();
-  const token = useStorage("t", "", undefined, {
-    initOnMounted: true,
-    listenToStorageChanges: true,
-  });
 
   const BASE_URL = `${config.public.apiBphUrl}/bphapi`;
 
@@ -21,7 +17,7 @@ export const useServiceBphapi = () => {
       method: "POST",
       body: { latitude, longitude },
       headers: {
-        Authorization: `${token.value}`,
+        Authorization: `${jwtToken.value}`,
       },
     });
   };
@@ -31,7 +27,7 @@ export const useServiceBphapi = () => {
       method: "POST",
       body: { latitude, longitude },
       headers: {
-        Authorization: `${token.value}`,
+        Authorization: `${jwtToken.value}`,
       },
     });
   };
