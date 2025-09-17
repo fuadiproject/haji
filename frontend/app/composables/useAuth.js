@@ -3,43 +3,47 @@ import { useStorage } from "@vueuse/core";
 
 import { useServiceBphapi } from "@/composables/useServiceBphapi";
 
+export const jwtToken = useStorage("t", "", undefined, {
+  initOnMounted: true,
+  listenToStorageChanges: true,
+});
+
+/**
+ * {
+      "nama": "Test",
+      "nip": "1",
+      "iat": 1758102939,
+      "exp": 1758106539
+    }
+ */
+export const jwtInfo = computed(() => {
+  return jwtToken.value ? JSON.parse(atob(jwtToken.value.split(".")[1])) : null;
+});
+
+export const isAuthenticated = computed(() => {
+  return Boolean(jwtToken.value);
+});
+
+// Fungsi untuk logout
+export const logout = () => {
+  jwtToken.value = "";
+  window.location.href = "/auth/login";
+};
+
 export const useAuth = () => {
-  const router = useRouter();
   const route = useRoute();
   const toast = useToast();
   const bphapiService = useServiceBphapi();
+  const router = useRouter();
 
   // State untuk loading autentikasi
   const isLoading = ref(true);
-
-  const jwtToken = useStorage("t", "", undefined, {
-    initOnMounted: true,
-    listenToStorageChanges: true,
-  });
-
-  /**
-   * {
-        "nama": "Test",
-        "nip": "1",
-        "iat": 1758102939,
-        "exp": 1758106539
-      }
-   */
-  const jwtInfo = computed(() => {
-    return jwtToken.value
-      ? JSON.parse(atob(jwtToken.value.split(".")[1]))
-      : null;
-  });
 
   // watch 'exp' in jwtInfo and if its current time is greater than exp, logout
   watch(jwtInfo, (newVal) => {
     if (newVal?.exp && newVal?.exp < Date.now() / 1000) {
       logout();
     }
-  });
-
-  const isAuthenticated = computed(() => {
-    return Boolean(jwtToken.value);
   });
 
   // Set loading false setelah localStorage terbaca
@@ -68,12 +72,6 @@ export const useAuth = () => {
     } finally {
       isLoading.value = false;
     }
-  };
-
-  // Fungsi untuk logout
-  const logout = () => {
-    jwtToken.value = "";
-    router.push("/auth/login");
   };
 
   // Fungsi untuk cek autentikasi dan redirect
