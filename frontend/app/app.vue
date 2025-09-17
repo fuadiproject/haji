@@ -49,4 +49,7 @@ useHead({
     { rel: "manifest", href: "/manifest.json" },
   ],
 });
+
+// Notification Permission
+useNotificationPermission();
 </script>
