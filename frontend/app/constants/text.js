@@ -21,4 +21,11 @@ export const TEXT = {
   riwayatKehadiran: "Riwayat Kehadiran",
   lihatSemua: "Lihat Semua",
   belumAdaDataKehadiranHariIni: "Belum ada data kehadiran hari ini",
+  apakahAndaYakinInginMelakukanAbsen:
+    "Apakah Anda yakin ingin melakukan absen?",
+  yaAbsenMasuk: "Ya, Absen Masuk",
+  yaAbsenKeluar: "Ya, Absen Keluar",
+  batal: "Batal",
+  konfirmasiAbsenMasuk: "Konfirmasi Absen Masuk",
+  konfirmasiAbsenKeluar: "Konfirmasi Absen Keluar",
 };

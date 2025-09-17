@@ -2,12 +2,16 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import { TEXT } from "@/constants/text";
 
+const { requestLocationPermission } = useLocationPermission();
+
 const isEmpty = ref(false);
 const maxJamDatangHariIni = ref("08:00");
 const maxJamPulangHariIni = ref("17:00");
 const jamDatangHariIni = ref("08:30");
 const jamPulangHariIni = ref("17:00");
 const persenPemotongan = ref("106.0");
+const isModalAbsenConfirm = ref(false);
+const isModalAbsenConfirmType = ref("absenMasuk");
 
 const handleBack = () => {
   navigateTo("/");
@@ -39,6 +43,31 @@ const updateTime = () => {
 
   currentTime.value = timeString;
   currentDate.value = dateString;
+};
+
+const handleAbsen = (type) => {
+  requestLocationPermission((permission, position) => {
+    if (permission) {
+      if (type === "absenMasuk") {
+        isModalAbsenConfirm.value = true;
+        isModalAbsenConfirmType.value = "absenMasuk";
+        console.log("Latitude:", position?.coords?.latitude);
+        console.log("Longitude:", position?.coords?.longitude);
+      } else {
+        isModalAbsenConfirm.value = true;
+        isModalAbsenConfirmType.value = "absenKeluar";
+        console.log("Latitude:", position?.coords?.latitude);
+        console.log("Longitude:", position?.coords?.longitude);
+      }
+    } else {
+      console.log("Location permission denied");
+    }
+  });
+};
+
+const handleCloseModalAbsenConfirm = () => {
+  isModalAbsenConfirm.value = false;
+  isModalAbsenConfirmType.value = "";
 };
 
 onMounted(() => {
@@ -86,7 +115,10 @@ onUnmounted(() => {
       <div
         class="flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-2"
       >
-        <ButtonComponent class="min-w-fit flex-1 text-xs">
+        <ButtonComponent
+          class="min-w-fit flex-1 text-xs"
+          @click="handleAbsen('absenMasuk')"
+        >
           <NuxtImg
             src="/images/icons/SignInWhite.svg"
             alt="Clock In"
@@ -95,7 +127,10 @@ onUnmounted(() => {
           {{ TEXT.clockIn }}
         </ButtonComponent>
 
-        <ButtonComponent class="min-w-fit flex-1 text-xs">
+        <ButtonComponent
+          class="min-w-fit flex-1 text-xs"
+          @click="handleAbsen('absenKeluar')"
+        >
           {{ TEXT.clockOut }}
           <NuxtImg
             src="/images/icons/SignOutWhite.svg"
@@ -241,5 +276,33 @@ onUnmounted(() => {
         </div>
       </div>
     </div>
+
+    <ModalConfirmComponent
+      :is-open="isModalAbsenConfirm"
+      :title="
+        isModalAbsenConfirmType === 'absenMasuk'
+          ? TEXT.konfirmasiAbsenMasuk
+          : TEXT.konfirmasiAbsenKeluar
+      "
+      :buttons="[
+        {
+          variant: 'primary',
+          text:
+            isModalAbsenConfirmType === 'absenMasuk'
+              ? TEXT.yaAbsenMasuk
+              : TEXT.yaAbsenKeluar,
+        },
+        {
+          variant: 'secondary',
+          text:
+            isModalAbsenConfirmType === 'absenMasuk' ? TEXT.batal : TEXT.batal,
+        },
+      ]"
+      @confirm="handleCloseModalAbsenConfirm"
+      @cancel="handleCloseModalAbsenConfirm"
+      @close="handleCloseModalAbsenConfirm"
+    >
+      <div>{{ TEXT.apakahAndaYakinInginMelakukanAbsen }}</div>
+    </ModalConfirmComponent>
   </TemplateDetailComponent>
 </template>

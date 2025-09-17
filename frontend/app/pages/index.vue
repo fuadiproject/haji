@@ -1,7 +1,14 @@
 <script setup>
-import { TEXT } from "~/constants/text";
+import { TEXT } from "@/constants/text";
 import WelcomeBannerComponent from "@/components/home/WelcomeBannerComponent.vue";
 import BannerSliderComponent from "@/components/home/BannerSliderComponent.vue";
+
+const { requestLocationPermission } = useLocationPermission();
+
+const currentBannerIndex = ref(0);
+const isModalOpen = ref(false);
+const isModalAbsenConfirm = ref(false);
+const isModalAbsenConfirmType = ref("absenMasuk");
 
 const mainMenu = [
   {
@@ -54,8 +61,6 @@ const mainMenu = [
   },
 ];
 
-const currentBannerIndex = ref(0);
-
 const bannerList = [
   {
     id: "welcome-banner",
@@ -75,7 +80,30 @@ const goToBanner = (index) => {
   currentBannerIndex.value = index;
 };
 
-const isModalOpen = ref(false);
+const handleAbsen = (type) => {
+  requestLocationPermission((permission, position) => {
+    if (permission) {
+      if (type === "absenMasuk") {
+        isModalAbsenConfirm.value = true;
+        isModalAbsenConfirmType.value = "absenMasuk";
+        console.log("Latitude:", position?.coords?.latitude);
+        console.log("Longitude:", position?.coords?.longitude);
+      } else {
+        isModalAbsenConfirm.value = true;
+        isModalAbsenConfirmType.value = "absenKeluar";
+        console.log("Latitude:", position?.coords?.latitude);
+        console.log("Longitude:", position?.coords?.longitude);
+      }
+    } else {
+      console.log("Location permission denied");
+    }
+  });
+};
+
+const handleCloseModalAbsenConfirm = () => {
+  isModalAbsenConfirm.value = false;
+  isModalAbsenConfirmType.value = "";
+};
 </script>
 
 <template>
@@ -128,8 +156,13 @@ const isModalOpen = ref(false);
           <p class="text-gray-4 mt-2.5 text-sm leading-4">
             {{ TEXT.reminderDescription }}
           </p>
-          <div class="mt-4 flex w-full items-center justify-between gap-4">
-            <ButtonComponent class="flex-1">
+          <div
+            class="mt-4 flex w-full flex-wrap items-center justify-between gap-x-4 gap-y-2"
+          >
+            <ButtonComponent
+              class="min-w-max flex-1"
+              @click="handleAbsen('absenMasuk')"
+            >
               <NuxtImg
                 src="/images/icons/SignInWhite.svg"
                 alt="Clock In"
@@ -138,7 +171,10 @@ const isModalOpen = ref(false);
               {{ TEXT.clockIn }}
             </ButtonComponent>
 
-            <ButtonComponent class="flex-1">
+            <ButtonComponent
+              class="min-w-max flex-1"
+              @click="handleAbsen('absenKeluar')"
+            >
               {{ TEXT.clockOut }}
               <NuxtImg
                 src="/images/icons/SignOutWhite.svg"
@@ -179,6 +215,36 @@ const isModalOpen = ref(false);
           </div>
         </div>
       </div>
+
+      <ModalConfirmComponent
+        :is-open="isModalAbsenConfirm"
+        :title="
+          isModalAbsenConfirmType === 'absenMasuk'
+            ? TEXT.konfirmasiAbsenMasuk
+            : TEXT.konfirmasiAbsenKeluar
+        "
+        :buttons="[
+          {
+            variant: 'primary',
+            text:
+              isModalAbsenConfirmType === 'absenMasuk'
+                ? TEXT.yaAbsenMasuk
+                : TEXT.yaAbsenKeluar,
+          },
+          {
+            variant: 'secondary',
+            text:
+              isModalAbsenConfirmType === 'absenMasuk'
+                ? TEXT.batal
+                : TEXT.batal,
+          },
+        ]"
+        @confirm="handleCloseModalAbsenConfirm"
+        @cancel="handleCloseModalAbsenConfirm"
+        @close="handleCloseModalAbsenConfirm"
+      >
+        <div>{{ TEXT.apakahAndaYakinInginMelakukanAbsen }}</div>
+      </ModalConfirmComponent>
 
       <ModalBottomComponent
         :title="TEXT.semuaMenu"
