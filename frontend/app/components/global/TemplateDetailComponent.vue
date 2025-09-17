@@ -21,7 +21,7 @@ const emit = defineEmits(["back"]);
   <Transition name="fade" mode="out-in" appear>
     <div
       class="mx-auto"
-      :class="isFullWidth ? 'w-full max-w-5xl' : 'w-full max-w-[767px]'"
+      :class="isFullWidth ? 'w-full max-w-5xl' : 'w-full max-w-[1027px]'"
     >
       <div
         class="relative h-[260px] w-full bg-gradient-to-l from-[#FDFFFF42] to-[#C6F0F395]"

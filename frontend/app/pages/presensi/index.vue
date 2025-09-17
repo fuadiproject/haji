@@ -2,7 +2,13 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import { TEXT } from "@/constants/text";
 
-const { requestLocationPermission } = useLocationPermission();
+const {
+  isModalAbsenConfirm,
+  isModalAbsenConfirmType,
+  handleAbsen,
+  handleCloseModalAbsenConfirm,
+  handleConfirmAbsen,
+} = useActionPresensi();
 
 const isEmpty = ref(false);
 const maxJamDatangHariIni = ref("08:00");
@@ -10,8 +16,6 @@ const maxJamPulangHariIni = ref("17:00");
 const jamDatangHariIni = ref("08:30");
 const jamPulangHariIni = ref("17:00");
 const persenPemotongan = ref("106.0");
-const isModalAbsenConfirm = ref(false);
-const isModalAbsenConfirmType = ref("absenMasuk");
 
 const handleBack = () => {
   navigateTo("/");
@@ -43,31 +47,6 @@ const updateTime = () => {
 
   currentTime.value = timeString;
   currentDate.value = dateString;
-};
-
-const handleAbsen = (type) => {
-  requestLocationPermission((permission, position) => {
-    if (permission) {
-      if (type === "absenMasuk") {
-        isModalAbsenConfirm.value = true;
-        isModalAbsenConfirmType.value = "absenMasuk";
-        console.log("Latitude:", position?.coords?.latitude);
-        console.log("Longitude:", position?.coords?.longitude);
-      } else {
-        isModalAbsenConfirm.value = true;
-        isModalAbsenConfirmType.value = "absenKeluar";
-        console.log("Latitude:", position?.coords?.latitude);
-        console.log("Longitude:", position?.coords?.longitude);
-      }
-    } else {
-      console.log("Location permission denied");
-    }
-  });
-};
-
-const handleCloseModalAbsenConfirm = () => {
-  isModalAbsenConfirm.value = false;
-  isModalAbsenConfirmType.value = "";
 };
 
 onMounted(() => {
@@ -298,7 +277,7 @@ onUnmounted(() => {
             isModalAbsenConfirmType === 'absenMasuk' ? TEXT.batal : TEXT.batal,
         },
       ]"
-      @confirm="handleCloseModalAbsenConfirm"
+      @confirm="handleConfirmAbsen(isModalAbsenConfirmType)"
       @cancel="handleCloseModalAbsenConfirm"
       @close="handleCloseModalAbsenConfirm"
     >

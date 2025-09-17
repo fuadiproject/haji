@@ -1,12 +1,6 @@
-<template>
-  <AuthLoaderComponent />
-  <ServiceWorkerStatusComponent />
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
-</template>
-
 <script setup>
+const toaster = { duration: 3000, position: "top-right" };
+
 // PWA Meta Tags
 useHead({
   title: "Kementerian Haji dan Umrah App",
@@ -53,3 +47,13 @@ useHead({
 // Notification Permission
 useNotificationPermission();
 </script>
+
+<template>
+  <UApp :toaster="toaster">
+    <AuthLoaderComponent />
+    <ServiceWorkerStatusComponent />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+  </UApp>
+</template>

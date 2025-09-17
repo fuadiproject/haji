@@ -16,6 +16,12 @@ export default defineNuxtConfig({
   ui: {
     colorMode: false,
   },
+  runtimeConfig: {
+    public: {
+      apiBaseUrl: process.env.API_BASE_URL,
+      apiBphUrl: process.env.API_BPH_URL,
+    },
+  },
   pwa: {
     registerType: "autoUpdate",
     workbox: {
