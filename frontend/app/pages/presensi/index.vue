@@ -1,6 +1,7 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref } from "vue";
 import { TEXT } from "@/constants/text";
+import HistoryPresensiComponent from "@/components/presensi/HistoryPresensiComponent.vue";
 
 const {
   isModalAbsenConfirm,
@@ -10,6 +11,8 @@ const {
   handleConfirmAbsen,
 } = useActionPresensi();
 
+const { currentTime, currentDate } = useRealtimeClock();
+
 const isEmpty = ref(false);
 const maxJamDatangHariIni = ref("08:00");
 const maxJamPulangHariIni = ref("17:00");
@@ -17,48 +20,11 @@ const jamDatangHariIni = ref("08:30");
 const jamPulangHariIni = ref("17:00");
 const persenPemotongan = ref("106.0");
 
+const isModalHistoryPresensiOpen = ref(false);
+
 const handleBack = () => {
   navigateTo("/");
 };
-
-// Real-time clock functionality
-const currentTime = ref("");
-const currentDate = ref("");
-let timeInterval = null;
-
-const updateTime = () => {
-  const now = new Date();
-
-  // Format time (HH:MM:SS)
-  const timeString = now.toLocaleTimeString("en-US", {
-    hour12: false,
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-
-  // Format date (Hari, DD MMM YYYY)
-  const dateString = now.toLocaleDateString("id-ID", {
-    weekday: "long",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-
-  currentTime.value = timeString;
-  currentDate.value = dateString;
-};
-
-onMounted(() => {
-  updateTime();
-  timeInterval = setInterval(updateTime, 1000);
-});
-
-onUnmounted(() => {
-  if (timeInterval) {
-    clearInterval(timeInterval);
-  }
-});
 </script>
 
 <template>
@@ -150,7 +116,10 @@ onUnmounted(() => {
           </p>
         </div>
 
-        <button class="text-primary-main text-sm font-semibold">
+        <button
+          class="text-primary-main text-sm font-semibold"
+          @click="isModalHistoryPresensiOpen = true"
+        >
           {{ TEXT.lihatSemua }}
         </button>
       </div>
@@ -203,10 +172,6 @@ onUnmounted(() => {
                   >{{ jamDatangHariIni }}</span
                 >
               </div>
-              <!-- <UIcon
-                name="ph:caret-right-bold"
-                class="text-neutral-5 h-4 w-4"
-              /> -->
             </div>
           </CardComponent>
 
@@ -242,10 +207,6 @@ onUnmounted(() => {
                   >{{ jamPulangHariIni }}</span
                 >
               </div>
-              <!-- <UIcon
-                name="ph:caret-right-bold"
-                class="text-neutral-5 h-4 w-4"
-              /> -->
             </div>
           </CardComponent>
         </div>
@@ -279,5 +240,14 @@ onUnmounted(() => {
     >
       <div>{{ TEXT.apakahAndaYakinInginMelakukanAbsen }}</div>
     </ModalConfirmComponent>
+
+    <ModalBottomComponent
+      :is-open="isModalHistoryPresensiOpen"
+      :title="TEXT.riwayatKehadiran"
+      :is-full-height="true"
+      @close="isModalHistoryPresensiOpen = false"
+    >
+      <HistoryPresensiComponent />
+    </ModalBottomComponent>
   </TemplateDetailComponent>
 </template>

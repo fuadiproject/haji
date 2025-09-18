@@ -52,4 +52,9 @@ export const TEXT = {
   ubahKataSandi: "Ubah Kata Sandi",
   pengingatPresensi: "Pengingat Presensi",
   bahasa: "Bahasa",
+  pemotongan: "Pemotongan",
+  memuatData: "Memuat data...",
+  cobaLagi: "Coba Lagi",
+  tidakAdaDataKehadiranUntukBulanIni:
+    "Tidak ada data kehadiran untuk bulan ini",
 };
