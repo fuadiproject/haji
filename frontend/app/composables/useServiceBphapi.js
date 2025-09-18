@@ -57,10 +57,21 @@ export const useServiceBphapi = () => {
     });
   };
 
+  const rekapPotongan = async () => {
+    return $fetch(`${BASE_URL}/attendance/rekap-potongan`, {
+      headers: {
+        Authorization: `${jwtToken.value}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
   return {
     login,
     checkIn,
     checkOut,
     history,
+    rekapPotongan,
   };
 };
