@@ -65,6 +65,7 @@ model Hyperlink {
   id         String   @id @default(cuid())
   title      String
   link       String
+  logo       String?
   is_active  Boolean  @default(true)
   created_by String? // FK -> User.nip
   updated_by String? // FK -> User.nip

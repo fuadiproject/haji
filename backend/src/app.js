@@ -1,6 +1,7 @@
 import express from "express";
 import fileRoutes from "./routes/fileRoutes.js";
 import bannerRoutes from "./routes/bannerRoutes.js";
+import hyperlinkRoutes from "./routes/hyperlinkRoutes.js";
 import response from "./utils/response.js";
 
 const app = express();
@@ -9,6 +10,7 @@ app.use(express.json());
 
 app.use("/api/files", fileRoutes);
 app.use("/api/banners", bannerRoutes);
+app.use("/api/hyperlinks", hyperlinkRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {
