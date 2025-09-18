@@ -3,6 +3,8 @@ import { ref } from "vue";
 import { TEXT } from "@/constants/text";
 import HistoryPresensiComponent from "@/components/presensi/HistoryPresensiComponent.vue";
 
+const bphapiService = useServiceBphapi();
+
 const {
   isModalAbsenConfirm,
   isModalAbsenConfirmType,
@@ -18,9 +20,26 @@ const maxJamDatangHariIni = ref("08:00");
 const maxJamPulangHariIni = ref("17:00");
 const jamDatangHariIni = ref("08:30");
 const jamPulangHariIni = ref("17:00");
-const persenPemotongan = ref("106.0");
-
 const isModalHistoryPresensiOpen = ref(false);
+
+const { data: rekapPotonganData } = await useAsyncData(
+  computed(() => `rekap-potongan`),
+  async () => {
+    const response = await bphapiService.rekapPotongan();
+    return response || null;
+  },
+  {
+    default: () => null,
+    transform: (data) => data || null,
+    server: false,
+    lazy: true,
+  },
+);
+
+const persenPemotongan = computed(() => {
+  if (!rekapPotonganData.value) return "0";
+  return rekapPotonganData.value?.data?.[0]?.persen_pemotongan ?? "0";
+});
 
 const handleBack = () => {
   navigateTo("/");
