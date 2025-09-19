@@ -10,6 +10,10 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  isFullHeight: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(["close", "update:isOpen"]);
@@ -107,7 +111,10 @@ watch(
         <div
           ref="modalRef"
           class="relative flex h-[75vh] max-h-[75vh] w-full max-w-[1027px] transform flex-col rounded-t-2xl bg-white shadow-2xl transition-transform duration-150 ease-out sm:h-[75vh] sm:max-h-[75vh] md:h-[85vh] md:max-h-[85vh]"
-          :class="{ 'translate-y-full': isClosing }"
+          :class="{
+            'translate-y-full': isClosing,
+            '!h-[95vh] !max-h-[95vh]': isFullHeight,
+          }"
           @click.stop
         >
           <!-- Handle bar untuk indikator drag -->
