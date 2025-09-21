@@ -6,7 +6,10 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon index.js",
+    "dev:consumer": "nodemon index.js --consumer",
     "start": "node index.js",
+    "start:consumer": "node index.js --consumer",
+    "start:api": "node index.js --mode=api",
     "prisma": "prisma",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -14,7 +17,7 @@
     "test:unit": "jest tests/unit",
     "test:integration": "jest tests/integration",
     "test:controller": "jest tests/unit/fileController.test.js",
-    "test:flow": "jest tests/integration/fileFlow.test.js",    
+    "test:flow": "jest tests/integration/fileFlow.test.js",
     "seed": "node prisma/seed.js",
     "seed:test": "node prisma/seed-test.js",
     "seed:ref": "node prisma/seed-ref.js",
@@ -35,6 +38,7 @@
     "express": "^5.1.0",
     "jsdom": "^26.1.0",
     "jsonwebtoken": "^9.0.2",
+    "kafkajs": "^2.2.4",
     "multer": "^2.0.2",
     "multer-s3": "^3.0.1"
   },
