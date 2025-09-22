@@ -1,5 +1,5 @@
-import prisma from "../utils/prisma";
-import { BaseModel } from "./BaseModel";
+import prisma from "../utils/prisma.js";
+import { BaseModel } from "./BaseModel.js";
 
 /**
  * @typedef {class} NotificationModel
@@ -10,6 +10,8 @@ import { BaseModel } from "./BaseModel";
  * @property {(userId: string) => Promise<import('@prisma/client').Notification[]>} getNotificationByUserId - Get notification by user ID
  * @property {(id: string) => Promise<import('@prisma/client').Notification>} getNotificationById - Get notification by ID
  * @property {(id: string, data: import('@prisma/client').Notification) => Promise<import('@prisma/client').Notification>} updateNotification - Update notification
+ * @property {(page: number, limit: number, search: string, type: string, userId: string) => Promise<{data: import('@prisma/client').Notification[], total: number, totalPages: number}>} getAllNotifications - Get all notifications with pagination
+ * @property {(id: string) => Promise<import('@prisma/client').Notification>} deleteNotification - Delete notification
  */
 class NotificationModel extends BaseModel {
   constructor(prisma) {
@@ -50,6 +52,44 @@ class NotificationModel extends BaseModel {
   }
 
   /**
+   * Get all notifications with pagination
+   * @param {number} page
+   * @param {number} limit
+   * @param {string} search
+   * @param {string} type
+   * @param {string} userId
+   * @returns {Promise<{data: import('@prisma/client').Notification[], total: number, totalPages: number}>}
+   */
+  async getAllNotifications(
+    page = 1,
+    limit = 10,
+    search = "",
+    type = "",
+    userId = ""
+  ) {
+    const whereConditions = {
+      AND: [
+        search
+          ? {
+              OR: [
+                { title: { contains: search, mode: "insensitive" } },
+                { message: { contains: search, mode: "insensitive" } },
+              ],
+            }
+          : {},
+        type ? { type } : {},
+        userId ? { userId } : {},
+      ].filter((condition) => Object.keys(condition).length > 0),
+    };
+
+    return await this.paginate(
+      page,
+      limit,
+      whereConditions.AND.length > 0 ? whereConditions : {}
+    );
+  }
+
+  /**
    * Update notification
    * @param {string} id
    * @param {import('@prisma/client').Notification} data
@@ -59,6 +99,17 @@ class NotificationModel extends BaseModel {
     return await this.update({
       where: { id },
       data: { ...data },
+    });
+  }
+
+  /**
+   * Delete notification
+   * @param {string} id
+   * @returns {Promise<import('@prisma/client').Notification>}
+   */
+  async deleteNotification(id) {
+    return await this.delete({
+      where: { id },
     });
   }
 }

@@ -94,13 +94,12 @@ model User {
   version    Int       @default(1)
 
   // Relations
-  createdFiles      File[]         @relation("UserCreatedFile")
-  updatedFiles      File[]         @relation("UserUpdatedFile")
-  createdBanners    Banner[]       @relation("UserCreatedBanner")
-  updatedBanners    Banner[]       @relation("UserUpdatedBanner")
-  createdHyperlinks Hyperlink[]    @relation("UserCreatedHyperlink")
-  updatedHyperlinks Hyperlink[]    @relation("UserUpdatedHyperlink")
-  Notification      Notification[]
+  createdFiles      File[]      @relation("UserCreatedFile")
+  updatedFiles      File[]      @relation("UserUpdatedFile")
+  createdBanners    Banner[]    @relation("UserCreatedBanner")
+  updatedBanners    Banner[]    @relation("UserUpdatedBanner")
+  createdHyperlinks Hyperlink[] @relation("UserCreatedHyperlink")
+  updatedHyperlinks Hyperlink[] @relation("UserUpdatedHyperlink")
 
   @@index([created_by])
   @@index([updated_by])
@@ -115,9 +114,6 @@ model Notification {
   data       Json
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-
-  // Relations
-  user User? @relation(fields: [userId], references: [nip])
 
   @@index([userId])
   @@index([created_at])

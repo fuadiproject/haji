@@ -1,7 +1,7 @@
 import { Kafka } from "kafkajs";
-import { getMessageHandlers } from "./messageHandlers";
+import { getMessageHandlers } from "./messageHandlers.js";
 
-export class NotificationConsumers {
+export class NotificationConsumer {
   constructor(config = {}) {
     this.kafka = new Kafka({
       clientId:
@@ -37,9 +37,10 @@ export class NotificationConsumers {
     console.log("🔔 Notification consumer started");
 
     await this.consumer.run({
-      eachMessage: async ({ topic, partition, message }) => {
+      eachMessage: async ({ topic, message }) => {
         try {
           const data = JSON.parse(message.value.toString());
+
           console.log(`📨 Received from ${topic}:`, data);
 
           const handler = this.handlers[topic];

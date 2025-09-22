@@ -1,21 +1,20 @@
-import notificationModel from "../models/notificationModel";
+import notificationModel from "../models/notificationModel.js";
 
 export async function handleNotificationRequest(data) {
-  console.log("🔔 Processing notification request:", data.notification_id);
+  console.log("🔔 Processing notification request:", data);
 
   try {
-    // Your notification processing logic
-    const notification = await notificationModel.createNotification({
-      data: {
-        id: data.notification_id,
-        type: data.type,
-        title: data.title,
-        message: data.message,
-        userId: data.user_id,
-        data: data.data || {},
-      },
-    });
+    const notificationData = {
+      type: data.type,
+      title: data.title,
+      message: data.message,
+      userId: data.userId,
+      data: data || {},
+    };
 
+    const notification = await notificationModel.createNotification(
+      notificationData
+    );
     console.log("✅ Notification processed:", notification.id);
   } catch (error) {
     console.error("❌ Failed to process notification:", error);
