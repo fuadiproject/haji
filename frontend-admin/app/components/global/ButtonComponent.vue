@@ -9,7 +9,7 @@ defineProps({
 
 <template>
   <button
-    class="flex items-center justify-center gap-2 rounded-md px-3.5 py-2.5 text-sm leading-4 font-semibold text-white disabled:opacity-50"
+    class="flex items-center justify-center gap-2 rounded-md px-3.5 py-2.5 text-sm leading-4 font-semibold text-white disabled:opacity-50 cursor-pointer"
     :class="
       variant === 'outline'
         ? 'border-neutral-6 text-gray-5 border'

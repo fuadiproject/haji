@@ -3,6 +3,11 @@ import { ref } from "vue";
 import { TEXT } from "@/constants/text";
 import HistoryPresensiComponent from "@/components/presensi/HistoryPresensiComponent.vue";
 
+definePageMeta({
+  title: "Presensi",
+  description: "Pantau kehadiran dan absensi pegawai",
+});
+
 const bphapiService = useServiceBphapi();
 
 const {
@@ -41,102 +46,171 @@ const persenPemotongan = computed(() => {
   return rekapPotonganData.value?.data?.[0]?.persen_pemotongan ?? "0";
 });
 
-const handleBack = () => {
-  navigateTo("/");
-};
+// Mock attendance stats
+const attendanceStats = ref([
+  {
+    title: "Hadir Hari Ini",
+    value: "1,156",
+    total: "1,234",
+    percentage: 94,
+    icon: "ph:check-circle",
+    color: "green",
+  },
+  {
+    title: "Terlambat",
+    value: "23",
+    total: "1,234",
+    percentage: 2,
+    icon: "ph:clock",
+    color: "yellow",
+  },
+  {
+    title: "Tidak Hadir",
+    value: "55",
+    total: "1,234",
+    percentage: 4,
+    icon: "ph:x-circle",
+    color: "red",
+  },
+  {
+    title: "Izin/Cuti",
+    value: "31",
+    total: "1,234",
+    percentage: 3,
+    icon: "ph:calendar-x",
+    color: "blue",
+  },
+]);
 </script>
 
 <template>
-  <TemplateDetailComponent
-    variant="not-default"
-    :title="TEXT.presensi"
-    @back="handleBack"
-  >
-    <div class="flex w-full flex-col items-center justify-center gap-3">
-      <div class="text-neutral-7 text-base font-semibold">
-        {{ TEXT.laporanKehadiran }}
+  <div class="space-y-6">
+    <!-- Current Time Section -->
+    <div
+      class="from-primary-main to-primary-main/80 rounded-lg bg-gradient-to-r p-6 text-white"
+    >
+      <div class="flex items-center justify-between">
+        <div class="flex-1 text-center">
+          <div class="mb-2 text-sm opacity-90">{{ TEXT.laporanKehadiran }}</div>
+          <div class="mb-2 text-4xl font-bold">{{ currentTime }}</div>
+          <div class="text-base opacity-90">{{ currentDate }}</div>
+        </div>
+        <NuxtImg
+          src="/images/reminder-image.svg"
+          alt="Clock Image"
+          class="h-20 w-20"
+        />
       </div>
 
-      <div class="text-primary-main text-[40px] leading-10 font-bold">
-        {{ currentTime }}
-      </div>
+      <!-- Personal Attendance Actions -->
+      <div class="mt-6 rounded-lg bg-white/10 p-4">
+        <div class="mb-4 flex items-center justify-between">
+          <div>
+            <p class="text-sm opacity-90">{{ TEXT.jadwalKerja }}:</p>
+            <p class="font-semibold">
+              {{ TEXT.stafKhusus }}: {{ TEXT.stafKhususDescription }}
+            </p>
+          </div>
+          <div class="text-right text-sm">
+            <div class="opacity-90">{{ TEXT.persenPemotongan }}:</div>
+            <div class="text-secondary-main font-bold">
+              {{ persenPemotongan }}%
+            </div>
+          </div>
+        </div>
 
-      <div class="text-neutral-6 text-base font-normal">
-        {{ currentDate }}
+        <div class="flex gap-4">
+          <ButtonComponent
+            class="text-primary-main flex-1 bg-white hover:bg-gray-50"
+            @click="handleAbsen('absenMasuk')"
+          >
+            <NuxtImg
+              src="/images/icons/SignIn.svg"
+              alt="Clock In"
+              class="h-4 w-4"
+            />
+            {{ TEXT.clockIn }}
+          </ButtonComponent>
+
+          <ButtonComponent
+            class="flex-1 bg-white/20 text-white hover:bg-white/30"
+            @click="handleAbsen('absenKeluar')"
+          >
+            {{ TEXT.clockOut }}
+            <NuxtImg
+              src="/images/icons/SignOutWhite.svg"
+              alt="Clock Out"
+              class="h-4 w-4"
+            />
+          </ButtonComponent>
+        </div>
       </div>
     </div>
 
-    <div class="bg-neutral-8 mt-6 flex flex-col gap-4 rounded-xl p-4">
-      <div class="flex flex-col items-center gap-2">
-        <p class="text-neutral-6 text-sm leading-4 font-medium">
-          {{ TEXT.jadwalKerja }}:
-        </p>
-        <p class="text-neutral-7 text-base font-semibold">
-          {{ TEXT.stafKhusus }}: {{ TEXT.stafKhususDescription }}
-        </p>
-      </div>
-
+    <!-- Attendance Statistics -->
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
       <div
-        class="flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-2"
+        v-for="stat in attendanceStats"
+        :key="stat.title"
+        class="border-neutral-9 rounded-lg border bg-white p-6 shadow-sm"
       >
-        <ButtonComponent
-          class="min-w-fit flex-1 text-xs"
-          @click="handleAbsen('absenMasuk')"
-        >
-          <NuxtImg
-            src="/images/icons/SignInWhite.svg"
-            alt="Clock In"
-            class="h-3 w-3"
-          />
-          {{ TEXT.clockIn }}
-        </ButtonComponent>
-
-        <ButtonComponent
-          class="min-w-fit flex-1 text-xs"
-          @click="handleAbsen('absenKeluar')"
-        >
-          {{ TEXT.clockOut }}
-          <NuxtImg
-            src="/images/icons/SignOutWhite.svg"
-            alt="Clock Out"
-            class="h-3 w-3"
-          />
-        </ButtonComponent>
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <div class="flex items-center gap-2">
-          <UIcon name="ph:info-bold" class="text-neutral-6 h-4 w-4" />
-          <p class="text-neutral-6 text-xs leading-4">
-            {{ TEXT.infoKehadiran }}
-          </p>
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-subtitle text-sm font-medium">
+              {{ stat.title }}
+            </p>
+            <p class="text-gray-title text-2xl font-bold">{{ stat.value }}</p>
+            <p class="text-gray-4 text-xs">dari {{ stat.total }} pegawai</p>
+          </div>
+          <div
+            :class="{
+              'bg-green-100': stat.color === 'green',
+              'bg-yellow-100': stat.color === 'yellow',
+              'bg-red-100': stat.color === 'red',
+              'bg-blue-100': stat.color === 'blue',
+            }"
+            class="rounded-lg p-3"
+          >
+            <UIcon
+              :name="stat.icon"
+              :class="{
+                'text-green-600': stat.color === 'green',
+                'text-yellow-600': stat.color === 'yellow',
+                'text-red-600': stat.color === 'red',
+                'text-blue-600': stat.color === 'blue',
+              }"
+              class="h-6 w-6"
+            />
+          </div>
         </div>
-        <div class="flex items-center gap-2">
-          <UIcon name="ph:percent-bold" class="text-primary-main h-4 w-4" />
-          <p class="text-neutral-6 text-xs leading-4 font-medium">
-            {{ TEXT.persenPemotongan }}:
-          </p>
-          <p class="text-primary-main text-xs font-semibold">
-            {{ persenPemotongan }}%
-          </p>
+        <div class="mt-4">
+          <div class="flex items-center justify-between">
+            <span class="text-gray-4 text-sm">{{ stat.percentage }}%</span>
+            <div class="bg-neutral-9 h-2 w-20 rounded-full">
+              <div
+                :class="{
+                  'bg-green-600': stat.color === 'green',
+                  'bg-yellow-600': stat.color === 'yellow',
+                  'bg-red-600': stat.color === 'red',
+                  'bg-blue-600': stat.color === 'blue',
+                }"
+                class="h-2 rounded-full transition-all duration-300"
+                :style="{ width: stat.percentage + '%' }"
+              ></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="mt-6 flex flex-col gap-2.5">
-      <div class="flex items-center justify-between gap-2 p-2">
-        <div class="flex items-center gap-2">
-          <UIcon
-            name="ph:clock-counter-clockwise-bold"
-            class="text-neutral-7 h-5 w-5"
-          />
-          <p class="text-neutral-7 text-base leading-4 font-semibold">
-            {{ TEXT.riwayatKehadiran }}
-          </p>
-        </div>
-
+    <!-- Personal Attendance History -->
+    <div class="border-neutral-9 rounded-lg border bg-white p-6 shadow-sm">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-gray-title text-lg font-semibold">
+          {{ TEXT.riwayatKehadiran }} Anda
+        </h2>
         <button
-          class="text-primary-main text-sm font-semibold"
+          class="text-primary-main hover:text-primary-main/80 text-sm font-semibold"
           @click="isModalHistoryPresensiOpen = true"
         >
           {{ TEXT.lihatSemua }}
@@ -145,93 +219,104 @@ const handleBack = () => {
 
       <div
         v-if="isEmpty"
-        class="flex h-50 w-full flex-col items-center justify-center gap-4"
+        class="flex flex-col items-center justify-center py-12"
       >
         <NuxtImg
           src="/images/empty-image.svg"
           alt="Empty State"
-          class="h-20 w-20"
+          class="mb-4 h-20 w-20"
         />
-        <p class="text-neutral-6 text-sm leading-4">
-          {{ TEXT.belumAdaDataKehadiranHariIni }}
-        </p>
+        <p class="text-gray-4">{{ TEXT.belumAdaDataKehadiranHariIni }}</p>
       </div>
 
-      <div v-else>
-        <div class="flex flex-col gap-4">
-          <CardComponent class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
+      <div v-else class="space-y-4">
+        <CardComponent class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="rounded-lg bg-green-100 p-2">
               <NuxtImg
                 src="/images/icons/SignIn.svg"
                 alt="Clock In"
-                class="h-6 w-6"
+                class="h-5 w-5"
               />
-              <p
-                class="text-neutral-7 text-sm leading-4 font-semibold tracking-wide"
-              >
-                {{ TEXT.clockIn }}
-              </p>
             </div>
-            <div class="flex items-center gap-2">
-              <div
-                class="bg-neutral-2 flex items-center gap-2 rounded-lg px-3 py-2"
-              >
-                <UIcon
-                  name="ph:clock-bold"
-                  class="h-5 w-5 text-gray-600"
-                  :class="{
-                    'text-red-500': jamDatangHariIni > maxJamDatangHariIni,
-                  }"
-                />
-                <span
-                  class="text-sm font-medium text-gray-600"
-                  :class="{
-                    'text-red-500': jamDatangHariIni > maxJamDatangHariIni,
-                  }"
-                  >{{ jamDatangHariIni }}</span
-                >
-              </div>
+            <div>
+              <p class="text-gray-title font-semibold">{{ TEXT.clockIn }}</p>
+              <p class="text-gray-4 text-sm">Hari ini</p>
             </div>
-          </CardComponent>
+          </div>
+          <div class="text-right">
+            <div
+              class="bg-neutral-2 flex items-center gap-2 rounded-lg px-3 py-2"
+            >
+              <UIcon
+                name="ph:clock-bold"
+                class="h-4 w-4"
+                :class="{
+                  'text-red-500': jamDatangHariIni > maxJamDatangHariIni,
+                  'text-gray-600': jamDatangHariIni <= maxJamDatangHariIni,
+                }"
+              />
+              <span
+                class="text-sm font-medium"
+                :class="{
+                  'text-red-500': jamDatangHariIni > maxJamDatangHariIni,
+                  'text-gray-600': jamDatangHariIni <= maxJamDatangHariIni,
+                }"
+              >
+                {{ jamDatangHariIni }}
+              </span>
+            </div>
+            <p
+              v-if="jamDatangHariIni > maxJamDatangHariIni"
+              class="mt-1 text-xs text-red-500"
+            >
+              Terlambat
+            </p>
+          </div>
+        </CardComponent>
 
-          <CardComponent class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
+        <CardComponent class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="rounded-lg bg-blue-100 p-2">
               <NuxtImg
                 src="/images/icons/SignOut.svg"
                 alt="Clock Out"
-                class="h-6 w-6"
+                class="h-5 w-5"
               />
-              <p
-                class="text-neutral-7 text-sm leading-4 font-semibold tracking-wide"
-              >
-                {{ TEXT.clockOut }}
-              </p>
             </div>
-            <div class="flex items-center gap-2">
-              <div
-                class="bg-neutral-2 flex items-center gap-2 rounded-lg px-3 py-2"
-              >
-                <UIcon
-                  name="ph:clock-bold"
-                  class="h-5 w-5 text-gray-600"
-                  :class="{
-                    'text-red-500': jamPulangHariIni < maxJamPulangHariIni,
-                  }"
-                />
-                <span
-                  class="text-sm font-medium text-gray-600"
-                  :class="{
-                    'text-red-500': jamPulangHariIni < maxJamPulangHariIni,
-                  }"
-                  >{{ jamPulangHariIni }}</span
-                >
-              </div>
+            <div>
+              <p class="text-gray-title font-semibold">{{ TEXT.clockOut }}</p>
+              <p class="text-gray-4 text-sm">Hari ini</p>
             </div>
-          </CardComponent>
-        </div>
+          </div>
+          <div class="text-right">
+            <div
+              class="bg-neutral-2 flex items-center gap-2 rounded-lg px-3 py-2"
+            >
+              <UIcon
+                name="ph:clock-bold"
+                class="h-4 w-4"
+                :class="{
+                  'text-red-500': jamPulangHariIni < maxJamPulangHariIni,
+                  'text-gray-600': jamPulangHariIni >= maxJamPulangHariIni,
+                }"
+              />
+              <span
+                class="text-sm font-medium"
+                :class="{
+                  'text-red-500': jamPulangHariIni < maxJamPulangHariIni,
+                  'text-gray-600': jamPulangHariIni >= maxJamPulangHariIni,
+                }"
+              >
+                {{ jamPulangHariIni }}
+              </span>
+            </div>
+          </div>
+        </CardComponent>
       </div>
     </div>
 
+    <!-- Modals -->
     <ModalConfirmComponent
       :is-open="isModalAbsenConfirm"
       :title="
@@ -249,8 +334,7 @@ const handleBack = () => {
         },
         {
           variant: 'secondary',
-          text:
-            isModalAbsenConfirmType === 'absenMasuk' ? TEXT.batal : TEXT.batal,
+          text: TEXT.batal,
         },
       ]"
       @confirm="handleConfirmAbsen(isModalAbsenConfirmType)"
@@ -268,5 +352,5 @@ const handleBack = () => {
     >
       <HistoryPresensiComponent />
     </ModalBottomComponent>
-  </TemplateDetailComponent>
+  </div>
 </template>
