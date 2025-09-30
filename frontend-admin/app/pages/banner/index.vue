@@ -15,6 +15,7 @@ const itemToEdit = ref(null);
 const formData = ref({
   judul: "",
   deskripsi: "",
+  link: "",
   files: [],
 });
 
@@ -22,6 +23,7 @@ const formData = ref({
 const editFormData = ref({
   judul: "",
   deskripsi: "",
+  link: "",
   files: [],
 });
 
@@ -544,6 +546,27 @@ const handleAddImage = (item) => {
           />
           <p v-if="formErrors.deskripsi" class="mt-1 text-sm text-red-600">
             {{ formErrors.deskripsi }}
+          </p>
+        </div>
+
+        <div>
+          <label
+            for="link"
+            class="mb-2 block text-sm font-medium text-gray-700"
+          >
+            Link Banner (Opsional)
+          </label>
+          <UInput
+            id="link"
+            v-model="formData.link"
+            type="text"
+            placeholder="Masukkan link banner..."
+            size="lg"
+            :color="formErrors.link ? 'red' : 'primary'"
+            class="w-full"
+          />
+          <p v-if="formErrors.link" class="mt-1 text-sm text-red-600">
+            {{ formErrors.link }}
           </p>
         </div>
 
