@@ -10,11 +10,15 @@ const mode =
 // Or check for specific flags
 const isConsumer = args.includes("--consumer");
 
+// Parse port from command line arguments
+const portArg = args.find((arg) => arg.startsWith("--port="));
+const customPort = portArg ? parseInt(portArg.split("=")[1]) : null;
+
 async function main() {
   if (isConsumer || mode === "consumer") {
     await runConsumer();
   } else {
-    await runApi();
+    await runApi(customPort);
   }
 }
 
