@@ -7,6 +7,7 @@ services:
       args:
         - API_BASE_URL=${API_BASE_URL}
         - API_BPH_URL=${API_BPH_URL}
+        - API_SURAT_URL=${API_SURAT_URL}
     ports:
       - "8080:3000"
     env_file:
@@ -15,6 +16,7 @@ services:
       - NODE_ENV=production
       - API_BASE_URL=${API_BASE_URL}
       - API_BPH_URL=${API_BPH_URL}
+      - API_SURAT_URL=${API_SURAT_URL}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "--version"]
