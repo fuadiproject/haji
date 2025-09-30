@@ -1,5 +1,5 @@
 <script setup>
-import { TEXT } from "~/constants/text";
+import { TEXT } from "@/constants/text";
 </script>
 
 <template>
