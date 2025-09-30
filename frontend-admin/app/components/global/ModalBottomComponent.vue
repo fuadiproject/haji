@@ -90,8 +90,8 @@ watch(
 </script>
 
 <template>
-  <Teleport to="body">
-    <Transition
+   <Teleport to="body"
+    > <Transition
       enter-active-class="transition-all duration-150 ease-out"
       leave-active-class="transition-all duration-150 ease-in"
       enter-from-class="opacity-0"
@@ -99,7 +99,7 @@ watch(
       leave-from-class="opacity-100"
       leave-to-class="opacity-0"
       appear
-    >
+      >
       <div
         v-if="isOpen"
         class="bg-opacity-50 fixed inset-0 z-50 flex items-end justify-center"
@@ -108,6 +108,7 @@ watch(
         @touchmove="handleTouchMove"
         @touchend="handleTouchEnd"
       >
+
         <div
           ref="modalRef"
           class="relative flex h-[75vh] max-h-[75vh] w-full max-w-[1027px] transform flex-col rounded-t-2xl bg-white shadow-2xl transition-transform duration-150 ease-out sm:h-[75vh] sm:max-h-[75vh] md:h-[85vh] md:max-h-[85vh]"
@@ -117,33 +118,36 @@ watch(
           }"
           @click.stop
         >
-          <!-- Handle bar untuk indikator drag -->
+           <!-- Handle bar untuk indikator drag -->
           <div
             class="flex cursor-grab justify-center py-3 pb-2 select-none active:cursor-grabbing"
             @touchstart="handleTouchStart"
             @touchmove="handleTouchMove"
             @touchend="handleTouchEnd"
           >
-            <div class="h-1 w-10 rounded-full bg-gray-300"></div>
-          </div>
 
-          <!-- Header dengan tombol close -->
+            <div class="h-1 w-10 rounded-full bg-gray-300"></div>
+
+          </div>
+           <!-- Header dengan tombol close -->
           <div
             class="flex items-center justify-between border-b border-gray-100 px-4 pb-2 sm:px-5 sm:pb-2.5"
           >
+
             <p class="text-gray-5 text-base font-medium">{{ title }}</p>
-            <button
+             <button
               class="flex cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-2 text-gray-500 transition-all duration-200 hover:bg-gray-100 hover:text-gray-700 active:scale-95"
               aria-label="Tutup modal"
               @click="closeModal"
             >
-              <svg
+               <svg
                 width="24"
                 height="24"
                 viewBox="0 0 24 24"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
+
                 <path
                   d="M18 6L6 18M6 6L18 18"
                   stroke="currentColor"
@@ -151,20 +155,23 @@ watch(
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 />
-              </svg>
-            </button>
+                 </svg
+              > </button
+            >
           </div>
-
-          <!-- Content area -->
+           <!-- Content area -->
           <div
             class="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 flex-1 overflow-y-auto p-4 sm:p-5"
           >
-            <slot></slot>
+             <slot></slot>
           </div>
+
         </div>
+
       </div>
-    </Transition>
-  </Teleport>
+       </Transition
+    > </Teleport
+  >
 </template>
 
 <style scoped>
@@ -186,3 +193,4 @@ watch(
   background-color: #9ca3af;
 }
 </style>
+

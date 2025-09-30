@@ -3,26 +3,26 @@ const props = defineProps({
   // Table data
   data: {
     type: Array,
-    required: true
+    required: true,
   },
   // Table columns configuration
   columns: {
     type: Array,
-    required: true
+    required: true,
   },
   // Loading state
   loading: {
     type: Boolean,
-    default: false
+    default: false,
   },
   // Empty state configuration
   emptyState: {
     type: Object,
     default: () => ({
-      icon: 'ph:file-text',
-      title: 'Tidak ada data',
-      description: 'Belum ada data yang ditambahkan.'
-    })
+      icon: "ph:file-text",
+      title: "Tidak ada data",
+      description: "Belum ada data yang ditambahkan.",
+    }),
   },
   // Pagination configuration
   pagination: {
@@ -34,44 +34,48 @@ const props = defineProps({
       showItemsPerPage: true,
       showPaginationInfo: true,
       itemsPerPageOptions: [
-        { label: '5 per halaman', value: 5 },
-        { label: '10 per halaman', value: 10 },
-        { label: '20 per halaman', value: 20 },
-        { label: '50 per halaman', value: 50 }
-      ]
-    })
+        { label: "5 per halaman", value: 5 },
+        { label: "10 per halaman", value: 10 },
+        { label: "20 per halaman", value: 20 },
+        { label: "50 per halaman", value: 50 },
+      ],
+    }),
   },
   // Table styling
   tableClass: {
     type: String,
-    default: ''
+    default: "",
   },
   // Wrapper styling
   wrapperClass: {
     type: String,
-    default: ''
+    default: "",
   },
   // Enable row hover effect
   hoverable: {
     type: Boolean,
-    default: true
-  }
+    default: true,
+  },
 });
 
 const emit = defineEmits([
-  'update:pagination',
-  'page-change',
-  'items-per-page-change',
-  'row-click'
+  "update:pagination",
+  "page-change",
+  "items-per-page-change",
+  "row-click",
 ]);
 
 // Local pagination state
 const localPagination = ref({ ...props.pagination });
 
 // Watch for pagination prop changes
-watch(() => props.pagination, (newPagination) => {
-  localPagination.value = { ...newPagination };
-}, { deep: true });
+watch(
+  () => props.pagination,
+  (newPagination) => {
+    localPagination.value = { ...newPagination };
+  },
+  { deep: true },
+);
 
 // Computed properties for pagination
 const totalItems = computed(() => props.data.length);
@@ -80,8 +84,10 @@ const paginatedData = computed(() => {
   if (!localPagination.value.enabled) {
     return props.data;
   }
-  
-  const start = (localPagination.value.currentPage - 1) * localPagination.value.itemsPerPage;
+
+  const start =
+    (localPagination.value.currentPage - 1) *
+    localPagination.value.itemsPerPage;
   const end = start + localPagination.value.itemsPerPage;
   return props.data.slice(start, end);
 });
@@ -89,20 +95,20 @@ const paginatedData = computed(() => {
 // Pagination event handlers
 const handlePageChange = (page) => {
   localPagination.value.currentPage = page;
-  emit('update:pagination', localPagination.value);
-  emit('page-change', page);
+  emit("update:pagination", localPagination.value);
+  emit("page-change", page);
 };
 
 const handleItemsPerPageChange = (itemsPerPage) => {
   localPagination.value.itemsPerPage = itemsPerPage;
   localPagination.value.currentPage = 1; // Reset to first page
-  emit('update:pagination', localPagination.value);
-  emit('items-per-page-change', itemsPerPage);
+  emit("update:pagination", localPagination.value);
+  emit("items-per-page-change", itemsPerPage);
 };
 
 // Row click handler
 const handleRowClick = (row, index) => {
-  emit('row-click', { row, index });
+  emit("row-click", { row, index });
 };
 
 // Get column value from row
@@ -110,7 +116,7 @@ const getColumnValue = (row, column) => {
   if (column.key) {
     return row[column.key];
   }
-  return '';
+  return "";
 };
 
 // Get slots
@@ -123,112 +129,123 @@ const hasCustomSlot = (column) => {
 </script>
 
 <template>
-  <div :class="['space-y-4', wrapperClass]">
-    <!-- Data Table -->
-    <div class="border-neutral-9 rounded-lg border bg-white shadow-sm overflow-hidden">
-      <!-- Loading State -->
-      <div v-if="loading" class="flex items-center justify-center py-12">
-        <div class="flex items-center gap-3">
-          <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
-          <span class="text-sm text-gray-600">Memuat data...</span>
-        </div>
-      </div>
 
-      <!-- Table Content -->
+  <div :class="['space-y-4', wrapperClass]">
+     <!-- Data Table -->
+    <div
+      class="border-neutral-9 rounded-lg border bg-white shadow-sm overflow-hidden"
+    >
+       <!-- Loading State -->
+      <div v-if="loading" class="flex items-center justify-center py-12">
+
+        <div class="flex items-center gap-3">
+
+          <div
+            class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"
+          ></div>
+           <span class="text-sm text-gray-600">Memuat data...</span>
+        </div>
+
+      </div>
+       <!-- Table Content -->
       <div v-else-if="data.length > 0" class="overflow-x-auto">
+
         <table :class="['w-full', tableClass]">
-          <!-- Table Header -->
+           <!-- Table Header -->
           <thead class="bg-gray-50 border-b border-gray-200">
+
             <tr>
+
               <th
                 v-for="column in columns"
                 :key="column.key"
                 :class="[
                   'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider',
-                  column.headerClass || ''
+                  column.headerClass || '',
                 ]"
                 :style="column.width ? { width: column.width } : {}"
               >
-                {{ column.label }}
+                 {{ column.label }}
               </th>
+
             </tr>
+
           </thead>
-          
-          <!-- Table Body -->
+           <!-- Table Body -->
           <tbody class="bg-white divide-y divide-gray-200">
+
             <tr
               v-for="(row, rowIndex) in paginatedData"
               :key="row.id || rowIndex"
               :class="[
                 hoverable ? 'hover:bg-gray-50 transition-colors' : '',
-                row.rowClass || ''
+                row.rowClass || '',
               ]"
               @click="handleRowClick(row, rowIndex)"
             >
+
               <td
                 v-for="column in columns"
                 :key="column.key"
-                :class="[
-                  'px-6 py-4 whitespace-nowrap',
-                  column.cellClass || ''
-                ]"
+                :class="['px-6 py-4 whitespace-nowrap', column.cellClass || '']"
               >
-                <!-- Custom slot for column -->
-                <slot
+                 <!-- Custom slot for column --> <slot
                   v-if="hasCustomSlot(column)"
                   :name="`${column.key}-data`"
                   :row="row"
                   :value="getColumnValue(row, column)"
                   :index="rowIndex"
-                >
-                  <slot
+                  > <slot
                     :name="column.key"
                     :row="row"
                     :value="getColumnValue(row, column)"
                     :index="rowIndex"
-                  >
-                    {{ getColumnValue(row, column) }}
-                  </slot>
-                </slot>
-                
-                <!-- Default column content -->
-                <span v-else :class="column.valueClass || ''">
-                  {{ getColumnValue(row, column) }}
-                </span>
+                    > {{ getColumnValue(row, column) }} </slot
+                  > </slot
+                > <!-- Default column content --> <span
+                  v-else
+                  :class="column.valueClass || ''"
+                  > {{ getColumnValue(row, column) }} </span
+                >
               </td>
+
             </tr>
+
           </tbody>
+
         </table>
+
       </div>
-      
-      <!-- Empty State -->
+       <!-- Empty State -->
       <div v-else class="text-center py-12">
-        <UIcon 
-          :name="emptyState.icon" 
-          class="h-12 w-12 text-gray-400 mx-auto mb-4" 
+         <UIcon
+          :name="emptyState.icon"
+          class="h-12 w-12 text-gray-400 mx-auto mb-4"
         />
         <h3 class="text-sm font-medium text-gray-900 mb-1">
-          {{ emptyState.title }}
+           {{ emptyState.title }}
         </h3>
-        <p class="text-sm text-gray-500">
-          {{ emptyState.description }}
-        </p>
-        
-        <!-- Custom empty state slot -->
-        <slot name="empty-state" :empty-state="emptyState"></slot>
-      </div>
-    </div>
 
-    <!-- Pagination -->
-    <PaginationComponent
+        <p class="text-sm text-gray-500"> {{ emptyState.description }} </p>
+         <!-- Custom empty state slot --> <slot
+          name="empty-state"
+          :empty-state="emptyState"
+        ></slot
+        >
+      </div>
+
+    </div>
+     <!-- Pagination --> <PaginationComponent
       v-if="pagination.enabled && data.length > 0"
       :current-page="localPagination.currentPage"
       :items-per-page="localPagination.itemsPerPage"
-      :total-items="totalItems"      
+      :total-items="totalItems"
       :show-items-per-page="pagination.showItemsPerPage"
       :show-pagination-info="pagination.showPaginationInfo"
       @update:current-page="handlePageChange"
       @update:items-per-page="handleItemsPerPageChange"
     />
   </div>
+
 </template>
+

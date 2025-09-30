@@ -1,6 +1,5 @@
 {
   "plugins": [
-    "prettier-plugin-tailwindcss",
-    "prettier-plugin-vue"
+    "prettier-plugin-tailwindcss"
   ]
 }

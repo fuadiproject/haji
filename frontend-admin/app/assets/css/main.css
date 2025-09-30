@@ -31,7 +31,7 @@ button,
 
 /* Ensure custom ButtonComponent uses the same teal color */
 .bg-primary-main {
-  background-color: theme('colors.teal.500') !important;
+  background-color: theme("colors.teal.500") !important;
 }
 
 /* Dashboard specific styles */

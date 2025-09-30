@@ -13,12 +13,16 @@ const itemToEdit = ref(null);
 
 // Form data
 const formData = ref({
-  nama: ''
+  judul: "",
+  deskripsi: "",
+  files: [],
 });
 
 // Edit form data
 const editFormData = ref({
-  nama: ''
+  judul: "",
+  deskripsi: "",
+  files: [],
 });
 
 // Form validation errors
@@ -27,9 +31,9 @@ const editFormErrors = ref({});
 
 // Computed properties
 const deleteModalMessage = computed(() => {
-  return itemToDelete.value 
-    ? `Apakah Anda yakin ingin menghapus banner "${itemToDelete.value.nama}"?`
-    : 'Apakah Anda yakin ingin menghapus banner ini?';
+  return itemToDelete.value
+    ? `Apakah Anda yakin ingin menghapus banner "${itemToDelete.value.judul}"?`
+    : "Apakah Anda yakin ingin menghapus banner ini?";
 });
 
 // Sample data for the table (expanded for pagination demo)
@@ -40,7 +44,7 @@ const allBannerData = ref([
     judul: "Banner Teknis Penggunaan Sistem",
     createdAt: new Date("2024-01-15T10:30:00"),
     updatedAt: new Date("2024-01-20T14:45:00"),
-    createdBy: "Admin System"
+    createdBy: "Admin System",
   },
   {
     id: 2,
@@ -48,7 +52,7 @@ const allBannerData = ref([
     judul: "Panduan Operasional Harian",
     createdAt: new Date("2024-01-10T09:15:00"),
     updatedAt: new Date("2024-01-18T16:20:00"),
-    createdBy: "Manager Operasional"
+    createdBy: "Manager Operasional",
   },
   {
     id: 3,
@@ -56,7 +60,7 @@ const allBannerData = ref([
     judul: "Prosedur Keamanan Data",
     createdAt: new Date("2024-01-05T11:00:00"),
     updatedAt: new Date("2024-01-22T13:30:00"),
-    createdBy: "IT Security"
+    createdBy: "IT Security",
   },
   {
     id: 4,
@@ -64,7 +68,7 @@ const allBannerData = ref([
     judul: "Banner Backup dan Recovery",
     createdAt: new Date("2024-01-12T08:45:00"),
     updatedAt: new Date("2024-01-25T10:15:00"),
-    createdBy: "Database Admin"
+    createdBy: "Database Admin",
   },
   {
     id: 5,
@@ -72,7 +76,7 @@ const allBannerData = ref([
     judul: "Manual Troubleshooting",
     createdAt: new Date("2024-01-08T14:20:00"),
     updatedAt: new Date("2024-01-19T11:50:00"),
-    createdBy: "Technical Support"
+    createdBy: "Technical Support",
   },
   {
     id: 6,
@@ -80,7 +84,7 @@ const allBannerData = ref([
     judul: "Panduan Instalasi Software",
     createdAt: new Date("2024-01-03T16:45:00"),
     updatedAt: new Date("2024-01-15T09:30:00"),
-    createdBy: "IT Support"
+    createdBy: "IT Support",
   },
   {
     id: 7,
@@ -88,7 +92,7 @@ const allBannerData = ref([
     judul: "Prosedur Maintenance Server",
     createdAt: new Date("2024-01-07T13:20:00"),
     updatedAt: new Date("2024-01-21T11:15:00"),
-    createdBy: "System Administrator"
+    createdBy: "System Administrator",
   },
   {
     id: 8,
@@ -96,7 +100,7 @@ const allBannerData = ref([
     judul: "Manual Konfigurasi Network",
     createdAt: new Date("2024-01-11T08:00:00"),
     updatedAt: new Date("2024-01-23T14:30:00"),
-    createdBy: "Network Engineer"
+    createdBy: "Network Engineer",
   },
   {
     id: 9,
@@ -104,7 +108,7 @@ const allBannerData = ref([
     judul: "Banner Monitoring Sistem",
     createdAt: new Date("2024-01-14T10:15:00"),
     updatedAt: new Date("2024-01-26T16:45:00"),
-    createdBy: "Operations Team"
+    createdBy: "Operations Team",
   },
   {
     id: 10,
@@ -112,7 +116,7 @@ const allBannerData = ref([
     judul: "Panduan Recovery Database",
     createdAt: new Date("2024-01-09T12:30:00"),
     updatedAt: new Date("2024-01-24T13:20:00"),
-    createdBy: "Database Admin"
+    createdBy: "Database Admin",
   },
   {
     id: 11,
@@ -120,7 +124,7 @@ const allBannerData = ref([
     judul: "Manual User Management",
     createdAt: new Date("2024-01-06T15:45:00"),
     updatedAt: new Date("2024-01-17T10:30:00"),
-    createdBy: "Admin System"
+    createdBy: "Admin System",
   },
   {
     id: 12,
@@ -128,42 +132,42 @@ const allBannerData = ref([
     judul: "Prosedur Audit Sistem",
     createdAt: new Date("2024-01-13T09:20:00"),
     updatedAt: new Date("2024-01-27T15:10:00"),
-    createdBy: "Audit Team"
-  }
+    createdBy: "Audit Team",
+  },
 ]);
 
 // Table columns configuration
 const columns = [
-    {
-      key: 'image',
-      label: 'Gambar',
-      width: '20%'
-    },    
-    {
-      key: 'judul',
-      label: 'Judul',
-      width: '40%'
-    },
-    {
-      key: 'createdAt',
-      label: 'Dibuat Pada',
-      width: '20%'
-    },
-    {
-      key: 'updatedAt', 
-      label: 'Diperbarui Pada',
-      width: '20%'
-    },
-    {
-      key: 'createdBy',
-      label: 'Dibuat Oleh',
-      width: '15%'
-    },
-    {
-      key: 'actions',
-      label: 'Aksi',
-      width: '5%'
-    }
+  {
+    key: "image",
+    label: "Gambar",
+    width: "20%",
+  },
+  {
+    key: "judul",
+    label: "Judul",
+    width: "40%",
+  },
+  {
+    key: "createdAt",
+    label: "Dibuat Pada",
+    width: "20%",
+  },
+  {
+    key: "updatedAt",
+    label: "Diperbarui Pada",
+    width: "20%",
+  },
+  {
+    key: "createdBy",
+    label: "Dibuat Oleh",
+    width: "15%",
+  },
+  {
+    key: "actions",
+    label: "Aksi",
+    width: "5%",
+  },
 ];
 
 // Pagination configuration
@@ -174,34 +178,36 @@ const paginationConfig = ref({
   showItemsPerPage: true,
   showPaginationInfo: true,
   itemsPerPageOptions: [
-    { label: '5 per halaman', value: 5 },
-    { label: '10 per halaman', value: 10 },
-    { label: '20 per halaman', value: 20 },
-    { label: '50 per halaman', value: 50 }
-  ]
+    { label: "5 per halaman", value: 5 },
+    { label: "10 per halaman", value: 10 },
+    { label: "20 per halaman", value: 20 },
+    { label: "50 per halaman", value: 50 },
+  ],
 });
-
-
 
 // Format date to Indonesian format
 const formatDate = (date) => {
-  return new Intl.DateTimeFormat('id-ID', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+  return new Intl.DateTimeFormat("id-ID", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   }).format(date);
 };
 
 // Form validation
 const validateForm = () => {
   const errors = {};
-  
-  if (!formData.value.nama.trim()) {
-    errors.nama = 'Nama banner wajib diisi';
+
+  if (!formData.value.judul.trim()) {
+    errors.nama = "Nama banner wajib diisi";
   }
-  
+
+  if (!formData.value.files || formData.value.files.length === 0) {
+    errors.files = "Gambar banner wajib diunggah";
+  }
+
   formErrors.value = errors;
   return Object.keys(errors).length === 0;
 };
@@ -209,11 +215,11 @@ const validateForm = () => {
 // Edit form validation
 const validateEditForm = () => {
   const errors = {};
-  
-  if (!editFormData.value.nama.trim()) {
-    errors.nama = 'Nama banner wajib diisi';
+
+  if (!editFormData.value.judul.trim()) {
+    errors.nama = "Nama banner wajib diisi";
   }
-  
+
   editFormErrors.value = errors;
   return Object.keys(errors).length === 0;
 };
@@ -221,7 +227,8 @@ const validateEditForm = () => {
 // Reset form
 const resetForm = () => {
   formData.value = {
-    nama: '',    
+    judul: "",
+    files: [],
   };
   formErrors.value = {};
 };
@@ -229,7 +236,8 @@ const resetForm = () => {
 // Reset edit form
 const resetEditForm = () => {
   editFormData.value = {
-    nama: ''
+    judul: "",
+    files: [],
   };
   editFormErrors.value = {};
 };
@@ -244,26 +252,36 @@ const handleSaveBanner = () => {
   if (!validateForm()) {
     return;
   }
-  
+
   // Generate new ID
-  const newId = Math.max(...allBannerData.value.map(item => item.id)) + 1;
-  
+  const newId = Math.max(...allBannerData.value.map((item) => item.id)) + 1;
+
+  // Create image URL from uploaded file (in real app, you'd upload to server)
+  let imageUrl = "https://placehold.co/150x100";
+  if (formData.value.files && formData.value.files.length > 0) {
+    // Create object URL for preview (in real app, upload to server and get URL)
+    imageUrl = URL.createObjectURL(formData.value.files[0]);
+  }
+
   // Create new banner object
   const newBanner = {
     id: newId,
-    nama: formData.value.nama.trim(),
+    judul: formData.value.judul.trim(),
+    image: imageUrl,
     createdAt: new Date(),
-    updatedAt: new Date(),    
+    updatedAt: new Date(),
+    createdBy: "Admin System",
   };
-  
+
   // Add to the beginning of the array
   allBannerData.value.unshift(newBanner);
-  
+
   // Close modal and reset form
   isModalOpen.value = false;
   resetForm();
-  
-  console.log('New banner added:', newBanner);
+
+  console.log("New banner added:", newBanner);
+  console.log("Uploaded files:", formData.value.files);
 };
 
 const handleCancelAdd = () => {
@@ -274,7 +292,7 @@ const handleCancelAdd = () => {
 const handleEditBanner = (item) => {
   itemToEdit.value = item;
   editFormData.value = {
-    nama: item.nama
+    judul: item.judul,
   };
   editFormErrors.value = {};
   isEditModalOpen.value = true;
@@ -284,20 +302,22 @@ const handleSaveEditBanner = () => {
   if (!validateEditForm()) {
     return;
   }
-  
+
   if (itemToEdit.value) {
-    const index = allBannerData.value.findIndex(p => p.id === itemToEdit.value.id);
+    const index = allBannerData.value.findIndex(
+      (p) => p.id === itemToEdit.value.id,
+    );
     if (index > -1) {
       // Update the item
       allBannerData.value[index] = {
         ...allBannerData.value[index],
-        nama: editFormData.value.nama.trim(),
-        updatedAt: new Date()
+        judul: editFormData.value.judul.trim(),
+        updatedAt: new Date(),
       };
-      console.log('Banner updated:', allBannerData.value[index]);
+      console.log("Banner updated:", allBannerData.value[index]);
     }
   }
-  
+
   // Close modal and reset form
   isEditModalOpen.value = false;
   resetEditForm();
@@ -317,10 +337,12 @@ const handleDeleteBanner = (item) => {
 
 const handleConfirmDelete = () => {
   if (itemToDelete.value) {
-    const index = allBannerData.value.findIndex(p => p.id === itemToDelete.value.id);
+    const index = allBannerData.value.findIndex(
+      (p) => p.id === itemToDelete.value.id,
+    );
     if (index > -1) {
       allBannerData.value.splice(index, 1);
-      console.log('Banner deleted:', itemToDelete.value);
+      console.log("Banner deleted:", itemToDelete.value);
     }
   }
   handleCancelDelete();
@@ -337,13 +359,13 @@ const handlePaginationUpdate = (newPagination) => {
 };
 
 const handleRowClick = ({ row, index }) => {
-  console.log('Row clicked:', row, index);
+  console.log("Row clicked:", row, index);
   // TODO: Implement row click functionality if needed
 };
 
 // Handle add/view image functionality
 const handleAddImage = (item) => {
-  console.log('View/Add image for:', item);
+  console.log("View/Add image for:", item);
   // TODO: Implement image upload/view functionality
 };
 </script>
@@ -354,13 +376,13 @@ const handleAddImage = (item) => {
     <div class="border-neutral-9 rounded-lg border bg-white p-6 shadow-sm">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-gray-title text-2xl font-bold">Daftar Banner</h1>          
+          <h1 class="text-gray-title text-2xl font-bold">Daftar Banner</h1>
         </div>
         <UButton
           icon="ph:plus"
-          size="lg"          
+          size="lg"
           class="bg-primary-main"
-          @click="handleAddBanner"          
+          @click="handleAddBanner"
         >
           Tambah Banner
         </UButton>
@@ -378,20 +400,25 @@ const handleAddImage = (item) => {
       <!-- Custom slot for image column -->
       <template #image-data="{ row }">
         <div class="flex items-center justify-center">
-          <div class="relative group cursor-pointer" @click="handleAddImage(row)">
+          <div
+            class="group relative cursor-pointer"
+            @click="handleAddImage(row)"
+          >
             <NuxtImg
               :src="row.image"
               :alt="row.judul"
-              class="w-16 h-12 object-cover rounded-lg border border-gray-200 shadow-sm transition-all duration-200 group-hover:shadow-md"
+              class="h-12 w-16 rounded-lg border border-gray-200 object-cover shadow-sm transition-all duration-200 group-hover:shadow-md"
               loading="lazy"
               placeholder
               :placeholder-class="'w-16 h-12 bg-gray-100 rounded-lg border border-gray-200'"
             />
             <!-- Overlay for hover effect -->
-            <div class="absolute inset-0 hover:bg-black opacity-0 hover:opacity-50 group-hover:bg-opacity-20 rounded-lg transition-all duration-200 flex items-center justify-center">
-              <UIcon 
-                name="ph:eye" 
-                class="w-4 h-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" 
+            <div
+              class="group-hover:bg-opacity-20 absolute inset-0 flex items-center justify-center rounded-lg opacity-0 transition-all duration-200 hover:bg-black hover:opacity-50"
+            >
+              <UIcon
+                name="ph:eye"
+                class="h-4 w-4 text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100"
               />
             </div>
           </div>
@@ -401,8 +428,10 @@ const handleAddImage = (item) => {
       <!-- Custom slot for judul column -->
       <template #judul-data="{ row }">
         <div class="flex items-center gap-3">
-          <div class="h-8 w-8 rounded-lg bg-primary-50 flex items-center justify-center">
-            <UIcon name="ph:file-text" class="h-4 w-4 text-primary-600" />
+          <div
+            class="bg-primary-50 flex h-8 w-8 items-center justify-center rounded-lg"
+          >
+            <UIcon name="ph:file-text" class="text-primary-600 h-4 w-4" />
           </div>
           <span class="font-medium text-gray-900">
             {{ row.judul }}
@@ -427,8 +456,10 @@ const handleAddImage = (item) => {
       <!-- Custom slot for createdBy column -->
       <template #createdBy-data="{ row }">
         <div class="flex items-center gap-2">
-          <div class="h-6 w-6 rounded-full bg-primary-100 flex items-center justify-center">
-            <UIcon name="ph:user" class="h-3 w-3 text-primary-600" />
+          <div
+            class="bg-primary-100 flex h-6 w-6 items-center justify-center rounded-full"
+          >
+            <UIcon name="ph:user" class="text-primary-600 h-3 w-3" />
           </div>
           <span class="text-sm font-medium text-gray-700">
             {{ row.createdBy }}
@@ -441,7 +472,7 @@ const handleAddImage = (item) => {
         <div class="flex items-center gap-2">
           <UButton
             icon="ph:info"
-            size="sm"            
+            size="sm"
             :ui="{ rounded: 'rounded-full' }"
             @click="handleAddImage(row)"
           />
@@ -463,7 +494,6 @@ const handleAddImage = (item) => {
           />
         </div>
       </template>
-      
     </DataTableComponent>
 
     <!-- Add Banner Modal -->
@@ -473,26 +503,135 @@ const handleAddImage = (item) => {
       size="lg"
       @close="handleCancelAdd"
     >
-      <form class="space-y-6" @submit.prevent="handleSavePetunjuk">
+      <form class="space-y-6" @submit.prevent="handleSaveBanner">
         <!-- Nama Banner Field -->
         <div>
-          <label for="nama" class="block text-sm font-medium text-gray-700 mb-2">
-            Nama Banner <span class="text-red-500">*</span>
+          <label
+            for="judul"
+            class="mb-2 block text-sm font-medium text-gray-700"
+          >
+            Judul Banner <span class="text-red-500">*</span>
           </label>
           <UInput
-            id="nama"
-            v-model="formData.nama"
+            id="judul"
+            v-model="formData.judul"
             type="text"
-            placeholder="Masukkan nama banner..."
+            placeholder="Masukkan judul banner..."
             size="lg"
-            :color="formErrors.nama ? 'red' : 'primary'"
+            :color="formErrors.judul ? 'red' : 'primary'"
             class="w-full"
           />
-          <p v-if="formErrors.nama" class="mt-1 text-sm text-red-600">
-            {{ formErrors.nama }}
+          <p v-if="formErrors.judul" class="mt-1 text-sm text-red-600">
+            {{ formErrors.judul }}
           </p>
         </div>
-       
+
+        <div>
+          <label
+            for="deskripsi"
+            class="mb-2 block text-sm font-medium text-gray-700"
+          >
+            Deskripsi Banner <span class="text-red-500">*</span>
+          </label>
+          <UTextarea
+            id="deskripsi"
+            v-model="formData.deskripsi"
+            type="text"
+            placeholder="Masukkan deskripsi banner..."
+            size="lg"
+            :color="formErrors.deskripsi ? 'red' : 'primary'"
+            class="w-full"
+          />
+          <p v-if="formErrors.deskripsi" class="mt-1 text-sm text-red-600">
+            {{ formErrors.deskripsi }}
+          </p>
+        </div>
+
+        <!-- File Upload Field -->
+        <div>
+          <label class="mb-2 block text-sm font-medium text-gray-700">
+            Gambar Banner <span class="text-red-500">*</span>
+          </label>
+          <UFileUpload
+            v-model="formData.files"
+            accept="image/*"
+            :max-files="1"
+            :max-size="2000000"
+            label="Pilih gambar banner"
+            description="Format yang didukung: JPG, PNG, GIF (maksimal 2MB)"
+            :color="formErrors.files ? 'red' : 'primary'"
+            class="w-full"
+          >
+            <template #actions="{ open, files, remove }">
+              <div class="flex flex-col gap-3">
+                <UButton
+                  v-if="!files || files.length === 0"
+                  icon="i-heroicons-photo"
+                  color="primary"
+                  variant="outline"
+                  size="lg"
+                  class="w-full justify-center"
+                  @click="open()"
+                >
+                  Pilih Gambar Banner
+                </UButton>
+
+                <!-- Show selected file -->
+                <div v-if="files && files.length > 0" class="space-y-2">
+                  <div
+                    v-for="(file, index) in files"
+                    :key="index"
+                    class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3"
+                  >
+                    <div class="flex items-center gap-3">
+                      <!-- Image preview -->
+                      <div
+                        class="h-12 w-12 overflow-hidden rounded-lg border border-gray-200"
+                      >
+                        <img
+                          :src="URL.createObjectURL(file)"
+                          :alt="file.name"
+                          class="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div class="flex flex-col">
+                        <span
+                          class="max-w-48 truncate text-sm font-medium text-gray-900"
+                        >
+                          {{ file.name }}
+                        </span>
+                        <span class="text-xs text-gray-500">
+                          {{ (file.size / 1024 / 1024).toFixed(2) }} MB
+                        </span>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <UButton
+                        icon="i-heroicons-photo"
+                        color="gray"
+                        variant="ghost"
+                        size="sm"
+                        @click="open()"
+                      >
+                        Ganti
+                      </UButton>
+                      <UButton
+                        icon="i-heroicons-x-mark"
+                        color="red"
+                        variant="ghost"
+                        size="sm"
+                        @click="remove(index)"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </UFileUpload>
+          <p v-if="formErrors.files" class="mt-1 text-sm text-red-600">
+            {{ formErrors.files }}
+          </p>
+        </div>
       </form>
 
       <!-- Modal Footer -->
@@ -529,7 +668,10 @@ const handleAddImage = (item) => {
       <form class="space-y-6" @submit.prevent="handleSaveEditPetunjuk">
         <!-- Nama Banner Field -->
         <div>
-          <label for="edit-nama" class="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            for="edit-nama"
+            class="mb-2 block text-sm font-medium text-gray-700"
+          >
             Nama Banner <span class="text-red-500">*</span>
           </label>
           <UInput
@@ -579,23 +721,26 @@ const handleAddImage = (item) => {
       :buttons="[
         {
           variant: 'primary',
-          text: 'Hapus'
+          text: 'Hapus',
         },
         {
           variant: 'secondary',
-          text: 'Batal'
-        }
+          text: 'Batal',
+        },
       ]"
       @confirm="handleConfirmDelete"
       @cancel="handleCancelDelete"
       @close="handleCancelDelete"
     >
       <div class="text-center">
-        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 mb-4">
+        <div
+          class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100"
+        >
           <UIcon name="ph:trash" class="h-6 w-6 text-red-600" />
         </div>
         <p class="text-gray-600">
-          Data yang dihapus tidak dapat dikembalikan. Pastikan Anda yakin dengan keputusan ini.
+          Data yang dihapus tidak dapat dikembalikan. Pastikan Anda yakin dengan
+          keputusan ini.
         </p>
       </div>
     </ModalConfirmComponent>

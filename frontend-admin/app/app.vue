@@ -29,9 +29,8 @@ useNotificationPermission();
 </script>
 
 <template>
-  <UApp :toaster="toaster">    
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-  </UApp>
+   <UApp :toaster="toaster"
+    > <NuxtLayout> <NuxtPage /> </NuxtLayout> </UApp
+  >
 </template>
+

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onUnmounted } from "vue";
+import { onUnmounted, ref, watch } from "vue";
 
 const props = defineProps({
   isOpen: {
@@ -70,8 +70,8 @@ const sizeClasses = {
 </script>
 
 <template>
-  <Teleport to="body">
-    <Transition
+   <Teleport to="body"
+    > <Transition
       enter-active-class="transition-all duration-300 ease-out"
       leave-active-class="transition-all duration-300 ease-in"
       enter-from-class="opacity-0"
@@ -79,20 +79,20 @@ const sizeClasses = {
       leave-from-class="opacity-100"
       leave-to-class="opacity-0"
       appear
-    >
+      >
       <div
         v-if="isOpen"
         class="bg-opacity-30 fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
         @click="closeModal"
       >
-        <Transition
+         <Transition
           enter-active-class="transition-all duration-300 ease-out"
           leave-active-class="transition-all duration-300 ease-in"
           enter-from-class="opacity-0 scale-95"
           enter-to-class="opacity-100 scale-100"
           leave-from-class="opacity-100 scale-100"
           leave-to-class="opacity-0 scale-95"
-        >
+          >
           <div
             v-if="isOpen"
             ref="modalRef"
@@ -103,26 +103,29 @@ const sizeClasses = {
             ]"
             @click.stop
           >
-            <!-- Header dengan tombol close -->
+             <!-- Header dengan tombol close -->
             <div
               class="flex items-center justify-between border-b border-gray-200 px-4 py-3"
             >
+
               <h3 v-if="title" class="text-lg font-semibold text-gray-900">
-                {{ title }}
+                 {{ title }}
               </h3>
+
               <div v-else class="flex-1"></div>
-              <button
+               <button
                 class="flex cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-2 text-gray-400 transition-all duration-200 hover:bg-gray-100 hover:text-gray-600 active:scale-95"
                 aria-label="Tutup modal"
                 @click="closeModal"
               >
-                <svg
+                 <svg
                   width="20"
                   height="20"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
+
                   <path
                     d="M18 6L6 18M6 6L18 18"
                     stroke="currentColor"
@@ -130,27 +133,27 @@ const sizeClasses = {
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   />
-                </svg>
-              </button>
+                   </svg
+                > </button
+              >
             </div>
-
-            <!-- Content area -->
-            <div class="p-4">
-              <slot></slot>
-            </div>
-
-            <!-- Footer (optional) -->
+             <!-- Content area -->
+            <div class="p-4"> <slot></slot> </div>
+             <!-- Footer (optional) -->
             <div
               v-if="$slots.footer"
               class="border-t border-gray-200 px-4 py-3"
             >
-              <slot name="footer"></slot>
+               <slot name="footer"></slot>
             </div>
+
           </div>
-        </Transition>
+           </Transition
+        >
       </div>
-    </Transition>
-  </Teleport>
+       </Transition
+    > </Teleport
+  >
 </template>
 
 <style scoped>
@@ -172,3 +175,4 @@ const sizeClasses = {
   background-color: #9ca3af;
 }
 </style>
+

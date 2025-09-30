@@ -92,17 +92,16 @@ const getStatusText = (status) => {
           <h1 class="text-gray-title mb-2 text-2xl font-bold">
             Berita & Pengumuman
           </h1>
+
           <p class="text-gray-subtitle">
             Kelola berita dan pengumuman untuk seluruh pegawai
           </p>
         </div>
         <ButtonComponent class="flex items-center gap-2">
-          <UIcon name="ph:plus" class="h-4 w-4" />
-          Tambah Berita
+          <UIcon name="ph:plus" class="h-4 w-4" /> Tambah Berita
         </ButtonComponent>
       </div>
     </div>
-
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
       <div
@@ -115,12 +114,15 @@ const getStatusText = (status) => {
             <p class="text-gray-subtitle text-sm font-medium">
               {{ stat.title }}
             </p>
+
             <p class="text-gray-title text-2xl font-bold">{{ stat.value }}</p>
           </div>
+
           <div class="bg-primary-main/10 rounded-lg p-3">
             <UIcon :name="stat.icon" class="text-primary-main h-6 w-6" />
           </div>
         </div>
+
         <div class="mt-4">
           <span
             :class="{
@@ -135,12 +137,12 @@ const getStatusText = (status) => {
         </div>
       </div>
     </div>
-
     <!-- News Management -->
     <div class="border-neutral-9 rounded-lg border bg-white shadow-sm">
       <div class="border-neutral-9 border-b p-6">
         <div class="flex items-center justify-between">
           <h2 class="text-gray-title text-lg font-semibold">Daftar Berita</h2>
+
           <div class="flex items-center gap-3">
             <!-- Search -->
             <div class="relative">
@@ -159,7 +161,9 @@ const getStatusText = (status) => {
               class="border-neutral-9 focus:ring-primary-main focus:border-primary-main rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
             >
               <option value="">Semua Status</option>
+
               <option value="published">Published</option>
+
               <option value="draft">Draft</option>
             </select>
           </div>
@@ -186,15 +190,15 @@ const getStatusText = (status) => {
                     {{ getStatusText(news.status) }}
                   </span>
                 </div>
+
                 <p class="text-gray-4 mb-3 line-clamp-2">{{ news.excerpt }}</p>
+
                 <div class="text-gray-4 flex items-center gap-4 text-sm">
                   <span class="flex items-center gap-1">
-                    <UIcon name="ph:tag" class="h-4 w-4" />
-                    {{ news.category }}
+                    <UIcon name="ph:tag" class="h-4 w-4" /> {{ news.category }}
                   </span>
                   <span class="flex items-center gap-1">
-                    <UIcon name="ph:user" class="h-4 w-4" />
-                    {{ news.author }}
+                    <UIcon name="ph:user" class="h-4 w-4" /> {{ news.author }}
                   </span>
                   <span class="flex items-center gap-1">
                     <UIcon name="ph:calendar" class="h-4 w-4" />
@@ -206,6 +210,7 @@ const getStatusText = (status) => {
                   </span>
                 </div>
               </div>
+
               <div class="ml-4 flex items-center gap-2">
                 <button
                   class="text-gray-4 hover:text-primary-main hover:bg-primary-main/10 rounded-lg p-2 transition-colors"
@@ -226,12 +231,12 @@ const getStatusText = (status) => {
             </div>
           </div>
         </div>
-
         <!-- Pagination -->
         <div
           class="border-neutral-9 mt-6 flex items-center justify-between border-t pt-4"
         >
           <p class="text-gray-4 text-sm">Menampilkan 1-3 dari 156 berita</p>
+
           <div class="flex items-center gap-2">
             <button
               class="border-neutral-9 hover:bg-neutral-2 rounded border px-3 py-1 text-sm transition-colors"

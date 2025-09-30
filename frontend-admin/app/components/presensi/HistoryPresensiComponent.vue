@@ -150,157 +150,179 @@ const getPemotonganColor = (pemotongan) => {
 </script>
 
 <template>
+
   <div class="flex h-full flex-col">
-    <!-- Header dengan filter bulan -->
+     <!-- Header dengan filter bulan -->
     <div class="border-neutral-9 sticky top-0 z-10 border-b bg-white px-4 py-3">
+
       <div class="flex items-center justify-between">
-        <button
+         <button
           class="border-neutral-9 flex h-8 w-8 items-center justify-center rounded-full border"
           @click="changeMonth('prev')"
         >
-          <UIcon name="ph:caret-left-bold" class="text-neutral-7 h-4 w-4" />
-        </button>
-
+           <UIcon name="ph:caret-left-bold" class="text-neutral-7 h-4 w-4" /> </button
+        >
         <div class="flex flex-col items-center">
-          <h3 class="text-neutral-7 text-base font-semibold">
-            {{ selectedMonthName }} {{ selectedYear }}
-          </h3>
-          <p class="text-neutral-6 text-xs">
-            {{ TEXT.riwayatKehadiran }}
-          </p>
-        </div>
 
-        <button
+          <h3 class="text-neutral-7 text-base font-semibold">
+             {{ selectedMonthName }} {{ selectedYear }}
+          </h3>
+
+          <p class="text-neutral-6 text-xs"> {{ TEXT.riwayatKehadiran }} </p>
+
+        </div>
+         <button
           class="border-neutral-9 flex h-8 w-8 items-center justify-center rounded-full border"
           @click="changeMonth('next')"
         >
-          <UIcon name="ph:caret-right-bold" class="text-neutral-7 h-4 w-4" />
-        </button>
+           <UIcon name="ph:caret-right-bold" class="text-neutral-7 h-4 w-4" /> </button
+        >
       </div>
-    </div>
 
-    <!-- Content -->
+    </div>
+     <!-- Content -->
     <div class="flex-1 overflow-y-auto py-4">
-      <!-- Loading State -->
+       <!-- Loading State -->
       <div v-if="isLoading" class="flex h-32 items-center justify-center">
+
         <div class="flex flex-col items-center gap-2">
-          <UIcon
+           <UIcon
             name="ph:spinner-bold"
             class="text-primary-main h-6 w-6 animate-spin"
           />
           <p class="text-neutral-6 text-sm">{{ TEXT.memuatData }}</p>
-        </div>
-      </div>
 
-      <!-- Error State -->
+        </div>
+
+      </div>
+       <!-- Error State -->
       <div v-else-if="error" class="flex h-32 items-center justify-center">
+
         <div class="flex flex-col items-center gap-2">
-          <UIcon name="ph:warning-bold" class="h-6 w-6 text-red-500" />
+           <UIcon name="ph:warning-bold" class="h-6 w-6 text-red-500" />
           <p class="text-neutral-6 text-center text-sm">{{ error }}</p>
-          <button
+           <button
             class="text-primary-main text-sm font-semibold"
             @click="refresh()"
           >
-            {{ TEXT.cobaLagi }}
-          </button>
+             {{ TEXT.cobaLagi }} </button
+          >
         </div>
-      </div>
 
-      <!-- Empty State -->
+      </div>
+       <!-- Empty State -->
       <div
         v-else-if="sortedHistoryData.length === 0"
         class="flex h-32 items-center justify-center"
       >
+
         <div class="flex flex-col items-center gap-2">
-          <NuxtImg
+           <NuxtImg
             src="/images/empty-image.svg"
             alt="Empty State"
             class="h-12 w-12"
           />
           <p class="text-neutral-6 text-center text-sm">
-            {{ TEXT.tidakAdaDataKehadiranUntukBulanIni }}
+             {{ TEXT.tidakAdaDataKehadiranUntukBulanIni }}
           </p>
-        </div>
-      </div>
 
-      <!-- History List -->
+        </div>
+
+      </div>
+       <!-- History List -->
       <div v-else class="flex flex-col gap-3">
-        <CardComponent v-for="item in sortedHistoryData" :key="item.tanggal">
-          <!-- Header Hari -->
+         <CardComponent v-for="item in sortedHistoryData" :key="item.tanggal"
+          > <!-- Header Hari -->
           <div class="mb-3 flex items-center justify-between">
+
             <div>
+
               <h4 class="text-neutral-7 text-sm font-semibold">
-                {{ formatDate(item.tanggal) }}
+                 {{ formatDate(item.tanggal) }}
               </h4>
+
             </div>
+
             <div class="flex items-center gap-2">
-              <span
+               <span
                 :class="getStatusChipClass(getAttendanceStatus(item))"
                 class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium"
+                > {{ getStatusText(item) }} </span
               >
-                {{ getStatusText(item) }}
-              </span>
             </div>
-          </div>
 
-          <!-- Detail Absen -->
+          </div>
+           <!-- Detail Absen -->
           <div class="flex flex-col gap-2">
-            <!-- Check In -->
+             <!-- Check In -->
             <div class="flex items-center justify-between">
+
               <div class="flex items-center gap-2">
-                <NuxtImg
+                 <NuxtImg
                   src="/images/icons/SignIn.svg"
                   alt="Clock In"
                   class="h-4 w-4"
-                />
-                <span class="text-neutral-6 text-xs">{{ TEXT.clockIn }}</span>
+                /> <span class="text-neutral-6 text-xs">{{ TEXT.clockIn }}</span
+                >
               </div>
-              <div class="flex items-center gap-2">
-                <UIcon name="ph:clock-bold" class="text-neutral-6 h-4 w-4" />
-                <span class="text-neutral-7 text-xs font-medium">
-                  {{ formatTime(item.jam_datang) }}
-                </span>
-              </div>
-            </div>
 
-            <!-- Check Out -->
-            <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <NuxtImg
+                 <UIcon name="ph:clock-bold" class="text-neutral-6 h-4 w-4" />
+                <span class="text-neutral-7 text-xs font-medium"
+                  > {{ formatTime(item.jam_datang) }} </span
+                >
+              </div>
+
+            </div>
+             <!-- Check Out -->
+            <div class="flex items-center justify-between">
+
+              <div class="flex items-center gap-2">
+                 <NuxtImg
                   src="/images/icons/SignOut.svg"
                   alt="Clock Out"
                   class="h-4 w-4"
-                />
-                <span class="text-neutral-6 text-xs">{{ TEXT.clockOut }}</span>
+                /> <span class="text-neutral-6 text-xs">{{
+                  TEXT.clockOut
+                }}</span
+                >
               </div>
-              <div class="flex items-center gap-2">
-                <UIcon name="ph:clock-bold" class="text-neutral-6 h-4 w-4" />
-                <span class="text-neutral-7 text-xs font-medium">
-                  {{ formatTime(item.jam_pulang) }}
-                </span>
-              </div>
-            </div>
 
-            <!-- Pemotongan -->
-            <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <UIcon name="ph:percent-bold" class="text-neutral-6 h-4 w-4" />
-                <span class="text-neutral-6 text-xs">{{
-                  TEXT.pemotongan
-                }}</span>
+                 <UIcon name="ph:clock-bold" class="text-neutral-6 h-4 w-4" />
+                <span class="text-neutral-7 text-xs font-medium"
+                  > {{ formatTime(item.jam_pulang) }} </span
+                >
               </div>
+
+            </div>
+             <!-- Pemotongan -->
+            <div class="flex items-center justify-between">
+
               <div class="flex items-center gap-2">
-                <span
+                 <UIcon name="ph:percent-bold" class="text-neutral-6 h-4 w-4" />
+                <span class="text-neutral-6 text-xs">{{ TEXT.pemotongan }}</span
+                >
+              </div>
+
+              <div class="flex items-center gap-2">
+                 <span
                   :class="getPemotonganColor(item.pemotongan)"
                   class="text-xs font-medium"
+                  > {{ item.pemotongan }}% </span
                 >
-                  {{ item.pemotongan }}%
-                </span>
               </div>
+
             </div>
+
           </div>
-        </CardComponent>
+           </CardComponent
+        >
       </div>
+
     </div>
+
   </div>
+
 </template>
+

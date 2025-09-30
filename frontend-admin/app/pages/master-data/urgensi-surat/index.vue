@@ -13,12 +13,12 @@ const itemToEdit = ref(null);
 
 // Form data
 const formData = ref({
-  nama: ''
+  nama: "",
 });
 
 // Edit form data
 const editFormData = ref({
-  nama: ''
+  nama: "",
 });
 
 // Form validation errors
@@ -27,9 +27,9 @@ const editFormErrors = ref({});
 
 // Computed properties
 const deleteModalMessage = computed(() => {
-  return itemToDelete.value 
+  return itemToDelete.value
     ? `Apakah Anda yakin ingin menghapus urgensi surat "${itemToDelete.value.nama}"?`
-    : 'Apakah Anda yakin ingin menghapus urgensi surat ini?';
+    : "Apakah Anda yakin ingin menghapus urgensi surat ini?";
 });
 
 // Sample data for the table
@@ -39,65 +39,65 @@ const allUrgensiSuratData = ref([
     nama: "Sangat Urgent",
     createdAt: new Date("2024-01-15T10:30:00"),
     updatedAt: new Date("2024-01-20T14:45:00"),
-    createdBy: "Admin System"
+    createdBy: "Admin System",
   },
   {
     id: 2,
     nama: "Urgent",
     createdAt: new Date("2024-01-10T09:15:00"),
     updatedAt: new Date("2024-01-18T16:20:00"),
-    createdBy: "Manager Operasional"
+    createdBy: "Manager Operasional",
   },
   {
     id: 3,
     nama: "Normal",
     createdAt: new Date("2024-01-05T11:00:00"),
     updatedAt: new Date("2024-01-22T13:30:00"),
-    createdBy: "IT Security"
+    createdBy: "IT Security",
   },
   {
     id: 4,
     nama: "Rendah",
     createdAt: new Date("2024-01-12T08:45:00"),
     updatedAt: new Date("2024-01-25T10:15:00"),
-    createdBy: "Database Admin"
+    createdBy: "Database Admin",
   },
   {
     id: 5,
     nama: "Segera",
     createdAt: new Date("2024-01-08T14:20:00"),
     updatedAt: new Date("2024-01-19T11:50:00"),
-    createdBy: "Technical Support"
-  }
+    createdBy: "Technical Support",
+  },
 ]);
 
 // Table columns configuration
 const columns = [
   {
-    key: 'nama',
-    label: 'Nama Urgensi Surat',
-    width: '40%'
+    key: "nama",
+    label: "Nama Urgensi Surat",
+    width: "40%",
   },
   {
-    key: 'createdAt',
-    label: 'Dibuat Pada',
-    width: '20%'
+    key: "createdAt",
+    label: "Dibuat Pada",
+    width: "20%",
   },
   {
-    key: 'updatedAt', 
-    label: 'Diperbarui Pada',
-    width: '20%'
+    key: "updatedAt",
+    label: "Diperbarui Pada",
+    width: "20%",
   },
   {
-    key: 'createdBy',
-    label: 'Dibuat Oleh',
-    width: '15%'
+    key: "createdBy",
+    label: "Dibuat Oleh",
+    width: "15%",
   },
   {
-    key: 'actions',
-    label: 'Aksi',
-    width: '5%'
-  }
+    key: "actions",
+    label: "Aksi",
+    width: "5%",
+  },
 ];
 
 // Pagination configuration
@@ -108,32 +108,32 @@ const paginationConfig = ref({
   showItemsPerPage: true,
   showPaginationInfo: true,
   itemsPerPageOptions: [
-    { label: '5 per halaman', value: 5 },
-    { label: '10 per halaman', value: 10 },
-    { label: '20 per halaman', value: 20 },
-    { label: '50 per halaman', value: 50 }
-  ]
+    { label: "5 per halaman", value: 5 },
+    { label: "10 per halaman", value: 10 },
+    { label: "20 per halaman", value: 20 },
+    { label: "50 per halaman", value: 50 },
+  ],
 });
 
 // Format date to Indonesian format
 const formatDate = (date) => {
-  return new Intl.DateTimeFormat('id-ID', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+  return new Intl.DateTimeFormat("id-ID", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   }).format(date);
 };
 
 // Form validation
 const validateForm = () => {
   const errors = {};
-  
+
   if (!formData.value.nama.trim()) {
-    errors.nama = 'Nama urgensi surat wajib diisi';
+    errors.nama = "Nama urgensi surat wajib diisi";
   }
-  
+
   formErrors.value = errors;
   return Object.keys(errors).length === 0;
 };
@@ -141,11 +141,11 @@ const validateForm = () => {
 // Edit form validation
 const validateEditForm = () => {
   const errors = {};
-  
+
   if (!editFormData.value.nama.trim()) {
-    errors.nama = 'Nama urgensi surat wajib diisi';
+    errors.nama = "Nama urgensi surat wajib diisi";
   }
-  
+
   editFormErrors.value = errors;
   return Object.keys(errors).length === 0;
 };
@@ -153,7 +153,7 @@ const validateEditForm = () => {
 // Reset form
 const resetForm = () => {
   formData.value = {
-    nama: '',    
+    nama: "",
   };
   formErrors.value = {};
 };
@@ -161,7 +161,7 @@ const resetForm = () => {
 // Reset edit form
 const resetEditForm = () => {
   editFormData.value = {
-    nama: ''
+    nama: "",
   };
   editFormErrors.value = {};
 };
@@ -176,26 +176,27 @@ const handleSaveUrgensiSurat = () => {
   if (!validateForm()) {
     return;
   }
-  
+
   // Generate new ID
-  const newId = Math.max(...allUrgensiSuratData.value.map(item => item.id)) + 1;
-  
+  const newId =
+    Math.max(...allUrgensiSuratData.value.map((item) => item.id)) + 1;
+
   // Create new urgensi surat object
   const newUrgensiSurat = {
     id: newId,
     nama: formData.value.nama.trim(),
     createdAt: new Date(),
-    updatedAt: new Date(),    
+    updatedAt: new Date(),
   };
-  
+
   // Add to the beginning of the array
   allUrgensiSuratData.value.unshift(newUrgensiSurat);
-  
+
   // Close modal and reset form
   isModalOpen.value = false;
   resetForm();
-  
-  console.log('New urgensi surat added:', newUrgensiSurat);
+
+  console.log("New urgensi surat added:", newUrgensiSurat);
 };
 
 const handleCancelAdd = () => {
@@ -206,7 +207,7 @@ const handleCancelAdd = () => {
 const handleEditUrgensiSurat = (item) => {
   itemToEdit.value = item;
   editFormData.value = {
-    nama: item.nama
+    nama: item.nama,
   };
   editFormErrors.value = {};
   isEditModalOpen.value = true;
@@ -216,20 +217,22 @@ const handleSaveEditUrgensiSurat = () => {
   if (!validateEditForm()) {
     return;
   }
-  
+
   if (itemToEdit.value) {
-    const index = allUrgensiSuratData.value.findIndex(p => p.id === itemToEdit.value.id);
+    const index = allUrgensiSuratData.value.findIndex(
+      (p) => p.id === itemToEdit.value.id,
+    );
     if (index > -1) {
       // Update the item
       allUrgensiSuratData.value[index] = {
         ...allUrgensiSuratData.value[index],
         nama: editFormData.value.nama.trim(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
-      console.log('Urgensi surat updated:', allUrgensiSuratData.value[index]);
+      console.log("Urgensi surat updated:", allUrgensiSuratData.value[index]);
     }
   }
-  
+
   // Close modal and reset form
   isEditModalOpen.value = false;
   resetEditForm();
@@ -249,10 +252,12 @@ const handleDeleteUrgensiSurat = (item) => {
 
 const handleConfirmDelete = () => {
   if (itemToDelete.value) {
-    const index = allUrgensiSuratData.value.findIndex(p => p.id === itemToDelete.value.id);
+    const index = allUrgensiSuratData.value.findIndex(
+      (p) => p.id === itemToDelete.value.id,
+    );
     if (index > -1) {
       allUrgensiSuratData.value.splice(index, 1);
-      console.log('Urgensi surat deleted:', itemToDelete.value);
+      console.log("Urgensi surat deleted:", itemToDelete.value);
     }
   }
   handleCancelDelete();
@@ -269,7 +274,7 @@ const handlePaginationUpdate = (newPagination) => {
 };
 
 const handleRowClick = ({ row, index }) => {
-  console.log('Row clicked:', row, index);
+  console.log("Row clicked:", row, index);
   // TODO: Implement row click functionality if needed
 };
 </script>
@@ -280,19 +285,20 @@ const handleRowClick = ({ row, index }) => {
     <div class="border-neutral-9 rounded-lg border bg-white p-6 shadow-sm">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-gray-title text-2xl font-bold">Daftar Urgensi Surat</h1>          
+          <h1 class="text-gray-title text-2xl font-bold">
+            Daftar Urgensi Surat
+          </h1>
         </div>
         <UButton
           icon="ph:plus"
-          size="lg"          
+          size="lg"
           class="bg-primary-main"
-          @click="handleAddUrgensiSurat"          
+          @click="handleAddUrgensiSurat"
         >
           Tambah Urgensi Surat
         </UButton>
       </div>
     </div>
-
     <!-- Data Table -->
     <DataTableComponent
       :data="allUrgensiSuratData"
@@ -304,41 +310,39 @@ const handleRowClick = ({ row, index }) => {
       <!-- Custom slot for nama column -->
       <template #nama-data="{ row }">
         <div class="flex items-center gap-3">
-          <div class="h-8 w-8 rounded-lg bg-primary-50 flex items-center justify-center">
-            <UIcon name="ph:clock" class="h-4 w-4 text-primary-600" />
+          <div
+            class="bg-primary-50 flex h-8 w-8 items-center justify-center rounded-lg"
+          >
+            <UIcon name="ph:clock" class="text-primary-600 h-4 w-4" />
           </div>
-          <span class="font-medium text-gray-900">
-            {{ row.nama }}
-          </span>
+          <span class="font-medium text-gray-900"> {{ row.nama }} </span>
         </div>
       </template>
-
       <!-- Custom slot for createdAt column -->
       <template #createdAt-data="{ row }">
         <span class="text-sm text-gray-600">
           {{ formatDate(row.createdAt) }}
         </span>
       </template>
-
       <!-- Custom slot for updatedAt column -->
       <template #updatedAt-data="{ row }">
         <span class="text-sm text-gray-600">
           {{ formatDate(row.updatedAt) }}
         </span>
       </template>
-
       <!-- Custom slot for createdBy column -->
       <template #createdBy-data="{ row }">
         <div class="flex items-center gap-2">
-          <div class="h-6 w-6 rounded-full bg-primary-100 flex items-center justify-center">
-            <UIcon name="ph:user" class="h-3 w-3 text-primary-600" />
+          <div
+            class="bg-primary-100 flex h-6 w-6 items-center justify-center rounded-full"
+          >
+            <UIcon name="ph:user" class="text-primary-600 h-3 w-3" />
           </div>
           <span class="text-sm font-medium text-gray-700">
             {{ row.createdBy }}
           </span>
         </div>
       </template>
-
       <!-- Custom slot for actions column -->
       <template #actions-data="{ row }">
         <div class="flex items-center gap-2">
@@ -361,7 +365,6 @@ const handleRowClick = ({ row, index }) => {
         </div>
       </template>
     </DataTableComponent>
-
     <!-- Add Urgensi Surat Modal -->
     <ModalComponent
       v-model:is-open="isModalOpen"
@@ -372,7 +375,10 @@ const handleRowClick = ({ row, index }) => {
       <form class="space-y-6" @submit.prevent="handleSaveUrgensiSurat">
         <!-- Nama Urgensi Surat Field -->
         <div>
-          <label for="nama" class="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            for="nama"
+            class="mb-2 block text-sm font-medium text-gray-700"
+          >
             Nama Urgensi Surat <span class="text-red-500">*</span>
           </label>
           <UInput
@@ -388,9 +394,7 @@ const handleRowClick = ({ row, index }) => {
             {{ formErrors.nama }}
           </p>
         </div>
-       
       </form>
-
       <!-- Modal Footer -->
       <template #footer>
         <div class="flex justify-end gap-3">
@@ -414,7 +418,6 @@ const handleRowClick = ({ row, index }) => {
         </div>
       </template>
     </ModalComponent>
-
     <!-- Edit Urgensi Surat Modal -->
     <ModalComponent
       v-model:is-open="isEditModalOpen"
@@ -425,7 +428,10 @@ const handleRowClick = ({ row, index }) => {
       <form class="space-y-6" @submit.prevent="handleSaveEditUrgensiSurat">
         <!-- Nama Urgensi Surat Field -->
         <div>
-          <label for="edit-nama" class="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            for="edit-nama"
+            class="mb-2 block text-sm font-medium text-gray-700"
+          >
             Nama Urgensi Surat <span class="text-red-500">*</span>
           </label>
           <UInput
@@ -442,7 +448,6 @@ const handleRowClick = ({ row, index }) => {
           </p>
         </div>
       </form>
-
       <!-- Modal Footer -->
       <template #footer>
         <div class="flex justify-end gap-3">
@@ -466,7 +471,6 @@ const handleRowClick = ({ row, index }) => {
         </div>
       </template>
     </ModalComponent>
-
     <!-- Delete Confirmation Modal -->
     <ModalConfirmComponent
       v-model:is-open="isDeleteModalOpen"
@@ -475,23 +479,27 @@ const handleRowClick = ({ row, index }) => {
       :buttons="[
         {
           variant: 'primary',
-          text: 'Hapus'
+          text: 'Hapus',
         },
         {
           variant: 'secondary',
-          text: 'Batal'
-        }
+          text: 'Batal',
+        },
       ]"
       @confirm="handleConfirmDelete"
       @cancel="handleCancelDelete"
       @close="handleCancelDelete"
     >
       <div class="text-center">
-        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 mb-4">
+        <div
+          class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100"
+        >
           <UIcon name="ph:trash" class="h-6 w-6 text-red-600" />
         </div>
+
         <p class="text-gray-600">
-          Data yang dihapus tidak dapat dikembalikan. Pastikan Anda yakin dengan keputusan ini.
+          Data yang dihapus tidak dapat dikembalikan. Pastikan Anda yakin dengan
+          keputusan ini.
         </p>
       </div>
     </ModalConfirmComponent>

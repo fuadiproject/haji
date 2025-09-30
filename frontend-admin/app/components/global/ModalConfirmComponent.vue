@@ -79,35 +79,34 @@ const handleButtonClick = (button, index) => {
 </script>
 
 <template>
-  <ModalComponent
+   <ModalComponent
     :is-open="isOpen"
     :title="title"
     size="md"
     @close="handleClose"
     @update:is-open="$emit('update:isOpen', $event)"
-  >
-    <!-- Content area -->
+    > <!-- Content area -->
     <div class="py-2">
-      <slot>
-        <p class="text-center text-gray-600">
-          {{ message }}
-        </p>
-      </slot>
+       <slot
+        >
+        <p class="text-center text-gray-600"> {{ message }} </p>
+         </slot
+      >
     </div>
-
-    <!-- Footer dengan buttons -->
-    <template #footer>
+     <!-- Footer dengan buttons --> <template #footer
+      >
       <div class="flex justify-between gap-3">
-        <ButtonComponent
+         <ButtonComponent
           v-for="(button, index) in buttons"
           :key="index"
           :variant="button.variant"
           class="flex-1"
           @click="handleButtonClick(button, index)"
+          > {{ button.text }} </ButtonComponent
         >
-          {{ button.text }}
-        </ButtonComponent>
       </div>
-    </template>
-  </ModalComponent>
+       </template
+    > </ModalComponent
+  >
 </template>
+
