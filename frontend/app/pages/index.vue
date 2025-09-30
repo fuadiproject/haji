@@ -121,7 +121,7 @@ const goToBanner = (index) => {
 
       <!-- Reminder (Presensi) -->
       <div
-        class="relative -mt-7.5 h-[calc(100vh-230px)] w-full rounded-t-3xl bg-white px-4 py-6"
+        class="relative -mt-7.5 h-[calc(100vh-230px)] min-h-[450px] w-full rounded-t-3xl bg-white px-4 py-6"
       >
         <div class="bg-neutral-8 relative rounded-2xl px-4 py-6">
           <NuxtImg

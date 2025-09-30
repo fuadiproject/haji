@@ -5,6 +5,10 @@
   font-family: Roboto, sans-serif;
 }
 
+:root {
+  --ui-primary: #019eab;
+}
+
 @theme {
   --color-primary-main: #019eab;
   --color-secondary-main: #ffcf56;

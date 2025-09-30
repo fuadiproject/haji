@@ -1,5 +1,5 @@
 <script setup>
-import { TEXT } from "~/constants/text";
+import { TEXT } from "@/constants/text";
 </script>
 
 <template>
@@ -15,14 +15,14 @@ import { TEXT } from "~/constants/text";
       class="absolute right-0 bottom-0 w-2/5"
     />
     <NuxtImg
-      src="/images/bg-people-left.svg"
+      src="/images/1.png"
       alt="Bg People Left"
-      class="absolute bottom-0 left-0 w-1/4"
+      class="absolute bottom-0 -left-3 w-2/6"
     />
     <NuxtImg
-      src="/images/bg-people-right.svg"
+      src="/images/2.png"
       alt="Bg People Right"
-      class="absolute right-0 bottom-3 w-1/4"
+      class="absolute -right-4 -bottom-1 w-2/6"
     />
     <NuxtImg src="/images/logo.svg" alt="Logo" class="mt-10 h-10 w-12" />
     <div>

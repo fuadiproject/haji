@@ -12,7 +12,7 @@ export default defineNuxtConfig({
     "@nuxt/fonts",
     "@vite-pwa/nuxt",
   ],
-  css: ["~/assets/css/main.css"],
+  css: ["@/assets/css/main.css"],
   ui: {
     colorMode: false,
   },
