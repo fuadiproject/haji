@@ -6,30 +6,25 @@ definePageMeta({
 
 // Modal state
 const isModalOpen = ref(false);
-const isEditModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const itemToDelete = ref(null);
 const itemToEdit = ref(null);
+// Tracks current modal mode: 'add' | 'edit' | 'detail'
+const modalMode = ref("add");
 
 // Form data
 const formData = ref({
   judul: "",
   deskripsi: "",
   link: "",
+  isActive: true,
   files: [],
 });
 
-// Edit form data
-const editFormData = ref({
-  judul: "",
-  deskripsi: "",
-  link: "",
-  files: [],
-});
+// Unified form handles both add and edit
 
 // Form validation errors
 const formErrors = ref({});
-const editFormErrors = ref({});
 
 // Computed properties
 const deleteModalMessage = computed(() => {
@@ -203,7 +198,7 @@ const validateForm = () => {
   const errors = {};
 
   if (!formData.value.judul.trim()) {
-    errors.nama = "Nama banner wajib diisi";
+    errors.judul = "Nama banner wajib diisi";
   }
 
   if (!formData.value.files || formData.value.files.length === 0) {
@@ -214,123 +209,130 @@ const validateForm = () => {
   return Object.keys(errors).length === 0;
 };
 
-// Edit form validation
-const validateEditForm = () => {
-  const errors = {};
-
-  if (!editFormData.value.judul.trim()) {
-    errors.nama = "Nama banner wajib diisi";
-  }
-
-  editFormErrors.value = errors;
-  return Object.keys(errors).length === 0;
-};
-
 // Reset form
 const resetForm = () => {
   formData.value = {
     judul: "",
+    deskripsi: "",
+    link: "",
+    isActive: true,
     files: [],
   };
   formErrors.value = {};
 };
 
-// Reset edit form
-const resetEditForm = () => {
-  editFormData.value = {
-    judul: "",
-    files: [],
-  };
-  editFormErrors.value = {};
-};
+// (removed) separate edit form reset - unified via resetForm
 
 // Action handlers
-const handleAddBanner = () => {
-  resetForm();
-  isModalOpen.value = true;
+const handleAddEditBanner = (type, item) => {
+  if (type === "add") {
+    modalMode.value = "add";
+    itemToEdit.value = null;
+    resetForm();
+    isModalOpen.value = true;
+    return;
+  }
+
+  if (type === "edit") {
+    modalMode.value = "edit";
+    itemToEdit.value = item;
+    // Prefill unified form from selected item (fallbacks for optional fields)
+    formData.value = {
+      judul: item?.judul || "",
+      deskripsi: item?.deskripsi || "",
+      link: item?.link || "",
+      isActive: item?.isActive ?? true,
+      files: [],
+    };
+    formErrors.value = {};
+    isModalOpen.value = true;
+    return;
+  }
+
+  if (type === "detail") {
+    modalMode.value = "detail";
+    itemToEdit.value = item;
+    // Prefill to display in disabled fields
+    formData.value = {
+      judul: item?.judul || "",
+      deskripsi: item?.deskripsi || "",
+      link: item?.link || "",
+      isActive: item?.isActive ?? true,
+      files: [],
+    };
+    formErrors.value = {};
+    isModalOpen.value = true;
+  }
 };
+
+// (removed) separate add handler - use handleAddEditBanner("add") directly
 
 const handleSaveBanner = () => {
   if (!validateForm()) {
     return;
   }
 
-  // Generate new ID
-  const newId = Math.max(...allBannerData.value.map((item) => item.id)) + 1;
-
   // Create image URL from uploaded file (in real app, you'd upload to server)
   let imageUrl = "https://placehold.co/150x100";
   if (formData.value.files && formData.value.files.length > 0) {
-    // Create object URL for preview (in real app, upload to server and get URL)
     imageUrl = URL.createObjectURL(formData.value.files[0]);
   }
 
-  // Create new banner object
-  const newBanner = {
-    id: newId,
-    judul: formData.value.judul.trim(),
-    image: imageUrl,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    createdBy: "Admin System",
-  };
-
-  // Add to the beginning of the array
-  allBannerData.value.unshift(newBanner);
-
-  // Close modal and reset form
-  isModalOpen.value = false;
-  resetForm();
-
-  console.log("New banner added:", newBanner);
-  console.log("Uploaded files:", formData.value.files);
-};
-
-const handleCancelAdd = () => {
-  isModalOpen.value = false;
-  resetForm();
-};
-
-const handleEditBanner = (item) => {
-  itemToEdit.value = item;
-  editFormData.value = {
-    judul: item.judul,
-  };
-  editFormErrors.value = {};
-  isEditModalOpen.value = true;
-};
-
-const handleSaveEditBanner = () => {
-  if (!validateEditForm()) {
-    return;
-  }
-
   if (itemToEdit.value) {
+    // Update existing banner
     const index = allBannerData.value.findIndex(
       (p) => p.id === itemToEdit.value.id,
     );
     if (index > -1) {
-      // Update the item
+      const existing = allBannerData.value[index];
       allBannerData.value[index] = {
-        ...allBannerData.value[index],
-        judul: editFormData.value.judul.trim(),
+        ...existing,
+        judul: formData.value.judul.trim(),
+        // Replace image only if new file selected; otherwise keep existing
+        image:
+          formData.value.files && formData.value.files.length > 0
+            ? imageUrl
+            : existing.image,
         updatedAt: new Date(),
       };
-      console.log("Banner updated:", allBannerData.value[index]);
     }
+
+    console.log("Banner updated:", allBannerData.value[index]);
+  } else {
+    // Generate new ID safely
+    const nextId =
+      allBannerData.value.length > 0
+        ? Math.max(...allBannerData.value.map((item) => item.id)) + 1
+        : 1;
+
+    // Create new banner object
+    const newBanner = {
+      id: nextId,
+      judul: formData.value.judul.trim(),
+      image: imageUrl,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      createdBy: "Admin System",
+    };
+
+    // Add to the beginning of the array
+    allBannerData.value.unshift(newBanner);
+
+    console.log("New banner added:", newBanner);
   }
 
   // Close modal and reset form
-  isEditModalOpen.value = false;
-  resetEditForm();
-  itemToEdit.value = null;
+  isModalOpen.value = false;
+  resetForm();
 };
 
-const handleCancelEdit = () => {
-  isEditModalOpen.value = false;
-  resetEditForm();
+const handleCancelAdd = () => {
+  isModalOpen.value = false;
   itemToEdit.value = null;
+  resetForm();
 };
+
+// (removed) separate edit handler - use handleAddEditBanner("edit", item)
 
 const handleDeleteBanner = (item) => {
   itemToDelete.value = item;
@@ -367,8 +369,8 @@ const handleRowClick = ({ row, index }) => {
 
 // Handle add/view image functionality
 const handleAddImage = (item) => {
-  console.log("View/Add image for:", item);
-  // TODO: Implement image upload/view functionality
+  // Open detail modal to preview image and read-only info
+  handleAddEditBanner("detail", item);
 };
 </script>
 
@@ -384,7 +386,7 @@ const handleAddImage = (item) => {
           icon="ph:plus"
           size="lg"
           class="bg-primary-main"
-          @click="handleAddBanner"
+          @click="handleAddEditBanner('add')"
         >
           Tambah Banner
         </UButton>
@@ -476,7 +478,7 @@ const handleAddImage = (item) => {
             icon="ph:info"
             size="sm"
             :ui="{ rounded: 'rounded-full' }"
-            @click="handleAddImage(row)"
+            @click="handleAddEditBanner('detail', row)"
           />
           <UButton
             icon="ph:pencil-simple"
@@ -484,7 +486,7 @@ const handleAddImage = (item) => {
             color="blue"
             variant="soft"
             :ui="{ rounded: 'rounded-full' }"
-            @click="handleEditBanner(row)"
+            @click="handleAddEditBanner('edit', row)"
           />
           <UButton
             icon="ph:trash"
@@ -498,10 +500,16 @@ const handleAddImage = (item) => {
       </template>
     </DataTableComponent>
 
-    <!-- Add Banner Modal -->
+    <!-- Add/Edit/Detail Banner Modal -->
     <ModalComponent
       v-model:is-open="isModalOpen"
-      title="Tambah Banner Baru"
+      :title="
+        modalMode === 'detail'
+          ? 'Detail Banner'
+          : itemToEdit
+            ? 'Edit Banner'
+            : 'Tambah Banner Baru'
+      "
       size="lg"
       @close="handleCancelAdd"
     >
@@ -522,12 +530,14 @@ const handleAddImage = (item) => {
             size="lg"
             :color="formErrors.judul ? 'red' : 'primary'"
             class="w-full"
+            :disabled="modalMode === 'detail'"
           />
           <p v-if="formErrors.judul" class="mt-1 text-sm text-red-600">
             {{ formErrors.judul }}
           </p>
         </div>
 
+        <!-- Deskripsi Banner Field -->
         <div>
           <label
             for="deskripsi"
@@ -543,12 +553,14 @@ const handleAddImage = (item) => {
             size="lg"
             :color="formErrors.deskripsi ? 'red' : 'primary'"
             class="w-full"
+            :disabled="modalMode === 'detail'"
           />
           <p v-if="formErrors.deskripsi" class="mt-1 text-sm text-red-600">
             {{ formErrors.deskripsi }}
           </p>
         </div>
 
+        <!-- Link Banner Field -->
         <div>
           <label
             for="link"
@@ -564,96 +576,146 @@ const handleAddImage = (item) => {
             size="lg"
             :color="formErrors.link ? 'red' : 'primary'"
             class="w-full"
+            :disabled="modalMode === 'detail'"
           />
           <p v-if="formErrors.link" class="mt-1 text-sm text-red-600">
             {{ formErrors.link }}
           </p>
         </div>
 
-        <!-- File Upload Field -->
+        <div>
+          <label
+            for="link"
+            class="mb-2 block text-sm font-medium text-gray-700"
+          >
+            Status Banner
+          </label>
+          <USwitch
+            id="isActive"
+            v-model="formData.isActive"
+            :label="formData.isActive ? 'Aktif' : 'Tidak Aktif'"
+            :disabled="modalMode === 'detail'"
+          />
+        </div>
+
+        <!-- File Upload or Preview -->
         <div>
           <label class="mb-2 block text-sm font-medium text-gray-700">
             Gambar Banner <span class="text-red-500">*</span>
           </label>
-          <UFileUpload
-            v-model="formData.files"
-            accept="image/*"
-            :max-files="1"
-            :max-size="2000000"
-            label="Pilih gambar banner"
-            description="Format yang didukung: JPG, PNG, GIF (maksimal 2MB)"
-            :color="formErrors.files ? 'red' : 'primary'"
-            class="w-full"
-          >
-            <template #actions="{ open, files, remove }">
-              <div class="flex flex-col gap-3">
-                <UButton
-                  v-if="!files || files.length === 0"
-                  icon="i-heroicons-photo"
-                  color="primary"
-                  variant="outline"
-                  size="lg"
-                  class="w-full justify-center"
-                  @click="open()"
-                >
-                  Pilih Gambar Banner
-                </UButton>
-
-                <!-- Show selected file -->
-                <div v-if="files && files.length > 0" class="space-y-2">
-                  <div
-                    v-for="(file, index) in files"
-                    :key="index"
-                    class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3"
+          <template v-if="modalMode === 'detail'">
+            <div class="flex items-start gap-4">
+              <div
+                class="h-40 w-64 overflow-hidden rounded-lg border border-gray-200 bg-gray-50"
+              >
+                <img
+                  :src="itemToEdit?.image || 'https://placehold.co/256x160'"
+                  :alt="formData.judul || 'Banner'"
+                  class="h-full w-full object-contain"
+                />
+              </div>
+            </div>
+          </template>
+          <template v-else>
+            <!-- Edit mode image preview (selected file takes precedence, falls back to existing image) -->
+            <div
+              v-if="modalMode === 'edit'"
+              class="mb-3 flex items-start gap-4"
+            >
+              <div
+                class="h-40 w-64 overflow-hidden rounded-lg border border-gray-200 bg-gray-50"
+              >
+                <img
+                  :src="
+                    formData.files && formData.files.length > 0
+                      ? URL.createObjectURL(formData.files[0])
+                      : itemToEdit?.image || 'https://placehold.co/256x160'
+                  "
+                  :alt="formData.judul || 'Banner'"
+                  class="h-full w-full object-contain"
+                />
+              </div>
+            </div>
+            <UFileUpload
+              v-model="formData.files"
+              accept="image/*"
+              :max-files="1"
+              :max-size="2000000"
+              label="Pilih gambar banner"
+              description="Format yang didukung: JPG, PNG, GIF (maksimal 2MB)"
+              :color="formErrors.files ? 'red' : 'primary'"
+              class="w-full"
+            >
+              <template #actions="{ open, files, remove }">
+                <div class="flex flex-col gap-3">
+                  <UButton
+                    v-if="!files || files.length === 0"
+                    icon="i-heroicons-photo"
+                    color="primary"
+                    variant="outline"
+                    size="lg"
+                    class="w-full justify-center"
+                    @click="open()"
                   >
-                    <div class="flex items-center gap-3">
-                      <!-- Image preview -->
-                      <div
-                        class="h-12 w-12 overflow-hidden rounded-lg border border-gray-200"
-                      >
-                        <img
-                          :src="URL.createObjectURL(file)"
-                          :alt="file.name"
-                          class="h-full w-full object-cover"
+                    Pilih Gambar Banner
+                  </UButton>
+
+                  <!-- Show selected file -->
+                  <div v-if="files && files.length > 0" class="space-y-2">
+                    <div
+                      v-for="(file, index) in files"
+                      :key="index"
+                      class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3"
+                    >
+                      <div class="flex items-center gap-3">
+                        <!-- Image preview -->
+                        <div
+                          class="h-12 w-12 overflow-hidden rounded-lg border border-gray-200"
+                        >
+                          <img
+                            :src="URL.createObjectURL(file)"
+                            :alt="file.name"
+                            class="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div class="flex flex-col">
+                          <span
+                            class="max-w-48 truncate text-sm font-medium text-gray-900"
+                          >
+                            {{ file.name }}
+                          </span>
+                          <span class="text-xs text-gray-500">
+                            {{ (file.size / 1024 / 1024).toFixed(2) }} MB
+                          </span>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <UButton
+                          icon="i-heroicons-photo"
+                          color="gray"
+                          variant="ghost"
+                          size="sm"
+                          @click="open()"
+                        >
+                          Ganti
+                        </UButton>
+                        <UButton
+                          icon="i-heroicons-x-mark"
+                          color="red"
+                          variant="ghost"
+                          size="sm"
+                          @click="remove(index)"
                         />
                       </div>
-                      <div class="flex flex-col">
-                        <span
-                          class="max-w-48 truncate text-sm font-medium text-gray-900"
-                        >
-                          {{ file.name }}
-                        </span>
-                        <span class="text-xs text-gray-500">
-                          {{ (file.size / 1024 / 1024).toFixed(2) }} MB
-                        </span>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                      <UButton
-                        icon="i-heroicons-photo"
-                        color="gray"
-                        variant="ghost"
-                        size="sm"
-                        @click="open()"
-                      >
-                        Ganti
-                      </UButton>
-                      <UButton
-                        icon="i-heroicons-x-mark"
-                        color="red"
-                        variant="ghost"
-                        size="sm"
-                        @click="remove(index)"
-                      />
                     </div>
                   </div>
                 </div>
-              </div>
-            </template>
-          </UFileUpload>
-          <p v-if="formErrors.files" class="mt-1 text-sm text-red-600">
-            {{ formErrors.files }}
-          </p>
+              </template>
+            </UFileUpload>
+            <p v-if="formErrors.files" class="mt-1 text-sm text-red-600">
+              {{ formErrors.files }}
+            </p>
+          </template>
         </div>
       </form>
 
@@ -667,70 +729,16 @@ const handleAddImage = (item) => {
             size="lg"
             @click="handleCancelAdd"
           >
-            Batal
+            {{ modalMode === "detail" ? "Tutup" : "Batal" }}
           </UButton>
           <UButton
+            v-if="modalMode !== 'detail'"
             type="button"
             color="primary"
             size="lg"
             @click="handleSaveBanner"
           >
             Simpan Banner
-          </UButton>
-        </div>
-      </template>
-    </ModalComponent>
-
-    <!-- Edit Banner Modal -->
-    <ModalComponent
-      v-model:is-open="isEditModalOpen"
-      title="Edit Banner"
-      size="lg"
-      @close="handleCancelEdit"
-    >
-      <form class="space-y-6" @submit.prevent="handleSaveEditPetunjuk">
-        <!-- Nama Banner Field -->
-        <div>
-          <label
-            for="edit-nama"
-            class="mb-2 block text-sm font-medium text-gray-700"
-          >
-            Nama Banner <span class="text-red-500">*</span>
-          </label>
-          <UInput
-            id="edit-nama"
-            v-model="editFormData.nama"
-            type="text"
-            placeholder="Masukkan nama banner..."
-            size="lg"
-            :color="editFormErrors.nama ? 'red' : 'primary'"
-            class="w-full"
-          />
-          <p v-if="editFormErrors.nama" class="mt-1 text-sm text-red-600">
-            {{ editFormErrors.nama }}
-          </p>
-        </div>
-      </form>
-
-      <!-- Modal Footer -->
-      <template #footer>
-        <div class="flex justify-end gap-3">
-          <UButton
-            type="button"
-            color="gray"
-            variant="soft"
-            size="lg"
-            @click="handleCancelEdit"
-          >
-            Batal
-          </UButton>
-          <UButton
-            type="button"
-            color="primary"
-            size="lg"
-            @click="handleSaveEditBanner"
-          >
-            Simpan Perubahan
           </UButton>
         </div>
       </template>
