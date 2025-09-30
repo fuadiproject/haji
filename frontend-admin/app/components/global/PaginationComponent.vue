@@ -47,22 +47,22 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['update:currentPage', 'update:itemsPerPage', 'pageChange', 'itemsPerPageChange']);
+const emit = defineEmits(['update:current-page', 'update:items-per-page', 'page-change', 'items-per-page-change']);
 
 // Local reactive values for v-model
 const localCurrentPage = computed({
   get: () => props.currentPage,
   set: (value) => {
-    emit('update:currentPage', value);
-    emit('pageChange', value);
+    emit('update:current-page', value);
+    emit('page-change', value);
   }
 });
 
 const localItemsPerPage = computed({
   get: () => props.itemsPerPage,
   set: (value) => {
-    emit('update:itemsPerPage', value);
-    emit('itemsPerPageChange', value);
+    emit('update:items-per-page', value);
+    emit('items-per-page-change', value);
   }
 });
 
@@ -79,10 +79,6 @@ const totalPages = computed(() => {
   return Math.ceil(props.totalItems / props.itemsPerPage);
 });
 
-// Handle items per page change
-const handleItemsPerPageChange = (newValue) => {
-  localItemsPerPage.value = newValue;
-};
 </script>
 
 <template>
@@ -98,13 +94,13 @@ const handleItemsPerPageChange = (newValue) => {
       <div v-if="showItemsPerPage" class="flex items-center gap-2">
         <span class="text-sm text-gray-600">Tampilkan:</span>
         <USelect
-          v-model="localItemsPerPage"
-          :options="itemsPerPageOptions"
+          :model-value="localItemsPerPage"
+          :items="itemsPerPageOptions"
           option-attribute="label"
           value-attribute="value"
           size="sm"
-          class="w-32"
-          @change="handleItemsPerPageChange"
+          class="w-32 cursor-pointer"
+          @update:model-value="(value) => localItemsPerPage = value"
         />
       </div>
 
@@ -121,22 +117,10 @@ const handleItemsPerPageChange = (newValue) => {
         <!-- Pagination component -->
         <UPagination          
           v-if="totalPages > 1"
-          v-model="localCurrentPage"
-          :page-count="itemsPerPage"
+          :page="localCurrentPage"
           :total="totalItems"
-          color="teal"
-          :ui="{
-            wrapper: 'flex items-center gap-1',
-            rounded: '!rounded-full min-w-[32px] justify-center',
-            active: 'bg-teal-500 text-white hover:bg-teal-600',
-            inactive: 'text-gray-500 hover:text-gray-700 hover:bg-gray-50',
-            default: {
-              size: 'sm'
-            }
-          }"
-          :max="maxPages"
-          show-last
-          show-first
+          :page-count="itemsPerPage"
+          @update:page="(page) => localCurrentPage = page"
         />
       </div>
     </div>

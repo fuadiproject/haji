@@ -3,6 +3,8 @@ const route = useRoute();
 
 // State for managing expanded menu items
 const expandedItems = ref(new Set());
+// State for sidebar collapse
+const isCollapsed = ref(false);
 
 const menuItems = [
   {
@@ -32,7 +34,19 @@ const menuItems = [
         to: "/master-data/urgensi-surat",
       }      
     ],
-  } 
+  },
+  {
+    id: "banner",
+    name: "Banner",
+    icon: "ph:image",
+    to: "/banner",
+  },
+  {
+    id: "hyperlink",
+    name: "Hyperlink",
+    icon: "ph:link",
+    to: "/hyperlink",
+  }
 ];
 
 const isActive = (path) => {
@@ -45,6 +59,8 @@ const isParentActive = (item) => {
 };
 
 const toggleExpanded = (itemId) => {
+  if (isCollapsed.value) return; // Don't expand when collapsed
+  
   if (expandedItems.value.has(itemId)) {
     expandedItems.value.delete(itemId);
   } else {
@@ -53,7 +69,15 @@ const toggleExpanded = (itemId) => {
 };
 
 const isExpanded = (itemId) => {
-  return expandedItems.value.has(itemId);
+  return !isCollapsed.value && expandedItems.value.has(itemId);
+};
+
+const toggleSidebar = () => {
+  isCollapsed.value = !isCollapsed.value;
+  // Close all expanded items when collapsing
+  if (isCollapsed.value) {
+    expandedItems.value.clear();
+  }
 };
 
 // Auto-expand parent menu if child is active
@@ -67,51 +91,97 @@ onMounted(() => {
 
 // Watch route changes to auto-expand parent menus
 watch(() => route.path, () => {
-  menuItems.forEach(item => {
-    if (item.children && isParentActive(item)) {
-      expandedItems.value.add(item.id);
-    }
-  });
+  if (!isCollapsed.value) {
+    menuItems.forEach(item => {
+      if (item.children && isParentActive(item)) {
+        expandedItems.value.add(item.id);
+      }
+    });
+  }
+});
+
+// Watch collapsed state to auto-expand when opening
+watch(isCollapsed, (newValue) => {
+  if (!newValue) {
+    // Re-expand parent menus when sidebar is opened
+    menuItems.forEach(item => {
+      if (item.children && isParentActive(item)) {
+        expandedItems.value.add(item.id);
+      }
+    });
+  }
 });
 </script>
 
 <template>
-  <aside class="w-64 bg-white shadow-lg">
+  <aside 
+    class="bg-white shadow-lg transition-all duration-300 ease-in-out flex-shrink-0 relative overflow-visible"
+    :class="isCollapsed ? 'w-16' : 'w-64'"
+  >
     <div class="flex h-full flex-col">
       <!-- Logo Section -->
-      <div class="border-neutral-9 flex items-center gap-3 border-b p-6">
-        <NuxtImg src="/images/logo.svg" alt="Logo" class="h-10 w-10" />
-        <div>
-          <h1 class="text-gray-title text-lg font-semibold">Haji Admin</h1>
-          <p class="text-gray-subtitle text-sm">Dashboard</p>
+      <div 
+        class="border-neutral-9 flex items-center border-b relative transition-all duration-300"
+        :class="isCollapsed ? 'justify-center p-4' : 'gap-3 p-6'"
+      >
+        <!-- Toggle Button -->
+        <button
+          class="absolute -right-3 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-primary-main text-white shadow-md transition-all duration-200 hover:bg-primary-dark"
+          :class="[
+            isCollapsed ? 'rotate-180 top-4' : 'top-6'
+          ]"
+          @click="toggleSidebar"
+        >
+          <UIcon name="ph:caret-left" class="h-4 w-4" />
+        </button>
+
+        <NuxtImg src="/images/logo.svg" alt="Logo" class="h-10 w-10 flex-shrink-0" />
+        <div v-show="!isCollapsed" class="transition-opacity duration-300">
+          <h1 class="text-gray-title text-lg font-semibold">BPHJ Admin Panel</h1>          
         </div>
       </div>
 
       <!-- Navigation Menu -->
-      <nav class="dashboard-sidebar flex-1 overflow-y-auto p-4">
+      <nav 
+        class="dashboard-sidebar flex-1 overflow-y-auto transition-all duration-300"
+        :class="isCollapsed ? 'p-2 overflow-hidden' : 'p-4'"
+      >
         <ul class="space-y-2">
           <li v-for="item in menuItems" :key="item.id">
             <!-- Parent Menu Item -->
             <div v-if="item.children">
               <!-- Parent Menu Button -->
               <button
-                class="flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 hover:scale-[1.02] hover:shadow-sm"
-                :class="{
-                  'bg-primary-main text-white shadow-md': isParentActive(item) || isActive(item.to),
-                  'text-gray-4 hover:bg-neutral-2 hover:text-primary-main':
-                    !isParentActive(item) && !isActive(item.to),
-                }"
+                class="flex w-full items-center rounded-lg text-sm font-medium transition-all duration-200 hover:scale-[1.02] hover:shadow-sm group relative"
+                :class="[
+                  {
+                    'bg-primary-main text-white shadow-md': isParentActive(item) || isActive(item.to),
+                    'text-gray-4 hover:bg-neutral-2 hover:text-primary-main':
+                      !isParentActive(item) && !isActive(item.to),
+                  },
+                  isCollapsed ? 'justify-center px-2 py-3' : 'justify-between gap-3 px-4 py-3'
+                ]"
                 @click="toggleExpanded(item.id)"
               >
-                <div class="flex items-center gap-3">
-                  <UIcon :name="item.icon" class="h-5 w-5" />
-                  {{ item.name }}
+                <div class="flex items-center" :class="isCollapsed ? '' : 'gap-3'">
+                  <UIcon :name="item.icon" class="h-5 w-5 flex-shrink-0" />
+                  <span v-show="!isCollapsed" class="transition-opacity duration-300">{{ item.name }}</span>
                 </div>
                 <UIcon
+                  v-show="!isCollapsed"
                   name="ph:caret-down"
-                  class="h-4 w-4 transition-transform duration-300 ease-in-out"
+                  class="h-4 w-4 transition-all duration-300 ease-in-out"
                   :class="{ 'rotate-180': isExpanded(item.id) }"
                 />
+                
+                <!-- Tooltip for collapsed state -->
+                <div
+                  v-if="isCollapsed"
+                  class="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 top-1/2 transform -translate-y-1/2"
+                  style="max-width: calc(100vw - 5rem);"
+                >
+                  {{ item.name }}
+                </div>
               </button>
 
               <!-- Child Menu Items -->
@@ -149,32 +219,59 @@ watch(() => route.path, () => {
             <NuxtLink
               v-else
               :to="item.to"
-              class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 hover:scale-[1.02] hover:shadow-sm"
-              :class="{
-                'bg-primary-main text-white shadow-md': isActive(item.to),
-                'text-gray-4 hover:bg-neutral-2 hover:text-primary-main':
-                  !isActive(item.to),
-              }"
+              class="flex items-center rounded-lg text-sm font-medium transition-all duration-200 hover:scale-[1.02] hover:shadow-sm group relative"
+              :class="[
+                {
+                  'bg-primary-main text-white shadow-md': isActive(item.to),
+                  'text-gray-4 hover:bg-neutral-2 hover:text-primary-main':
+                    !isActive(item.to),
+                },
+                isCollapsed ? 'justify-center px-2 py-3' : 'gap-3 px-4 py-3'
+              ]"
             >
-              <UIcon :name="item.icon" class="h-5 w-5" />
-              {{ item.name }}
+              <UIcon :name="item.icon" class="h-5 w-5 flex-shrink-0" />
+              <span v-show="!isCollapsed" class="transition-opacity duration-300">{{ item.name }}</span>
+              
+              <!-- Tooltip for collapsed state -->
+              <div
+                v-if="isCollapsed"
+                class="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 top-1/2 transform -translate-y-1/2"
+                style="max-width: calc(100vw - 5rem);"
+              >
+                {{ item.name }}
+              </div>
             </NuxtLink>
           </li>
         </ul>
       </nav>
 
       <!-- User Profile Section -->
-      <div class="border-neutral-9 border-t p-4">
+      <div 
+        class="border-neutral-9 border-t transition-all duration-300"
+        :class="isCollapsed ? 'p-2' : 'p-4'"
+      >
         <NuxtLink
           to="/akun"
-          class="hover:bg-neutral-2 flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 hover:scale-[1.02] hover:shadow-sm"
-          :class="{
-            'bg-primary-main text-white shadow-md': isActive('/akun'),
-            'text-gray-4': !isActive('/akun'),
-          }"
+          class="hover:bg-neutral-2 flex items-center rounded-lg text-sm font-medium transition-all duration-200 hover:scale-[1.02] hover:shadow-sm group relative"
+          :class="[
+            {
+              'bg-primary-main text-white shadow-md': isActive('/akun'),
+              'text-gray-4': !isActive('/akun'),
+            },
+            isCollapsed ? 'justify-center px-2 py-3' : 'gap-3 px-4 py-3'
+          ]"
         >
-          <UIcon name="ph:user-circle" class="h-5 w-5" />
-          Akun
+          <UIcon name="ph:user-circle" class="h-5 w-5 flex-shrink-0" />
+          <span v-show="!isCollapsed" class="transition-opacity duration-300">Akun</span>
+          
+          <!-- Tooltip for collapsed state -->
+          <div
+            v-if="isCollapsed"
+            class="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 top-1/2 transform -translate-y-1/2"
+            style="max-width: calc(100vw - 5rem);"
+          >
+            Akun
+          </div>
         </NuxtLink>
       </div>
     </div>

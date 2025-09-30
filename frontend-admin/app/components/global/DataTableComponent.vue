@@ -222,14 +222,13 @@ const hasCustomSlot = (column) => {
     <!-- Pagination -->
     <PaginationComponent
       v-if="pagination.enabled && data.length > 0"
-      v-model:current-page="localPagination.currentPage"
-      v-model:items-per-page="localPagination.itemsPerPage"
-      :total-items="totalItems"
-      :items-per-page-options="pagination.itemsPerPageOptions"
+      :current-page="localPagination.currentPage"
+      :items-per-page="localPagination.itemsPerPage"
+      :total-items="totalItems"      
       :show-items-per-page="pagination.showItemsPerPage"
       :show-pagination-info="pagination.showPaginationInfo"
-      @page-change="handlePageChange"
-      @items-per-page-change="handleItemsPerPageChange"
+      @update:current-page="handlePageChange"
+      @update:items-per-page="handleItemsPerPageChange"
     />
   </div>
 </template>

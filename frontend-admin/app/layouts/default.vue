@@ -1,12 +1,12 @@
 <template>
-  <div class="bg-neutral-2 min-h-screen">
+  <div class="bg-neutral-2 min-h-screen overflow-x-hidden">
     <!-- Dashboard Layout -->
-    <div class="flex h-screen">
+    <div class="flex h-screen overflow-hidden">
       <!-- Sidebar -->
       <DashboardSidebar />
 
       <!-- Main Content Area -->
-      <div class="flex flex-1 flex-col overflow-hidden">
+      <div class="flex flex-1 flex-col overflow-hidden min-w-0">
         <!-- Top Bar -->
         <DashboardTopbar />
 

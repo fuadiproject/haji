@@ -11,7 +11,7 @@ useHead({
         "Dashboard Admin Kementerian Haji dan Umrah untuk kepegawaian dan persuratan",
     },
     { name: "theme-color", content: "#019eab" },
-    { property: "og:title", content: "Haji Admin Dashboard" },
+    { property: "og:title", content: "BPHJ" },
     {
       property: "og:description",
       content:
