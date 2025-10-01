@@ -181,47 +181,18 @@ const getPemotonganColor = (pemotongan) => {
 
     <!-- Content -->
     <div class="flex-1 overflow-y-auto py-4">
-      <!-- Loading State -->
-      <div v-if="isLoading" class="flex h-32 items-center justify-center">
-        <div class="flex flex-col items-center gap-2">
-          <UIcon
-            name="ph:spinner-bold"
-            class="text-primary-main h-6 w-6 animate-spin"
-          />
-          <p class="text-neutral-6 text-sm">{{ TEXT.memuatData }}</p>
-        </div>
-      </div>
+      <LoadingStateComponent v-if="isLoading" />
 
-      <!-- Error State -->
-      <div v-else-if="error" class="flex h-32 items-center justify-center">
-        <div class="flex flex-col items-center gap-2">
-          <UIcon name="ph:warning-bold" class="h-6 w-6 text-red-500" />
-          <p class="text-neutral-6 text-center text-sm">{{ error }}</p>
-          <button
-            class="text-primary-main text-sm font-semibold"
-            @click="refresh()"
-          >
-            {{ TEXT.cobaLagi }}
-          </button>
-        </div>
-      </div>
+      <ErrorStateComponent
+        v-else-if="error"
+        :error="error"
+        @refresh="refresh()"
+      />
 
-      <!-- Empty State -->
-      <div
+      <EmptyStateComponent
         v-else-if="sortedHistoryData.length === 0"
-        class="flex h-32 items-center justify-center"
-      >
-        <div class="flex flex-col items-center gap-2">
-          <NuxtImg
-            src="/images/empty-image.svg"
-            alt="Empty State"
-            class="h-12 w-12"
-          />
-          <p class="text-neutral-6 text-center text-sm">
-            {{ TEXT.tidakAdaDataKehadiranUntukBulanIni }}
-          </p>
-        </div>
-      </div>
+        :text="TEXT.tidakAdaDataKehadiranUntukBulanIni"
+      />
 
       <!-- History List -->
       <div v-else class="flex flex-col gap-3">

@@ -16,6 +16,16 @@ defineProps({
     required: false,
     default: 0,
   },
+  fileId: {
+    type: String,
+    required: false,
+    default: null,
+  },
+  fileName: {
+    type: String,
+    required: false,
+    default: null,
+  },
   fileUrl: {
     type: String,
     required: false,
@@ -23,7 +33,14 @@ defineProps({
   },
 });
 
-const emit = defineEmits(["disposisi", "detail"]);
+const emit = defineEmits(["disposisi", "detail", "delete"]);
+
+const isDeleteModalOpen = ref(false);
+
+const handleDelete = () => {
+  emit("delete");
+  isDeleteModalOpen.value = false;
+};
 </script>
 
 <template>
@@ -34,26 +51,19 @@ const emit = defineEmits(["disposisi", "detail"]);
           {{ TEXT.nomor }} : {{ nomorSurat }}
         </span>
 
-        <!-- <div class="flex items-center gap-2">
-          <div v-if="fileUrl">
-            <a :href="fileUrl" target="_blank">
-              <ButtonComponent size="sm" variant="primary-outline">
-                <UIcon name="ph:download-bold" class="h-4 w-4" />
-                <span>{{ TEXT.download }}</span>
-              </ButtonComponent>
-            </a>
-          </div>
-
-          <div>
-            <ButtonComponent
-              size="sm"
-              variant="primary"
-              @click="emit('disposisi')"
-            >
-              <span>{{ TEXT.disposisi }}</span>
-            </ButtonComponent>
-          </div>
-        </div> -->
+        <div class="flex items-center gap-2">
+          <UButton variant="outline" size="xs" color="secondary">
+            <UIcon name="ph:pencil" class="h-4 w-4" />
+          </UButton>
+          <UButton
+            variant="outline"
+            color="error"
+            size="xs"
+            @click="isDeleteModalOpen = true"
+          >
+            <UIcon name="ph:trash" class="h-4 w-4" />
+          </UButton>
+        </div>
       </div>
 
       <div v-if="tanggalSurat" class="flex items-center gap-2">
@@ -77,7 +87,7 @@ const emit = defineEmits(["disposisi", "detail"]);
       </div>
 
       <div class="border-neutral-9 border-t pt-3">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center justify-between gap-2">
           <ButtonComponent
             size="sm"
             variant="outline"
@@ -87,26 +97,40 @@ const emit = defineEmits(["disposisi", "detail"]);
             <UIcon name="ph:eye-bold" class="h-4 w-4" />
             <span>{{ TEXT.lihatDetail }}</span>
           </ButtonComponent>
-          <div v-if="fileUrl">
-            <a :href="fileUrl" target="_blank">
-              <ButtonComponent size="sm" variant="primary-outline">
-                <UIcon name="ph:download-bold" class="h-4 w-4" />
-                <span>{{ TEXT.download }}</span>
-              </ButtonComponent>
-            </a>
-          </div>
+          <div class="flex items-center gap-2">
+            <div v-if="fileUrl">
+              <a :href="fileUrl" target="_blank">
+                <ButtonComponent size="sm" variant="primary-outline">
+                  <UIcon name="ph:download-bold" class="h-4 w-4" />
+                  <span>{{ TEXT.download }}</span>
+                </ButtonComponent>
+              </a>
+            </div>
 
-          <div>
-            <ButtonComponent
-              size="sm"
-              variant="primary"
-              @click="emit('disposisi')"
-            >
-              <span>{{ TEXT.disposisi }}</span>
-            </ButtonComponent>
+            <div>
+              <ButtonComponent
+                size="sm"
+                variant="primary"
+                @click="emit('disposisi')"
+              >
+                <span>{{ TEXT.disposisi }}</span>
+              </ButtonComponent>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </CardComponent>
+
+  <ModalConfirmComponent
+    :is-open="isDeleteModalOpen"
+    :title="TEXT.hapusSurat"
+    :message="TEXT.hapusSuratMessage"
+    :buttons="[
+      { variant: 'primary', text: TEXT.hapus },
+      { variant: 'secondary', text: TEXT.batal },
+    ]"
+    @close="isDeleteModalOpen = false"
+    @confirm="handleDelete"
+  />
 </template>

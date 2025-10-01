@@ -94,4 +94,8 @@ export const TEXT = {
   statusFile: "Status File",
   dibuatOleh: "Dibuat Oleh",
   versi: "Versi",
+  hapusSurat: "Hapus Surat",
+  hapusSuratMessage: "Apakah Anda yakin ingin menghapus surat ini?",
+  editSurat: "Edit Surat",
+  tidakAdaDataSuratMasuk: "Tidak ada data surat masuk",
 };
