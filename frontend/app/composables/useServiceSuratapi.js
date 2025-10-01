@@ -74,8 +74,8 @@ export const useServiceSuratapi = () => {
     });
   };
 
-  const getSuratMasukById = async ({ suratMasukId }) => {
-    return $fetch(`${BASE_URL}/surat-masuk/${suratMasukId}`, {
+  const getSuratMasukById = async ({ id }) => {
+    return $fetch(`${BASE_URL}/surat-masuk/${id}`, {
       headers: {
         Authorization: `${jwtToken.value}`,
       },
@@ -84,8 +84,8 @@ export const useServiceSuratapi = () => {
     });
   };
 
-  const updateSuratMasuk = async ({ suratMasukId, fileId, nomorSurat }) => {
-    return $fetch(`${BASE_URL}/surat-masuk/${suratMasukId}`, {
+  const updateSuratMasuk = async ({ id, fileId, nomorSurat }) => {
+    return $fetch(`${BASE_URL}/surat-masuk/${id}`, {
       method: "PUT",
       body: { fileId, nomorSurat },
       headers: {
@@ -96,8 +96,8 @@ export const useServiceSuratapi = () => {
     });
   };
 
-  const deleteSuratMasuk = async ({ suratMasukId }) => {
-    return $fetch(`${BASE_URL}/surat-masuk/${suratMasukId}`, {
+  const deleteSuratMasuk = async ({ id }) => {
+    return $fetch(`${BASE_URL}/surat-masuk/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `${jwtToken.value}`,
@@ -107,8 +107,18 @@ export const useServiceSuratapi = () => {
     });
   };
 
-  const disposisiSuratMasuk = async ({ suratMasukId, data }) => {
-    return $fetch(`${BASE_URL}/surat-masuk/${suratMasukId}/disposisi`, {
+  const getDisposisiSuratMasukById = async ({ id }) => {
+    return $fetch(`${BASE_URL}/surat-masuk/${id}/disposisi`, {
+      headers: {
+        Authorization: `${jwtToken.value}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
+  const disposisiSuratMasuk = async ({ id, data }) => {
+    return $fetch(`${BASE_URL}/surat-masuk/${id}/disposisi`, {
       method: "POST",
       body: { data },
       headers: {
@@ -143,8 +153,8 @@ export const useServiceSuratapi = () => {
     });
   };
 
-  const getSuratKeluarById = async ({ suratKeluarId }) => {
-    return $fetch(`${BASE_URL}/surat-keluar/${suratKeluarId}`, {
+  const getSuratKeluarById = async ({ id }) => {
+    return $fetch(`${BASE_URL}/surat-keluar/${id}`, {
       headers: {
         Authorization: `${jwtToken.value}`,
       },
@@ -154,12 +164,12 @@ export const useServiceSuratapi = () => {
   };
 
   const updateSuratKeluar = async ({
-    suratKeluarId,
+    id,
     fileId,
     nomorSurat,
     tanggalSurat,
   }) => {
-    return $fetch(`${BASE_URL}/surat-keluar/${suratKeluarId}`, {
+    return $fetch(`${BASE_URL}/surat-keluar/${id}`, {
       method: "PUT",
       body: { fileId, nomorSurat, tanggalSurat },
       headers: {
@@ -170,8 +180,8 @@ export const useServiceSuratapi = () => {
     });
   };
 
-  const deleteSuratKeluar = async ({ suratKeluarId }) => {
-    return $fetch(`${BASE_URL}/surat-keluar/${suratKeluarId}`, {
+  const deleteSuratKeluar = async ({ id }) => {
+    return $fetch(`${BASE_URL}/surat-keluar/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `${jwtToken.value}`,
@@ -181,8 +191,18 @@ export const useServiceSuratapi = () => {
     });
   };
 
-  const disposisiSuratKeluar = async ({ suratKeluarId, data }) => {
-    return $fetch(`${BASE_URL}/surat-keluar/${suratKeluarId}/disposisi`, {
+  const getDisposisiSuratKeluarById = async ({ id }) => {
+    return $fetch(`${BASE_URL}/surat-keluar/${id}/disposisi`, {
+      headers: {
+        Authorization: `${jwtToken.value}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
+  const disposisiSuratKeluar = async ({ id, data }) => {
+    return $fetch(`${BASE_URL}/surat-keluar/${id}/disposisi`, {
       method: "POST",
       body: { data },
       headers: {
@@ -234,12 +254,14 @@ export const useServiceSuratapi = () => {
     updateSuratMasuk,
     deleteSuratMasuk,
     disposisiSuratMasuk,
+    getDisposisiSuratMasukById,
     createSuratKeluar,
     getAllSuratKeluar,
     getSuratKeluarById,
     updateSuratKeluar,
     deleteSuratKeluar,
     disposisiSuratKeluar,
+    getDisposisiSuratKeluarById,
     getAllSifat,
     getAllUrgensi,
     getAllPetunjuk,

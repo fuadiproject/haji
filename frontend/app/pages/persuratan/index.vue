@@ -243,6 +243,8 @@ const handleDisposisi = (data) => {
     />
 
     <ModalDetailSuratComponent
+      v-if="modalDetailSurat.isOpen"
+      :type="activeTab"
       :surat-id="modalDetailSurat.suratId"
       :nomor-surat="modalDetailSurat.nomorSurat"
       :is-open="modalDetailSurat.isOpen"
