@@ -210,13 +210,16 @@ const handleDisposisi = (data) => {
           />
         </div>
         <UPagination
-          v-if="suratData?.data?.pagination?.total_pages > 1"
+          v-if="
+            suratData?.data?.pagination?.total_pages > 1 ||
+            suratData?.data?.pagination?.totalPages > 1
+          "
           :page="page"
           class="mt-5 flex w-full justify-center"
           variant="soft"
           color="primary"
           :items-per-page="limit"
-          :total="suratData?.data?.pagination?.total_pages || 0"
+          :total="suratData?.data?.pagination?.total || 0"
           @update:page="handleChangePage"
         />
       </div>
