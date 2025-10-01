@@ -19,7 +19,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["close", "download", "disposisi"]);
+const emit = defineEmits(["close", "download", "disposisi", "delete"]);
 
 // Dummy data - bisa diganti dengan data dari API
 const suratData = ref({
@@ -87,6 +87,7 @@ const suratData = ref({
     disposisi: 2,
   },
 });
+const isDeleteModalOpen = ref(false);
 
 const fileUrl = computed(() => {
   return suratData.value.file?.url || "/files/pdf/sample.pdf";
@@ -148,6 +149,11 @@ watch(
     }
   },
 );
+
+const handleDelete = () => {
+  emit("close");
+  isDeleteModalOpen.value = false;
+};
 </script>
 
 <template>
@@ -314,6 +320,26 @@ watch(
         </div>
       </div>
 
+      <div class="flex items-center gap-2">
+        <UButton
+          variant="outline"
+          size="lg"
+          class="mx-auto w-full justify-center"
+        >
+          <UIcon name="ph:pencil" class="h-4 w-4" />
+          {{ TEXT.editSurat }}
+        </UButton>
+        <UButton
+          variant="outline"
+          color="error"
+          size="lg"
+          class="mx-auto w-full justify-center"
+          @click="isDeleteModalOpen = true"
+        >
+          <UIcon name="ph:trash" class="h-4 w-4" />
+          {{ TEXT.hapusSurat }}
+        </UButton>
+      </div>
       <!-- Action Buttons -->
       <div
         class="fixed right-0 bottom-0 left-0 flex w-full justify-end gap-2 border-t border-gray-200 bg-white p-4 pt-4 sm:flex-row"
@@ -337,4 +363,16 @@ watch(
       </div>
     </div>
   </ModalBottomComponent>
+
+  <ModalConfirmComponent
+    :is-open="isDeleteModalOpen"
+    :title="TEXT.hapusSurat"
+    :message="TEXT.hapusSuratMessage"
+    :buttons="[
+      { variant: 'primary', text: TEXT.hapus },
+      { variant: 'secondary', text: TEXT.batal },
+    ]"
+    @close="isDeleteModalOpen = false"
+    @confirm="handleDelete"
+  />
 </template>
