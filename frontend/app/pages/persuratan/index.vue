@@ -2,15 +2,21 @@
 import { TEXT } from "@/constants/text";
 import CardSuratComponent from "@/components/persuratan/CardSuratComponent.vue";
 import ModalCreateSuratComponent from "@/components/persuratan/ModalCreateSuratComponent.vue";
+import ModalEditSuratComponent from "@/components/persuratan/ModalEditSuratComponent.vue";
 import ModalCreateDisposisiComponent from "@/components/persuratan/ModalCreateDisposisiComponent.vue";
 import ModalDetailSuratComponent from "@/components/persuratan/ModalDetailSuratComponent.vue";
 
 const route = useRoute();
 const suratapiService = useServiceSuratapi();
+const toast = useToast();
 
 const activeTab = ref(route.query.tab || "suratMasuk");
 const TABS = ref(["suratMasuk", "suratKeluar"]);
 const isModalAddSuratOpen = ref(false);
+const modalEditSurat = ref({
+  isOpen: false,
+  suratId: "",
+});
 const modalAddDisposisi = ref({
   isOpen: false,
   suratId: "",
@@ -19,6 +25,11 @@ const modalDetailSurat = ref({
   isOpen: false,
   suratId: "",
   nomorSurat: "",
+});
+const isDeleteLoading = ref(false);
+const modalDeleteSurat = ref({
+  isOpen: false,
+  suratId: "",
 });
 
 const search = ref(route.query.search || "");
@@ -105,18 +116,52 @@ const handleChangePage = (p) => {
   refreshSurat();
 };
 
+const handleDelete = async () => {
+  try {
+    isDeleteLoading.value = true;
+
+    const functionName =
+      activeTab.value === "suratMasuk"
+        ? "deleteSuratMasuk"
+        : "deleteSuratKeluar";
+    await suratapiService[functionName]({ id: modalDeleteSurat.value.suratId });
+
+    toast.add({
+      title: "Success",
+      description: "Surat berhasil dihapus",
+      color: "success",
+    });
+
+    modalDeleteSurat.value.isOpen = false;
+    modalDetailSurat.value.isOpen = false;
+    refreshSurat();
+  } catch (error) {
+    console.error("Error deleting surat:", error);
+    toast.add({
+      title: "Error",
+      description: "Gagal menghapus surat",
+      color: "error",
+    });
+  } finally {
+    isDeleteLoading.value = false;
+  }
+};
+
+const handleRefreshAfterEdit = () => {
+  modalEditSurat.value.isOpen = false;
+  if (modalDetailSurat.value.isOpen) {
+    const currentSuratId = modalDetailSurat.value.suratId;
+    modalDetailSurat.value.suratId = "";
+
+    setTimeout(() => {
+      modalDetailSurat.value.suratId = currentSuratId;
+    }, 0);
+  }
+  refreshSurat();
+};
+
 const handleBack = () => {
   navigateTo("/");
-};
-
-const handleDownload = (data) => {
-  console.log("Download surat:", data);
-  // Implementasi download logic di sini
-};
-
-const handleDisposisi = (data) => {
-  modalAddDisposisi.value.isOpen = true;
-  modalAddDisposisi.value.suratId = data.suratId;
 };
 </script>
 
@@ -192,6 +237,7 @@ const handleDisposisi = (data) => {
             v-for="surat in suratData?.data?.[activeTab]"
             :key="surat.id"
             :surat-id="surat.id"
+            :type="activeTab"
             :nomor-surat="surat.nomor_surat"
             :tanggal-surat="surat.tanggal_surat"
             :disposisi-count="surat.disposisi?.length || 0"
@@ -207,16 +253,27 @@ const handleDisposisi = (data) => {
               modalDetailSurat.suratId = surat.id;
               modalDetailSurat.nomorSurat = surat.nomor_surat;
             "
+            @edit="
+              modalEditSurat.isOpen = true;
+              modalEditSurat.suratId = surat.id;
+            "
+            @delete="
+              modalDeleteSurat.isOpen = true;
+              modalDeleteSurat.suratId = surat.id;
+            "
           />
         </div>
         <UPagination
-          v-if="suratData?.data?.pagination?.total_pages > 1"
+          v-if="
+            suratData?.data?.pagination?.total_pages > 1 ||
+            suratData?.data?.pagination?.totalPages > 1
+          "
           :page="page"
           class="mt-5 flex w-full justify-center"
           variant="soft"
           color="primary"
           :items-per-page="limit"
-          :total="suratData?.data?.pagination?.total_pages || 0"
+          :total="suratData?.data?.pagination?.total || 0"
           @update:page="handleChangePage"
         />
       </div>
@@ -228,24 +285,62 @@ const handleDisposisi = (data) => {
     />
 
     <ModalCreateSuratComponent
+      v-if="isModalAddSuratOpen"
       :is-open="isModalAddSuratOpen"
       :default-type="activeTab"
       @close="isModalAddSuratOpen = false"
+      @refresh="refreshSurat()"
+    />
+
+    <ModalEditSuratComponent
+      v-if="modalEditSurat.isOpen"
+      :is-open="modalEditSurat.isOpen"
+      :surat-id="modalEditSurat.suratId"
+      :default-type="activeTab"
+      @close="modalEditSurat.isOpen = false"
+      @refresh="handleRefreshAfterEdit"
     />
 
     <ModalCreateDisposisiComponent
+      v-if="modalAddDisposisi.isOpen"
       :surat-id="modalAddDisposisi.suratId"
+      :surat-type="activeTab"
       :is-open="modalAddDisposisi.isOpen"
       @close="modalAddDisposisi.isOpen = false"
+      @submit="refreshSurat()"
     />
 
     <ModalDetailSuratComponent
+      v-if="modalDetailSurat.isOpen"
+      :type="activeTab"
       :surat-id="modalDetailSurat.suratId"
       :nomor-surat="modalDetailSurat.nomorSurat"
       :is-open="modalDetailSurat.isOpen"
       @close="modalDetailSurat.isOpen = false"
-      @download="handleDownload"
-      @disposisi="handleDisposisi"
+      @disposisi="
+        modalAddDisposisi.isOpen = true;
+        modalAddDisposisi.suratId = modalDetailSurat.suratId;
+      "
+      @delete="
+        modalDeleteSurat.isOpen = true;
+        modalDeleteSurat.suratId = modalDetailSurat.suratId;
+      "
+      @edit="
+        modalEditSurat.isOpen = true;
+        modalEditSurat.suratId = modalDetailSurat.suratId;
+      "
+    />
+
+    <ModalConfirmComponent
+      :is-open="modalDeleteSurat.isOpen"
+      :title="TEXT.hapusSurat"
+      :message="TEXT.hapusSuratMessage"
+      :buttons="[
+        { variant: 'primary', text: TEXT.hapus, loading: isDeleteLoading },
+        { variant: 'secondary', text: TEXT.batal },
+      ]"
+      @close="modalDeleteSurat.isOpen = false"
+      @confirm="handleDelete"
     />
   </TemplateDetailComponent>
 </template>

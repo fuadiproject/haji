@@ -9,6 +9,11 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  suratType: {
+    type: String,
+    required: true,
+    validator: (value) => ["suratMasuk", "suratKeluar"].includes(value),
+  },
   isOpen: {
     type: Boolean,
     default: false,
@@ -18,17 +23,18 @@ const props = defineProps({
 const emit = defineEmits(["close", "update:isOpen", "submit"]);
 
 const toast = useToast();
+const suratApiService = useServiceSuratapi();
 
 // Form data
 const formData = reactive({
   sifat_id: undefined,
   urgensi_id: undefined,
   catatan: [
-    // {
-    //   catatan: undefined,
-    //   petunjuk_id: undefined,
-    //   targets: [{ nik_penerima: undefined }],
-    // },
+    {
+      catatan: undefined,
+      petunjuk_id: undefined,
+      targets: [{ nik_penerima: undefined }],
+    },
   ],
 });
 
@@ -66,63 +72,99 @@ const buttons = computed(() => [
   },
 ]);
 
-// Mock API functions
+// API functions
 const fetchSifat = async (search = "") => {
-  loading.value.sifat = true;
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  try {
+    loading.value.sifat = true;
+    const response = await suratApiService.getAllSifat();
 
-  const mockData = [
-    { id: "1", label: "Biasa" },
-    { id: "2", label: "Segera" },
-    { id: "3", label: "Sangat Segera" },
-    { id: "4", label: "Rahasia" },
-  ].filter(
-    (item) =>
-      search === "" || item.label.toLowerCase().includes(search.toLowerCase()),
-  );
+    const data = response?.data || [];
+    const filteredData = data
+      .map((item) => ({
+        id: item.id,
+        label: item.sifat,
+      }))
+      .filter(
+        (item) =>
+          search === "" ||
+          item.label.toLowerCase().includes(search.toLowerCase()),
+      );
 
-  sifatOptions.value = mockData;
-  loading.value.sifat = false;
+    sifatOptions.value = filteredData;
+  } catch (error) {
+    console.error("Error fetching sifat:", error);
+    toast.add({
+      title: "Error",
+      description: "Gagal memuat data sifat",
+      color: "error",
+    });
+  } finally {
+    loading.value.sifat = false;
+  }
 };
 
 const fetchUrgensi = async (search = "") => {
-  loading.value.urgensi = true;
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  try {
+    loading.value.urgensi = true;
+    const response = await suratApiService.getAllUrgensi();
 
-  const mockData = [
-    { id: "1", label: "Rendah" },
-    { id: "2", label: "Sedang" },
-    { id: "3", label: "Tinggi" },
-    { id: "4", label: "Sangat Tinggi" },
-  ].filter(
-    (item) =>
-      search === "" || item.label.toLowerCase().includes(search.toLowerCase()),
-  );
+    const data = response?.data || [];
+    const filteredData = data
+      .map((item) => ({
+        id: item.id,
+        label: item.urgensi,
+      }))
+      .filter(
+        (item) =>
+          search === "" ||
+          item.label.toLowerCase().includes(search.toLowerCase()),
+      );
 
-  urgensiOptions.value = mockData;
-  loading.value.urgensi = false;
+    urgensiOptions.value = filteredData;
+  } catch (error) {
+    console.error("Error fetching urgensi:", error);
+    toast.add({
+      title: "Error",
+      description: "Gagal memuat data urgensi",
+      color: "error",
+    });
+  } finally {
+    loading.value.urgensi = false;
+  }
 };
 
 const fetchPetunjuk = async (search = "") => {
-  loading.value.petunjuk = true;
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  try {
+    loading.value.petunjuk = true;
+    const response = await suratApiService.getAllPetunjuk();
 
-  const mockData = [
-    { id: "1", label: "Untuk Diketahui" },
-    { id: "2", label: "Untuk Ditindaklanjuti" },
-    { id: "3", label: "Untuk Disetujui" },
-    { id: "4", label: "Untuk Dipertimbangkan" },
-  ].filter(
-    (item) =>
-      search === "" || item.label.toLowerCase().includes(search.toLowerCase()),
-  );
+    const data = response?.data || [];
+    const filteredData = data
+      .map((item) => ({
+        id: item.id,
+        label: item.petunjuk,
+      }))
+      .filter(
+        (item) =>
+          search === "" ||
+          item.label.toLowerCase().includes(search.toLowerCase()),
+      );
 
-  petunjukOptions.value = mockData;
-  loading.value.petunjuk = false;
+    petunjukOptions.value = filteredData;
+  } catch (error) {
+    console.error("Error fetching petunjuk:", error);
+    toast.add({
+      title: "Error",
+      description: "Gagal memuat data petunjuk",
+      color: "error",
+    });
+  } finally {
+    loading.value.petunjuk = false;
+  }
 };
 
 const fetchNik = async (search = "") => {
+  // NIK masih menggunakan mock data karena belum ada API khusus untuk NIK
   loading.value.nik = true;
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -151,7 +193,7 @@ const addCatatan = () => {
 
 // Remove catatan
 const removeCatatan = (index) => {
-  if (formData.catatan.length > 0) {
+  if (formData.catatan.length > 1) {
     formData.catatan.splice(index, 1);
   }
 };
@@ -163,7 +205,7 @@ const addTarget = (catatanIndex) => {
 
 // Remove target from catatan
 const removeTarget = (catatanIndex, targetIndex) => {
-  if (formData.catatan[catatanIndex].targets.length > 0) {
+  if (formData.catatan[catatanIndex].targets.length > 1) {
     formData.catatan[catatanIndex].targets.splice(targetIndex, 1);
   }
 };
@@ -182,6 +224,8 @@ const handleSubmit = async () => {
 
     // Prepare data for API
     const submitData = {
+      // TODO: hardcoded - get nik_pengirim from user
+      nik_pengirim: "1234567890123456",
       sifat_id: formData.sifat_id,
       urgensi_id: formData.urgensi_id,
       catatan: formData.catatan
@@ -195,13 +239,32 @@ const handleSubmit = async () => {
         })),
     };
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // Call appropriate API based on surat type
+    const functionName =
+      props.suratType === "suratMasuk"
+        ? "disposisiSuratMasuk"
+        : "disposisiSuratKeluar";
+
+    await suratApiService[functionName]({
+      id: props.suratId,
+      data: submitData,
+    });
+
+    toast.add({
+      title: "Success",
+      description: "Disposisi berhasil dibuat",
+      color: "success",
+    });
 
     emit("submit", submitData);
     handleClose();
   } catch (error) {
     console.error("Error submitting form:", error);
+    toast.add({
+      title: "Error",
+      description: "Gagal membuat disposisi",
+      color: "error",
+    });
   } finally {
     loading.value.submit = false;
   }
@@ -219,13 +282,12 @@ const validateForm = () => {
     return false;
   }
 
-  const hasValidCatatan =
-    formData.catatan.some(
-      (catatan) =>
-        Boolean(catatan.catatan) &&
-        Boolean(catatan.petunjuk_id) &&
-        catatan.targets.some((target) => Boolean(target.nik_penerima)),
-    ) || formData.catatan.length === 0;
+  const hasValidCatatan = formData.catatan.some(
+    (catatan) =>
+      Boolean(catatan.catatan) &&
+      Boolean(catatan.petunjuk_id) &&
+      catatan.targets.some((target) => Boolean(target.nik_penerima)),
+  );
 
   if (!hasValidCatatan) {
     toast.add({
@@ -241,11 +303,6 @@ const validateForm = () => {
 
 // Handle close
 const handleClose = () => {
-  // Reset form
-  formData.sifat_id = undefined;
-  formData.urgensi_id = undefined;
-  formData.catatan = [];
-
   emit("close");
   emit("update:isOpen", false);
 };
@@ -266,12 +323,25 @@ watch(
   () => props.isOpen,
   (isOpen) => {
     if (isOpen) {
+      // Reset form when opening
+      formData.sifat_id = undefined;
+      formData.urgensi_id = undefined;
+      formData.catatan = [
+        {
+          catatan: undefined,
+          petunjuk_id: undefined,
+          targets: [{ nik_penerima: undefined }],
+        },
+      ];
+
+      // Load master data
       fetchSifat();
       fetchUrgensi();
       fetchPetunjuk();
       fetchNik();
     }
   },
+  { immediate: true },
 );
 </script>
 
@@ -290,7 +360,7 @@ watch(
       <!-- Sifat -->
       <div>
         <label class="mb-2 block text-sm font-medium text-gray-700">
-          Sifat *
+          Sifat <span class="text-red-500">*</span>
         </label>
         <USelectMenu
           v-model="formData.sifat_id"
@@ -312,7 +382,7 @@ watch(
       <!-- Urgensi -->
       <div>
         <label class="mb-2 block text-sm font-medium text-gray-700">
-          Urgensi *
+          Urgensi <span class="text-red-500">*</span>
         </label>
         <USelectMenu
           v-model="formData.urgensi_id"
@@ -342,13 +412,6 @@ watch(
       </div>
 
       <div
-        v-if="formData.catatan.length === 0"
-        class="text-neutral-6 mb-4 rounded-lg border border-gray-200 p-4 text-center text-sm"
-      >
-        {{ TEXT.belumAdaCatatan }}
-      </div>
-
-      <div
         v-for="(catatan, catatanIndex) in formData.catatan"
         :key="catatanIndex"
         class="mb-4 rounded-lg border border-gray-200 p-4"
@@ -359,6 +422,7 @@ watch(
             Catatan {{ catatanIndex + 1 }}
           </h4>
           <ButtonComponent
+            v-if="formData.catatan.length > 1"
             variant="ghost"
             size="sm"
             @click="removeCatatan(catatanIndex)"
@@ -371,6 +435,7 @@ watch(
         <div class="mb-4">
           <label class="mb-2 block text-sm font-medium text-gray-700">
             {{ TEXT.isiCatatan }}
+            <span v-if="catatanIndex === 0" class="text-red-500">*</span>
           </label>
           <UTextarea
             v-model="catatan.catatan"
@@ -385,6 +450,7 @@ watch(
         <div class="mb-4">
           <label class="mb-2 block text-sm font-medium text-gray-700">
             {{ TEXT.petunjuk }}
+            <span v-if="catatanIndex === 0" class="text-red-500">*</span>
           </label>
           <USelectMenu
             v-model="catatan.petunjuk_id"
@@ -409,6 +475,7 @@ watch(
           <div class="mb-2 flex items-center justify-between">
             <label class="block text-sm font-medium text-gray-700">
               {{ TEXT.penerima }}
+              <span v-if="catatanIndex === 0" class="text-red-500">*</span>
             </label>
             <ButtonComponent
               variant="outline"
