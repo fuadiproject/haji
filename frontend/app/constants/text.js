@@ -76,6 +76,7 @@ export const TEXT = {
     "Belum ada catatan. Klik 'Tambah Catatan' untuk menambahkan.",
   tambahCatatan: "Tambah Catatan",
   hapus: "Hapus",
+  edit: "Edit",
   isiCatatan: "Isi Catatan",
   petunjuk: "Petunjuk",
   penerima: "Penerima",

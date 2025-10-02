@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { TEXT } from "@/constants/text";
 import ModalBottomComponent from "@/components/global/ModalBottomComponent.vue";
 import ButtonComponent from "@/components/global/ButtonComponent.vue";
@@ -23,7 +23,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["close", "download", "disposisi", "delete"]);
+const emit = defineEmits(["close", "download", "disposisi", "delete", "edit"]);
 
 const suratApiService = useServiceSuratapi();
 
@@ -51,34 +51,25 @@ const {
 );
 const isLoading = computed(() => statusSurat.value === "pending");
 
-const isDeleteModalOpen = ref(false);
+// PDF Viewer state
+const pdfViewer = ref(null);
+const showPdfFallback = ref(false);
+const pdfLoadTimeout = ref(null);
+const isMobile = ref(false);
 
-// Methods
-// const handleDownload = () => {
-//   // Simulate download
-//   const link = document.createElement("a");
-//   link.href = fileUrl.value;
-//   link.download = `surat-${suratData.value.nomor_surat}.${fileExtension.value}`;
-//   document.body.appendChild(link);
-//   link.click();
-//   document.body.removeChild(link);
-
-//   emit("download", {
-//     suratId: suratData.value.id,
-//     fileUrl: fileUrl.value,
-//   });
-// };
+// Deteksi mobile device
+const checkMobile = () => {
+  isMobile.value =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent,
+    ) || window.innerWidth < 768;
+};
 
 const handleDisposisi = () => {
   emit("disposisi", {
     suratId: suratData.value.id,
     nomorSurat: suratData.value.nomor_surat,
   });
-};
-
-const handlePreview = () => {
-  // Buka file di tab baru
-  // window.open(fileUrl.value, "_blank");
 };
 
 const formatDate = (dateString) => {
@@ -91,29 +82,38 @@ const formatDate = (dateString) => {
   });
 };
 
-// Watch for prop changes
-// watch(
-//   () => props.suratId,
-//   (newId) => {
-//     if (newId) {
-//       suratData.value.id = newId;
-//     }
-//   },
-// );
-
-// watch(
-//   () => props.nomorSurat,
-//   (newNomor) => {
-//     if (newNomor) {
-//       suratData.value.nomor_surat = newNomor;
-//     }
-//   },
-// );
-
-const handleDelete = () => {
-  emit("close");
-  isDeleteModalOpen.value = false;
+// PDF handling methods
+const handlePdfError = () => {
+  console.log("PDF failed to load, showing fallback");
+  showPdfFallback.value = true;
+  if (pdfLoadTimeout.value) {
+    clearTimeout(pdfLoadTimeout.value);
+  }
 };
+
+const handlePdfLoad = () => {
+  console.log("PDF loaded successfully");
+  showPdfFallback.value = false;
+  if (pdfLoadTimeout.value) {
+    clearTimeout(pdfLoadTimeout.value);
+  }
+};
+
+// Watch untuk perubahan ukuran layar
+watch(
+  () => window.innerWidth,
+  () => {
+    checkMobile();
+    if (isMobile.value) {
+      showPdfFallback.value = true;
+    }
+  },
+);
+
+// Inisialisasi deteksi mobile saat component mounted
+onMounted(() => {
+  checkMobile();
+});
 </script>
 
 <template>
@@ -276,42 +276,115 @@ const handleDelete = () => {
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
-        <UButton
-          variant="outline"
-          size="lg"
-          class="mx-auto w-full justify-center"
-        >
-          <UIcon name="ph:pencil" class="h-4 w-4" />
-          {{ TEXT.editSurat }}
-        </UButton>
-        <UButton
-          variant="outline"
-          color="error"
-          size="lg"
-          class="mx-auto w-full justify-center"
-          @click="isDeleteModalOpen = true"
-        >
-          <UIcon name="ph:trash" class="h-4 w-4" />
-          {{ TEXT.hapusSurat }}
-        </UButton>
-      </div>
+      <ClientOnly>
+        <div class="md:col-span-2">
+          <!-- PDF Viewer dengan fallback yang proper -->
+          <div class="relative">
+            <!-- Desktop PDF Viewer -->
+            <iframe
+              v-if="!isMobile"
+              ref="pdfViewer"
+              :src="
+                '/files/pdf/sample.pdf#navpanes=0' ||
+                suratData?.data?.file?.filepath
+              "
+              width="100%"
+              height="700px"
+              class="rounded-lg border border-gray-300"
+              @error="handlePdfError"
+              @load="handlePdfLoad"
+            />
+
+            <!-- Mobile/Tablet Fallback - Langsung tampilkan fallback -->
+            <div
+              v-if="
+                suratData?.data?.file?.filepath && (isMobile || showPdfFallback)
+              "
+              class="flex flex-col items-center justify-center rounded-lg border border-gray-300 bg-gray-50 p-8"
+              :style="{ minHeight: isMobile ? '400px' : '700px' }"
+            >
+              <UIcon name="ph:file-pdf" class="mb-4 h-16 w-16 text-red-500" />
+              <h3 class="mb-2 text-center text-lg font-semibold text-gray-900">
+                {{
+                  isMobile
+                    ? "Preview PDF tidak tersedia di mobile"
+                    : "Tidak dapat memuat PDF"
+                }}
+              </h3>
+              <p class="mb-4 text-center text-sm text-gray-600">
+                {{
+                  isMobile
+                    ? "Untuk melihat dokumen PDF, silakan download dan buka dengan aplikasi PDF reader."
+                    : "Browser Anda tidak mendukung preview PDF atau file tidak tersedia."
+                }}
+              </p>
+              <div class="flex flex-col gap-2 sm:flex-row">
+                <UButton
+                  variant="outline"
+                  class="w-full sm:w-auto"
+                  @click="
+                    downloadPdf(
+                      suratData?.data?.file?.filepath,
+                      suratData?.data?.nomor_surat,
+                    )
+                  "
+                >
+                  <UIcon name="ph:download" class="mr-2 h-4 w-4" />
+                  Download PDF
+                </UButton>
+              </div>
+
+              <!-- Informasi tambahan untuk mobile -->
+              <!-- <div v-if="isMobile" class="mt-4 rounded-lg bg-blue-50 p-4">
+                <div class="flex items-start">
+                  <UIcon
+                    name="ph:info"
+                    class="mt-0.5 mr-2 h-5 w-5 text-blue-500"
+                  />
+                  <div class="text-sm text-blue-700">
+                    <p class="mb-1 font-medium">Tips untuk mobile:</p>
+                    <ul class="list-inside list-disc space-y-1 text-xs">
+                      <li>Download PDF dan buka dengan aplikasi PDF reader</li>
+                      <li>Gunakan browser desktop untuk preview PDF</li>
+                      <li>Pastikan koneksi internet stabil</li>
+                    </ul>
+                  </div>
+                </div>
+              </div> -->
+            </div>
+          </div>
+        </div>
+      </ClientOnly>
+
       <!-- Action Buttons -->
       <div
-        class="fixed right-0 bottom-0 left-0 flex w-full justify-end gap-2 border-t border-gray-200 bg-white p-4 pt-4 sm:flex-row"
+        class="fixed right-0 bottom-0 left-0 flex w-full justify-between gap-2 border-t border-gray-200 bg-white p-4 pt-4 sm:flex-row"
       >
-        <ButtonComponent
-          variant="outline"
-          class="min-w-fit flex-1 sm:flex-none"
-          @click="handlePreview"
-        >
-          <UIcon name="ph:eye-bold" class="h-4 w-4" />
-          {{ TEXT.lihatPreview }}
-        </ButtonComponent>
+        <div class="flex items-center gap-2">
+          <UButton
+            variant="outline"
+            size="lg"
+            class="mx-auto w-full justify-center"
+            @click="emit('edit')"
+          >
+            <UIcon name="ph:pencil" class="h-4 w-4" />
+            {{ TEXT.edit }}
+          </UButton>
+          <UButton
+            variant="outline"
+            color="error"
+            size="lg"
+            class="mx-auto w-full justify-center"
+            @click="emit('delete')"
+          >
+            <UIcon name="ph:trash" class="h-4 w-4" />
+            {{ TEXT.hapus }}
+          </UButton>
+        </div>
 
         <ButtonComponent
           variant="primary"
-          class="min-w-fit flex-1 sm:flex-none"
+          class="max-w-fit flex-1 sm:flex-none"
           @click="handleDisposisi"
         >
           {{ TEXT.disposisi }}
@@ -319,16 +392,4 @@ const handleDelete = () => {
       </div>
     </div>
   </ModalBottomComponent>
-
-  <ModalConfirmComponent
-    :is-open="isDeleteModalOpen"
-    :title="TEXT.hapusSurat"
-    :message="TEXT.hapusSuratMessage"
-    :buttons="[
-      { variant: 'primary', text: TEXT.hapus },
-      { variant: 'secondary', text: TEXT.batal },
-    ]"
-    @close="isDeleteModalOpen = false"
-    @confirm="handleDelete"
-  />
 </template>

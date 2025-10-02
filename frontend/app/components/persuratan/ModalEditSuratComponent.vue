@@ -8,6 +8,10 @@ import {
 } from "@internationalized/date";
 
 const props = defineProps({
+  suratId: {
+    type: String,
+    required: true,
+  },
   isOpen: {
     type: Boolean,
     default: false,
@@ -36,7 +40,7 @@ const suratTypeOptions = ref([
 const schema = z.object({
   type: z.string("Type is required"),
   nomorSurat: z.string("Nomor surat is required"),
-  fileSurat: z.instanceof(File, { message: "File surat is required" }),
+  fileSurat: z.instanceof(File).optional(),
 });
 const df = new DateFormatter("en-US", {
   dateStyle: "medium",
@@ -58,22 +62,86 @@ const state = reactive({
   fileSurat: undefined,
 });
 
+// Track original data for comparison
+const originalData = ref(null);
+const isFileChanged = ref(false);
+
+const {
+  data: suratData,
+  status: statusSurat,
+  error: _errorSurat,
+  refresh: _refreshSurat,
+} = await useAsyncData(
+  computed(() => `surat-${state.type}-${props.suratId}`),
+  async () => {
+    const functionName =
+      state.type === "suratMasuk" ? "getSuratMasukById" : "getSuratKeluarById";
+    const response = await suratApiService[functionName]({
+      id: props.suratId,
+    });
+    return response;
+  },
+  {
+    watch: [props.suratId],
+    server: false,
+    lazy: true,
+    immediate: !!props.suratId,
+  },
+);
+
+// Watch for suratData changes to populate form
+watch(
+  suratData,
+  (newData) => {
+    if (newData?.data) {
+      originalData.value = { ...newData.data };
+      state.nomorSurat = newData.data.nomor_surat || "";
+
+      // Set tanggal for surat keluar
+      if (state.type === "suratKeluar" && newData.data.tanggal_surat) {
+        const date = new Date(newData.data.tanggal_surat);
+        modelValue.value = new CalendarDate(
+          date.getFullYear(),
+          date.getMonth() + 1,
+          date.getDate(),
+        );
+      }
+    }
+  },
+  { immediate: true },
+);
+
+// Reset form when modal closes
+watch(
+  () => props.isOpen,
+  (isOpen) => {
+    if (!isOpen) {
+      // Reset form state when modal closes
+      state.nomorSurat = "";
+      state.fileSurat = undefined;
+      isFileChanged.value = false;
+      originalData.value = null;
+    }
+  },
+);
+const isLoading = computed(() => statusSurat.value === "pending");
+
 const isValidForm = computed(() => {
   if (state.type === "suratKeluar") {
-    return Boolean(state.fileSurat && state.nomorSurat && modelValue.value);
+    return Boolean(state.nomorSurat && modelValue.value);
   }
-  return Boolean(state.fileSurat && state.nomorSurat);
+  return Boolean(state.nomorSurat);
 });
 
+// Watch for file changes
+watch(
+  () => state.fileSurat,
+  (newFile) => {
+    isFileChanged.value = !!newFile;
+  },
+);
+
 async function onSubmit(event) {
-  if (!event.data.fileSurat) {
-    toast.add({
-      title: "Error",
-      description: "File surat harus diisi",
-      color: "error",
-    });
-    return;
-  }
   if (!event.data.nomorSurat) {
     toast.add({
       title: "Error",
@@ -95,18 +163,26 @@ async function onSubmit(event) {
 
   try {
     isSubmitLoading.value = true;
-    const formData = new FormData();
-    formData.append("file", event.data.fileSurat);
-    const file = await suratApiService.uploadFile({ data: formData });
-    const fileId = file?.data?.id;
+
+    let fileId = originalData.value?.file_id;
+
+    // Only upload new file if file has changed
+    if (isFileChanged.value && event.data.fileSurat) {
+      const formData = new FormData();
+      formData.append("file", event.data.fileSurat);
+      const file = await suratApiService.uploadFile({ data: formData });
+      fileId = file?.data?.id;
+    }
 
     const functionName =
-      state.type === "suratMasuk" ? "createSuratMasuk" : "createSuratKeluar";
+      state.type === "suratMasuk" ? "updateSuratMasuk" : "updateSuratKeluar";
 
     const submitData = {
+      id: props.suratId,
       fileId,
       nomorSurat: event.data.nomorSurat,
     };
+
     if (state.type === "suratKeluar") {
       submitData.tanggalSurat = new Date(
         modelValue.value.toDate(getLocalTimeZone()),
@@ -116,16 +192,16 @@ async function onSubmit(event) {
     await suratApiService[functionName](submitData);
     toast.add({
       title: "Success",
-      description: `Surat ${state.type === "suratMasuk" ? "masuk" : "keluar"} berhasil dibuat`,
+      description: `Surat ${state.type === "suratMasuk" ? "masuk" : "keluar"} berhasil diperbarui`,
       color: "success",
     });
     emit("refresh");
     emit("close");
   } catch (error) {
-    console.error("Error submitting form:", error);
+    console.error("Error updating surat:", error);
     toast.add({
       title: "Error",
-      description: "Gagal membuat surat",
+      description: "Gagal memperbarui surat",
       color: "error",
     });
   } finally {
@@ -142,7 +218,7 @@ const handleDateChange = (newDate) => {
 <template>
   <ModalComponent
     :is-open="isOpen"
-    :title="TEXT.buatSurat"
+    :title="TEXT.editSurat"
     @close="emit('close')"
   >
     <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
@@ -152,6 +228,7 @@ const handleDateChange = (newDate) => {
           size="lg"
           :items="suratTypeOptions"
           class="w-full"
+          disabled
         />
       </UFormField>
       <UFormField name="nomorSurat" :label="TEXT.nomorSurat">
@@ -160,6 +237,9 @@ const handleDateChange = (newDate) => {
           size="lg"
           :placeholder="TEXT.nomorSurat"
           class="w-full"
+          :loading="isLoading"
+          :readonly="isLoading"
+          :disabled="isLoading"
         />
       </UFormField>
       <UFormField
@@ -168,7 +248,14 @@ const handleDateChange = (newDate) => {
         :label="TEXT.tanggalSurat"
       >
         <UPopover v-model:open="isPopoverOpen">
-          <UButton color="neutral" variant="outline" icon="i-lucide-calendar">
+          <UButton
+            color="neutral"
+            variant="outline"
+            icon="i-lucide-calendar"
+            :loading="isLoading"
+            :readonly="isLoading"
+            :disabled="isLoading"
+          >
             {{
               modelValue
                 ? df.format(modelValue.toDate(getLocalTimeZone()))
@@ -189,7 +276,11 @@ const handleDateChange = (newDate) => {
         v-model="state.fileSurat"
         :label="TEXT.fileSurat"
         :placeholder="TEXT.fileSurat"
-        :description="TEXT.fileSuratDescription"
+        :description="
+          isFileChanged
+            ? 'File baru akan menggantikan file yang ada'
+            : 'Pilih file baru untuk mengganti file yang ada (opsional)'
+        "
         layout="list"
         accept="application/pdf"
       />

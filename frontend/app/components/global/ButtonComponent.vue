@@ -34,6 +34,7 @@ const loadingClasses = computed(() => {
 <template>
   <button
     class="flex cursor-pointer items-center justify-center gap-2 rounded-md text-sm leading-4 font-semibold disabled:opacity-50"
+    :disabled="loading"
     :class="[
       sizeClasses[size],
       variant === 'outline'

@@ -18,10 +18,10 @@ export const useServiceSuratapi = () => {
   };
 
   // File Management
-  const uploadFile = async ({ file }) => {
+  const uploadFile = async ({ data }) => {
     return $fetch(`${BASE_URL}/files/upload`, {
       method: "POST",
-      body: file,
+      body: data,
       headers: {
         Authorization: `${jwtToken.value}`,
       },
@@ -50,11 +50,23 @@ export const useServiceSuratapi = () => {
     });
   };
 
+  const updateFileById = async ({ fileId, data }) => {
+    return $fetch(`${BASE_URL}/files/upload/${fileId}`, {
+      method: "PUT",
+      body: data,
+      headers: {
+        Authorization: `${jwtToken.value}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
   // Surat Masuk
   const createSuratMasuk = async ({ fileId, nomorSurat }) => {
     return $fetch(`${BASE_URL}/surat-masuk`, {
       method: "POST",
-      body: { fileId, nomorSurat },
+      body: { file_id: fileId, nomor_surat: nomorSurat },
       headers: {
         Authorization: `${jwtToken.value}`,
       },
@@ -87,7 +99,7 @@ export const useServiceSuratapi = () => {
   const updateSuratMasuk = async ({ id, fileId, nomorSurat }) => {
     return $fetch(`${BASE_URL}/surat-masuk/${id}`, {
       method: "PUT",
-      body: { fileId, nomorSurat },
+      body: { file_id: fileId, nomor_surat: nomorSurat },
       headers: {
         Authorization: `${jwtToken.value}`,
       },
@@ -133,7 +145,11 @@ export const useServiceSuratapi = () => {
   const createSuratKeluar = async ({ fileId, nomorSurat, tanggalSurat }) => {
     return $fetch(`${BASE_URL}/surat-keluar`, {
       method: "POST",
-      body: { fileId, nomorSurat, tanggalSurat },
+      body: {
+        file_id: fileId,
+        nomor_surat: nomorSurat,
+        tanggal_surat: tanggalSurat,
+      },
       headers: {
         Authorization: `${jwtToken.value}`,
       },
@@ -171,7 +187,11 @@ export const useServiceSuratapi = () => {
   }) => {
     return $fetch(`${BASE_URL}/surat-keluar/${id}`, {
       method: "PUT",
-      body: { fileId, nomorSurat, tanggalSurat },
+      body: {
+        file_id: fileId,
+        nomor_surat: nomorSurat,
+        tanggal_surat: tanggalSurat,
+      },
       headers: {
         Authorization: `${jwtToken.value}`,
       },
@@ -246,6 +266,7 @@ export const useServiceSuratapi = () => {
 
   return {
     uploadFile,
+    updateFileById,
     getFileById,
     downloadFile,
     createSuratMasuk,

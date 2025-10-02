@@ -2,6 +2,14 @@
 import { TEXT } from "@/constants/text";
 
 defineProps({
+  suratId: {
+    type: String,
+    required: true,
+  },
+  type: {
+    type: String,
+    required: true,
+  },
   nomorSurat: {
     type: String,
     required: true,
@@ -33,14 +41,7 @@ defineProps({
   },
 });
 
-const emit = defineEmits(["disposisi", "detail", "delete"]);
-
-const isDeleteModalOpen = ref(false);
-
-const handleDelete = () => {
-  emit("delete");
-  isDeleteModalOpen.value = false;
-};
+const emit = defineEmits(["disposisi", "detail", "delete", "edit"]);
 </script>
 
 <template>
@@ -52,14 +53,19 @@ const handleDelete = () => {
         </span>
 
         <div class="flex items-center gap-2">
-          <UButton variant="outline" size="xs" color="secondary">
+          <UButton
+            variant="outline"
+            size="xs"
+            color="secondary"
+            @click="emit('edit')"
+          >
             <UIcon name="ph:pencil" class="h-4 w-4" />
           </UButton>
           <UButton
             variant="outline"
             color="error"
             size="xs"
-            @click="isDeleteModalOpen = true"
+            @click="emit('delete')"
           >
             <UIcon name="ph:trash" class="h-4 w-4" />
           </UButton>
@@ -71,10 +77,8 @@ const handleDelete = () => {
           class="text-neutral-6 text-xs"
           :datetime="tanggalSurat"
           day="numeric"
-          month="short"
+          month="long"
           year="numeric"
-          hour="2-digit"
-          minute="2-digit"
           locale="id"
         />
       </div>
@@ -100,7 +104,11 @@ const handleDelete = () => {
           <div class="flex items-center gap-2">
             <div v-if="fileUrl">
               <a :href="fileUrl" target="_blank">
-                <ButtonComponent size="sm" variant="primary-outline">
+                <ButtonComponent
+                  size="sm"
+                  variant="primary-outline"
+                  @click="downloadPdf(fileUrl, nomorSurat)"
+                >
                   <UIcon name="ph:download-bold" class="h-4 w-4" />
                   <span>{{ TEXT.download }}</span>
                 </ButtonComponent>
@@ -121,16 +129,4 @@ const handleDelete = () => {
       </div>
     </div>
   </CardComponent>
-
-  <ModalConfirmComponent
-    :is-open="isDeleteModalOpen"
-    :title="TEXT.hapusSurat"
-    :message="TEXT.hapusSuratMessage"
-    :buttons="[
-      { variant: 'primary', text: TEXT.hapus },
-      { variant: 'secondary', text: TEXT.batal },
-    ]"
-    @close="isDeleteModalOpen = false"
-    @confirm="handleDelete"
-  />
 </template>
