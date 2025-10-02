@@ -57,4 +57,7 @@ export const TEXT = {
   cobaLagi: "Coba Lagi",
   tidakAdaDataKehadiranUntukBulanIni:
     "Tidak ada data kehadiran untuk bulan ini",
+  petunjukBerhasilDitambahkan: "Petunjuk berhasil ditambahkan",
+  petunjukBerhasilDiubah: "Petunjuk berhasil diubah",
+  petunjukBerhasilDihapus: "Petunjuk berhasil dihapus",
 };

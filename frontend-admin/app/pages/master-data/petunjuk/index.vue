@@ -1,129 +1,53 @@
 <script setup>
+import { TEXT } from "~/constants/text";
+
 definePageMeta({
   title: "Daftar Petunjuk",
   description: "Kelola data petunjuk dan panduan",
 });
 
+const toast = useToast();
+
+const bphapiService = useServiceBphapi();
+
 // Modal state
 const isModalOpen = ref(false);
-const isEditModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const itemToDelete = ref(null);
 const itemToEdit = ref(null);
+const isEditMode = ref(false);
 
 // Form data
 const formData = ref({
-  nama: "",
-});
-
-// Edit form data
-const editFormData = ref({
-  nama: "",
+  petunjuk: "",
 });
 
 // Form validation errors
 const formErrors = ref({});
-const editFormErrors = ref({});
 
 // Computed properties
 const deleteModalMessage = computed(() => {
   return itemToDelete.value
-    ? `Apakah Anda yakin ingin menghapus petunjuk "${itemToDelete.value.nama}"?`
+    ? `Apakah Anda yakin ingin menghapus petunjuk "${itemToDelete.value.petunjuk}"?`
     : "Apakah Anda yakin ingin menghapus petunjuk ini?";
 });
 
-// Sample data for the table (expanded for pagination demo)
-const allPetunjukData = ref([
+// Correct implementation
+const { data: allPetunjukData, refresh: refreshPetunjuk } = await useAsyncData(
+  "petunjuk", // unique key for caching
+  () => bphapiService.getPetunjuk(), // function that returns a promise
   {
-    id: 1,
-    nama: "Petunjuk Teknis Penggunaan Sistem",
-    createdAt: new Date("2024-01-15T10:30:00"),
-    updatedAt: new Date("2024-01-20T14:45:00"),
-    createdBy: "Admin System",
+    default: () => [], // default value
+    transform: (data) => data.data || [], // transform the data
+    server: false, // run on server-side
+    lazy: true, // don't block page rendering
   },
-  {
-    id: 2,
-    nama: "Panduan Operasional Harian",
-    createdAt: new Date("2024-01-10T09:15:00"),
-    updatedAt: new Date("2024-01-18T16:20:00"),
-    createdBy: "Manager Operasional",
-  },
-  {
-    id: 3,
-    nama: "Prosedur Keamanan Data",
-    createdAt: new Date("2024-01-05T11:00:00"),
-    updatedAt: new Date("2024-01-22T13:30:00"),
-    createdBy: "IT Security",
-  },
-  {
-    id: 4,
-    nama: "Petunjuk Backup dan Recovery",
-    createdAt: new Date("2024-01-12T08:45:00"),
-    updatedAt: new Date("2024-01-25T10:15:00"),
-    createdBy: "Database Admin",
-  },
-  {
-    id: 5,
-    nama: "Manual Troubleshooting",
-    createdAt: new Date("2024-01-08T14:20:00"),
-    updatedAt: new Date("2024-01-19T11:50:00"),
-    createdBy: "Technical Support",
-  },
-  {
-    id: 6,
-    nama: "Panduan Instalasi Software",
-    createdAt: new Date("2024-01-03T16:45:00"),
-    updatedAt: new Date("2024-01-15T09:30:00"),
-    createdBy: "IT Support",
-  },
-  {
-    id: 7,
-    nama: "Prosedur Maintenance Server",
-    createdAt: new Date("2024-01-07T13:20:00"),
-    updatedAt: new Date("2024-01-21T11:15:00"),
-    createdBy: "System Administrator",
-  },
-  {
-    id: 8,
-    nama: "Manual Konfigurasi Network",
-    createdAt: new Date("2024-01-11T08:00:00"),
-    updatedAt: new Date("2024-01-23T14:30:00"),
-    createdBy: "Network Engineer",
-  },
-  {
-    id: 9,
-    nama: "Petunjuk Monitoring Sistem",
-    createdAt: new Date("2024-01-14T10:15:00"),
-    updatedAt: new Date("2024-01-26T16:45:00"),
-    createdBy: "Operations Team",
-  },
-  {
-    id: 10,
-    nama: "Panduan Recovery Database",
-    createdAt: new Date("2024-01-09T12:30:00"),
-    updatedAt: new Date("2024-01-24T13:20:00"),
-    createdBy: "Database Admin",
-  },
-  {
-    id: 11,
-    nama: "Manual User Management",
-    createdAt: new Date("2024-01-06T15:45:00"),
-    updatedAt: new Date("2024-01-17T10:30:00"),
-    createdBy: "Admin System",
-  },
-  {
-    id: 12,
-    nama: "Prosedur Audit Sistem",
-    createdAt: new Date("2024-01-13T09:20:00"),
-    updatedAt: new Date("2024-01-27T15:10:00"),
-    createdBy: "Audit Team",
-  },
-]);
+);
 
 // Table columns configuration
 const columns = [
   {
-    key: "nama",
+    key: "petunjuk",
     label: "Nama Petunjuk",
     width: "40%",
   },
@@ -166,20 +90,21 @@ const paginationConfig = ref({
 
 // Format date to Indonesian format
 const formatDate = (date) => {
+  const dateObj = typeof date === "string" ? new Date(date) : date;
   return new Intl.DateTimeFormat("id-ID", {
     year: "numeric",
     month: "long",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(date);
+  }).format(dateObj);
 };
 
 // Form validation
 const validateForm = () => {
   const errors = {};
 
-  if (!formData.value.nama.trim()) {
+  if (!formData.value.petunjuk.trim()) {
     errors.nama = "Nama petunjuk wajib diisi";
   }
 
@@ -187,110 +112,82 @@ const validateForm = () => {
   return Object.keys(errors).length === 0;
 };
 
-// Edit form validation
-const validateEditForm = () => {
-  const errors = {};
-
-  if (!editFormData.value.nama.trim()) {
-    errors.nama = "Nama petunjuk wajib diisi";
-  }
-
-  editFormErrors.value = errors;
-  return Object.keys(errors).length === 0;
-};
-
 // Reset form
 const resetForm = () => {
   formData.value = {
-    nama: "",
+    petunjuk: "",
   };
   formErrors.value = {};
 };
 
-// Reset edit form
-const resetEditForm = () => {
-  editFormData.value = {
-    nama: "",
-  };
-  editFormErrors.value = {};
-};
-
 // Action handlers
 const handleAddPetunjuk = () => {
+  isEditMode.value = false;
   resetForm();
   isModalOpen.value = true;
 };
 
-const handleSavePetunjuk = () => {
+const handleEditPetunjuk = (item) => {
+  isEditMode.value = true;
+  itemToEdit.value = item;
+  formData.value = {
+    petunjuk: item.petunjuk,
+  };
+  formErrors.value = {};
+  isModalOpen.value = true;
+};
+
+const handleSavePetunjuk = async () => {
   if (!validateForm()) {
     return;
   }
 
-  // Generate new ID
-  const newId = Math.max(...allPetunjukData.value.map((item) => item.id)) + 1;
-
-  // Create new petunjuk object
-  const newPetunjuk = {
-    id: newId,
-    nama: formData.value.nama.trim(),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-
-  // Add to the beginning of the array
-  allPetunjukData.value.unshift(newPetunjuk);
-
-  // Close modal and reset form
-  isModalOpen.value = false;
-  resetForm();
-
-  console.log("New petunjuk added:", newPetunjuk);
-};
-
-const handleCancelAdd = () => {
-  isModalOpen.value = false;
-  resetForm();
-};
-
-const handleEditPetunjuk = (item) => {
-  itemToEdit.value = item;
-  editFormData.value = {
-    nama: item.nama,
-  };
-  editFormErrors.value = {};
-  isEditModalOpen.value = true;
-};
-
-const handleSaveEditPetunjuk = () => {
-  if (!validateEditForm()) {
-    return;
-  }
-
-  if (itemToEdit.value) {
-    const index = allPetunjukData.value.findIndex(
-      (p) => p.id === itemToEdit.value.id,
-    );
-    if (index > -1) {
-      // Update the item
-      allPetunjukData.value[index] = {
-        ...allPetunjukData.value[index],
-        nama: editFormData.value.nama.trim(),
-        updatedAt: new Date(),
+  if (isEditMode.value) {
+    // Edit mode
+    if (itemToEdit.value) {
+      const updatedData = {
+        petunjuk: formData.value.petunjuk.trim(),
       };
-      console.log("Petunjuk updated:", allPetunjukData.value[index]);
+
+      await bphapiService.updatePetunjuk(itemToEdit.value.id, updatedData);
+
+      // Refetch data from server
+      await refreshPetunjuk();
+
+      toast.add({
+        title: "Berhasil",
+        description: TEXT.petunjukBerhasilDiubah,
+        color: "success",
+      });
     }
+  } else {
+    // Create mode
+    await bphapiService.createPetunjuk(formData.value.petunjuk.trim());
+
+    // Add to the beginning of the array
+    await refreshPetunjuk();
+
+    toast.add({
+      title: "Berhasil",
+      description: TEXT.petunjukBerhasilDitambahkan,
+      color: "success",
+    });
   }
 
   // Close modal and reset form
-  isEditModalOpen.value = false;
-  resetEditForm();
+  isModalOpen.value = false;
+  resetForm();
   itemToEdit.value = null;
+  isEditMode.value = false;
+
+  triggerRef(allPetunjukData);
 };
 
-const handleCancelEdit = () => {
-  isEditModalOpen.value = false;
-  resetEditForm();
+const handleCancelModal = () => {
+  isModalOpen.value = false;
+  resetForm();
   itemToEdit.value = null;
+  isEditMode.value = false;
 };
 
 const handleDeletePetunjuk = (item) => {
@@ -298,13 +195,15 @@ const handleDeletePetunjuk = (item) => {
   isDeleteModalOpen.value = true;
 };
 
-const handleConfirmDelete = () => {
+const handleConfirmDelete = async () => {
   if (itemToDelete.value) {
     const index = allPetunjukData.value.findIndex(
       (p) => p.id === itemToDelete.value.id,
     );
+
     if (index > -1) {
-      allPetunjukData.value.splice(index, 1);
+      await bphapiService.deletePetunjuk(itemToDelete.value.id);
+      await refreshPetunjuk();
       console.log("Petunjuk deleted:", itemToDelete.value);
     }
   }
@@ -319,11 +218,6 @@ const handleCancelDelete = () => {
 // Table event handlers
 const handlePaginationUpdate = (newPagination) => {
   paginationConfig.value = { ...newPagination };
-};
-
-const handleRowClick = ({ row, index }) => {
-  console.log("Row clicked:", row, index);
-  // TODO: Implement row click functionality if needed
 };
 </script>
 
@@ -351,29 +245,28 @@ const handleRowClick = ({ row, index }) => {
       :columns="columns"
       :pagination="paginationConfig"
       @update:pagination="handlePaginationUpdate"
-      @row-click="handleRowClick"
     >
       <!-- Custom slot for nama column -->
-      <template #nama-data="{ row }">
+      <template #petunjuk-data="{ row }">
         <div class="flex items-center gap-3">
           <div
             class="bg-primary-50 flex h-8 w-8 items-center justify-center rounded-lg"
           >
             <UIcon name="ph:file-text" class="text-primary-600 h-4 w-4" />
           </div>
-          <span class="font-medium text-gray-900"> {{ row.nama }} </span>
+          <span class="font-medium text-gray-900"> {{ row.petunjuk }} </span>
         </div>
       </template>
       <!-- Custom slot for createdAt column -->
       <template #createdAt-data="{ row }">
         <span class="text-sm text-gray-600">
-          {{ formatDate(row.createdAt) }}
+          {{ formatDate(row.created_at) }}
         </span>
       </template>
       <!-- Custom slot for updatedAt column -->
       <template #updatedAt-data="{ row }">
         <span class="text-sm text-gray-600">
-          {{ formatDate(row.updatedAt) }}
+          {{ formatDate(row.updated_at) }}
         </span>
       </template>
       <!-- Custom slot for createdBy column -->
@@ -385,7 +278,7 @@ const handleRowClick = ({ row, index }) => {
             <UIcon name="ph:user" class="text-primary-600 h-3 w-3" />
           </div>
           <span class="text-sm font-medium text-gray-700">
-            {{ row.createdBy }}
+            {{ row.creator.nama }}
           </span>
         </div>
       </template>
@@ -411,12 +304,12 @@ const handleRowClick = ({ row, index }) => {
         </div>
       </template>
     </DataTableComponent>
-    <!-- Add Petunjuk Modal -->
+    <!-- Petunjuk Modal (Create/Edit) -->
     <ModalComponent
       v-model:is-open="isModalOpen"
-      title="Tambah Petunjuk Baru"
+      :title="isEditMode ? 'Edit Petunjuk' : 'Tambah Petunjuk Baru'"
       size="lg"
-      @close="handleCancelAdd"
+      @close="handleCancelModal"
     >
       <form class="space-y-6" @submit.prevent="handleSavePetunjuk">
         <!-- Nama Petunjuk Field -->
@@ -429,15 +322,15 @@ const handleRowClick = ({ row, index }) => {
           </label>
           <UInput
             id="nama"
-            v-model="formData.nama"
+            v-model="formData.petunjuk"
             type="text"
             placeholder="Masukkan nama petunjuk..."
             size="lg"
-            :color="formErrors.nama ? 'red' : 'primary'"
+            :color="formErrors.petunjuk ? 'red' : 'primary'"
             class="w-full"
           />
-          <p v-if="formErrors.nama" class="mt-1 text-sm text-red-600">
-            {{ formErrors.nama }}
+          <p v-if="formErrors.petunjuk" class="mt-1 text-sm text-red-600">
+            {{ formErrors.petunjuk }}
           </p>
         </div>
       </form>
@@ -449,7 +342,7 @@ const handleRowClick = ({ row, index }) => {
             color="gray"
             variant="soft"
             size="lg"
-            @click="handleCancelAdd"
+            @click="handleCancelModal"
           >
             Batal
           </UButton>
@@ -459,64 +352,12 @@ const handleRowClick = ({ row, index }) => {
             size="lg"
             @click="handleSavePetunjuk"
           >
-            Simpan Petunjuk
+            {{ isEditMode ? "Simpan Perubahan" : "Simpan Petunjuk" }}
           </UButton>
         </div>
       </template>
     </ModalComponent>
-    <!-- Edit Petunjuk Modal -->
-    <ModalComponent
-      v-model:is-open="isEditModalOpen"
-      title="Edit Petunjuk"
-      size="lg"
-      @close="handleCancelEdit"
-    >
-      <form class="space-y-6" @submit.prevent="handleSaveEditPetunjuk">
-        <!-- Nama Petunjuk Field -->
-        <div>
-          <label
-            for="edit-nama"
-            class="mb-2 block text-sm font-medium text-gray-700"
-          >
-            Nama Petunjuk <span class="text-red-500">*</span>
-          </label>
-          <UInput
-            id="edit-nama"
-            v-model="editFormData.nama"
-            type="text"
-            placeholder="Masukkan nama petunjuk..."
-            size="lg"
-            :color="editFormErrors.nama ? 'red' : 'primary'"
-            class="w-full"
-          />
-          <p v-if="editFormErrors.nama" class="mt-1 text-sm text-red-600">
-            {{ editFormErrors.nama }}
-          </p>
-        </div>
-      </form>
-      <!-- Modal Footer -->
-      <template #footer>
-        <div class="flex justify-end gap-3">
-          <UButton
-            type="button"
-            color="gray"
-            variant="soft"
-            size="lg"
-            @click="handleCancelEdit"
-          >
-            Batal
-          </UButton>
-          <UButton
-            type="button"
-            color="primary"
-            size="lg"
-            @click="handleSaveEditPetunjuk"
-          >
-            Simpan Perubahan
-          </UButton>
-        </div>
-      </template>
-    </ModalComponent>
+
     <!-- Delete Confirmation Modal -->
     <ModalConfirmComponent
       v-model:is-open="isDeleteModalOpen"

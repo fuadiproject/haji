@@ -129,113 +129,98 @@ const hasCustomSlot = (column) => {
 </script>
 
 <template>
-
   <div :class="['space-y-4', wrapperClass]">
-     <!-- Data Table -->
+    <!-- Data Table -->
     <div
-      class="border-neutral-9 rounded-lg border bg-white shadow-sm overflow-hidden"
+      class="border-neutral-9 overflow-hidden rounded-lg border bg-white shadow-sm"
     >
-       <!-- Loading State -->
+      <!-- Loading State -->
       <div v-if="loading" class="flex items-center justify-center py-12">
-
         <div class="flex items-center gap-3">
-
           <div
-            class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"
+            class="border-primary-600 h-6 w-6 animate-spin rounded-full border-b-2"
           ></div>
-           <span class="text-sm text-gray-600">Memuat data...</span>
+          <span class="text-sm text-gray-600">Memuat data...</span>
         </div>
-
       </div>
-       <!-- Table Content -->
+      <!-- Table Content -->
       <div v-else-if="data.length > 0" class="overflow-x-auto">
-
         <table :class="['w-full', tableClass]">
-           <!-- Table Header -->
-          <thead class="bg-gray-50 border-b border-gray-200">
-
+          <!-- Table Header -->
+          <thead class="border-b border-gray-200 bg-gray-50">
             <tr>
-
               <th
                 v-for="column in columns"
                 :key="column.key"
                 :class="[
-                  'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider',
+                  'px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase',
                   column.headerClass || '',
                 ]"
                 :style="column.width ? { width: column.width } : {}"
               >
-                 {{ column.label }}
+                {{ column.label }}
               </th>
-
             </tr>
-
           </thead>
-           <!-- Table Body -->
-          <tbody class="bg-white divide-y divide-gray-200">
-
+          <!-- Table Body -->
+          <tbody class="divide-y divide-gray-200 bg-white">
             <tr
               v-for="(row, rowIndex) in paginatedData"
               :key="row.id || rowIndex"
               :class="[
-                hoverable ? 'hover:bg-gray-50 transition-colors' : '',
+                hoverable ? 'transition-colors hover:bg-gray-50' : '',
                 row.rowClass || '',
               ]"
               @click="handleRowClick(row, rowIndex)"
             >
-
               <td
                 v-for="column in columns"
                 :key="column.key"
                 :class="['px-6 py-4 whitespace-nowrap', column.cellClass || '']"
               >
-                 <!-- Custom slot for column --> <slot
+                <!-- Custom slot for column -->
+                <slot
                   v-if="hasCustomSlot(column)"
                   :name="`${column.key}-data`"
                   :row="row"
                   :value="getColumnValue(row, column)"
                   :index="rowIndex"
-                  > <slot
+                >
+                  <slot
                     :name="column.key"
                     :row="row"
                     :value="getColumnValue(row, column)"
                     :index="rowIndex"
-                    > {{ getColumnValue(row, column) }} </slot
-                  > </slot
-                > <!-- Default column content --> <span
-                  v-else
-                  :class="column.valueClass || ''"
-                  > {{ getColumnValue(row, column) }} </span
-                >
+                  >
+                    {{ getColumnValue(row, column) }}
+                  </slot>
+                </slot>
+                <!-- Default column content -->
+                <span v-else :class="column.valueClass || ''">
+                  {{ getColumnValue(row, column) }}
+                </span>
               </td>
-
             </tr>
-
           </tbody>
-
         </table>
-
       </div>
-       <!-- Empty State -->
-      <div v-else class="text-center py-12">
-         <UIcon
+      <!-- Empty State -->
+      <div v-else class="py-12 text-center">
+        <UIcon
           :name="emptyState.icon"
-          class="h-12 w-12 text-gray-400 mx-auto mb-4"
+          class="mx-auto mb-4 h-12 w-12 text-gray-400"
         />
-        <h3 class="text-sm font-medium text-gray-900 mb-1">
-           {{ emptyState.title }}
+        <h3 class="mb-1 text-sm font-medium text-gray-900">
+          {{ emptyState.title }}
         </h3>
 
-        <p class="text-sm text-gray-500"> {{ emptyState.description }} </p>
-         <!-- Custom empty state slot --> <slot
-          name="empty-state"
-          :empty-state="emptyState"
-        ></slot
-        >
+        <p class="text-sm text-gray-500">{{ emptyState.description }}</p>
+        <!-- Custom empty state slot -->
+        <slot name="empty-state" :empty-state="emptyState"></slot>
       </div>
-
     </div>
-     <!-- Pagination --> <PaginationComponent
+    <!-- Pagination -->
+    <PaginationComponent
       v-if="pagination.enabled && data.length > 0"
       :current-page="localPagination.currentPage"
       :items-per-page="localPagination.itemsPerPage"
@@ -246,6 +231,4 @@ const hasCustomSlot = (column) => {
       @update:items-per-page="handleItemsPerPageChange"
     />
   </div>
-
 </template>
-

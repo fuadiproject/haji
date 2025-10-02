@@ -4,6 +4,7 @@ export const useServiceBphapi = () => {
   const config = useRuntimeConfig();
 
   const BASE_URL_MASTER = `${config.public.apiMasterDataUrl}/master`;
+  const BASE_URL = `${config.public.apiBphUrl}/bphapi`;
 
   const handleError = (error) => {
     if (error?.status === 403) {
@@ -13,11 +14,20 @@ export const useServiceBphapi = () => {
     throw error;
   };
 
+  const login = async ({ nip, password }) => {
+    return $fetch(`${BASE_URL}/auth/login`, {
+      method: "POST",
+      body: { nip, password },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
   // Petunjuk
   const getPetunjuk = async () => {
     return $fetch(`${BASE_URL_MASTER}/petunjuk`, {
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${jwtToken.value}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -28,9 +38,11 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_MASTER}/petunjuk`, {
       method: "POST",
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${jwtToken.value}`,
       },
-      body: data,
+      body: {
+        petunjuk: data,
+      },
     }).catch((error) => {
       handleError(error);
     });
@@ -40,7 +52,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_MASTER}/petunjuk/${id}`, {
       method: "PUT",
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${jwtToken.value}`,
       },
       body: data,
     }).catch((error) => {
@@ -52,7 +64,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_MASTER}/petunjuk/${id}`, {
       method: "DELETE",
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${jwtToken.value}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -63,7 +75,7 @@ export const useServiceBphapi = () => {
   const getSifatSurat = async () => {
     return $fetch(`${BASE_URL_MASTER}/sifat`, {
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${jwtToken.value}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -86,7 +98,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_MASTER}/sifat/${id}`, {
       method: "PUT",
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${jwtToken.value}`,
       },
       body: data,
     }).catch((error) => {
@@ -98,7 +110,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_MASTER}/sifat/${id}`, {
       method: "DELETE",
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${jwtToken.value}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -109,7 +121,7 @@ export const useServiceBphapi = () => {
   const getUrgensiSurat = async () => {
     return $fetch(`${BASE_URL_MASTER}/urgensi`, {
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${jwtToken.value}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -120,7 +132,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_MASTER}/urgensi`, {
       method: "POST",
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${jwtToken.value}`,
       },
       body: data,
     }).catch((error) => {
@@ -144,7 +156,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_MASTER}/urgensi/${id}`, {
       method: "DELETE",
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${jwtToken.value}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -152,6 +164,7 @@ export const useServiceBphapi = () => {
   };
 
   return {
+    login,
     getPetunjuk,
     createPetunjuk,
     updatePetunjuk,
