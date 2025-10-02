@@ -1,7 +1,7 @@
 export const TEXT = {
   title: "Kementerian Haji dan Umrah",
   welcome: "Selamat Datang",
-  welcomeDescription: "di Kementerian Haji dan Umrah App",
+  welcomeDescription: "di Kementerian Haji dan Umrah",
   reminderDescription: "Jangan lupa catat kehadiranmu hari ini.",
   clockIn: "Absen Masuk",
   clockOut: "Absen Keluar",

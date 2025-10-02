@@ -6,14 +6,14 @@
 }
 
 :root {
-  --ui-primary: #019eab;
-  --ui-secondary: #f4b923;
+  --ui-primary: #71510b;
+  --ui-secondary: #c3a61f;
 }
 
 @theme {
-  --color-primary-main: #019eab;
+  --color-primary-main: #71510b;
   --color-secondary-main: #ffcf56;
-  --color-secondary-main-2: #f4b923;
+  --color-secondary-main-2: #c3a61f;
   --color-gray-3: #777777;
   --color-gray-4: #666666;
   --color-gray-5: #444444;
