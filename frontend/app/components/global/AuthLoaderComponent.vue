@@ -26,7 +26,7 @@ onMounted(() => {
   >
     <div
       v-if="isLoading && isVisible"
-      class="fixed inset-0 left-1/2 z-50 flex w-full max-w-5xl -translate-x-1/2 items-center justify-center bg-linear-to-br from-white via-[#eafffb] to-[#BCFBFF]"
+      class="fixed inset-0 left-1/2 z-50 flex w-full max-w-5xl -translate-x-1/2 items-center justify-center bg-linear-to-br from-white via-[#EFDCC5] to-[#F8F5F0]"
     >
       <div class="flex flex-col items-center justify-center">
         <NuxtImg src="/images/logo.svg" alt="Logo" class="h-30 w-30" />

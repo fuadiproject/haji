@@ -29,7 +29,7 @@ import { TEXT } from "@/constants/text";
       <h1 class="text-gray-4 text-center text-2xl font-semibold">
         {{ TEXT.welcome }}
       </h1>
-      <p class="text-gray-3 max-w-[250px] text-center text-base">
+      <p class="text-gray-3 max-w-[250px] text-center text-sm">
         {{ TEXT.welcomeDescription }}
       </p>
     </div>

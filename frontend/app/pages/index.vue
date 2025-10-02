@@ -88,7 +88,7 @@ const goToBanner = (index) => {
 <template>
   <ClientOnly>
     <div
-      class="mx-auto h-screen max-w-[1027px] overflow-y-auto bg-gradient-to-l from-[#FDFFFF42] to-[#C6F0F395]"
+      class="mx-auto h-screen max-w-[1027px] overflow-y-auto bg-gradient-to-l from-[#F8F5F0] to-[#EFDCC5]"
     >
       <!-- Banner Slider -->
       <div class="relative h-[260px] w-full sm:h-[360px] lg:h-[400px]">
