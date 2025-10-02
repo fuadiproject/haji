@@ -8,7 +8,7 @@ defineProps({
   },
 });
 
-defineEmits(["refresh"]);
+const emit = defineEmits(["refresh"]);
 </script>
 
 <template>
@@ -18,7 +18,7 @@ defineEmits(["refresh"]);
       <p class="text-neutral-6 text-center text-sm">{{ error }}</p>
       <button
         class="text-primary-main text-sm font-semibold"
-        @click="refresh()"
+        @click="emit('refresh')"
       >
         {{ TEXT.cobaLagi }}
       </button>
