@@ -1,5 +1,3 @@
-
-
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
@@ -19,6 +17,7 @@ export default defineNuxtConfig({
     public: {
       apiBaseUrl: process.env.API_BASE_URL,
       apiBphUrl: process.env.API_BPH_URL,
+      apiMasterDataUrl: process.env.API_MASTER_DATA_URL,
     },
   },
 });
