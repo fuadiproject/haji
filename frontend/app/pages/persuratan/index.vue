@@ -304,8 +304,10 @@ const handleBack = () => {
     <ModalCreateDisposisiComponent
       v-if="modalAddDisposisi.isOpen"
       :surat-id="modalAddDisposisi.suratId"
+      :surat-type="activeTab"
       :is-open="modalAddDisposisi.isOpen"
       @close="modalAddDisposisi.isOpen = false"
+      @submit="refreshSurat()"
     />
 
     <ModalDetailSuratComponent

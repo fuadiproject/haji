@@ -132,7 +132,7 @@ export const useServiceSuratapi = () => {
   const disposisiSuratMasuk = async ({ id, data }) => {
     return $fetch(`${BASE_URL}/surat-masuk/${id}/disposisi`, {
       method: "POST",
-      body: { data },
+      body: data,
       headers: {
         Authorization: `${jwtToken.value}`,
       },
@@ -224,7 +224,7 @@ export const useServiceSuratapi = () => {
   const disposisiSuratKeluar = async ({ id, data }) => {
     return $fetch(`${BASE_URL}/surat-keluar/${id}/disposisi`, {
       method: "POST",
-      body: { data },
+      body: data,
       headers: {
         Authorization: `${jwtToken.value}`,
       },

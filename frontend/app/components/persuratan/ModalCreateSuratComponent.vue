@@ -154,7 +154,7 @@ const handleDateChange = (newDate) => {
           class="w-full"
         />
       </UFormField>
-      <UFormField name="nomorSurat" :label="TEXT.nomorSurat">
+      <UFormField name="nomorSurat" :label="TEXT.nomorSurat" required>
         <UInput
           v-model="state.nomorSurat"
           size="lg"
@@ -166,6 +166,7 @@ const handleDateChange = (newDate) => {
         v-if="state.type === 'suratKeluar'"
         name="tanggalSurat"
         :label="TEXT.tanggalSurat"
+        :required="state.type === 'suratKeluar'"
       >
         <UPopover v-model:open="isPopoverOpen">
           <UButton color="neutral" variant="outline" icon="i-lucide-calendar">
@@ -185,14 +186,16 @@ const handleDateChange = (newDate) => {
           </template>
         </UPopover>
       </UFormField>
-      <UFileUpload
-        v-model="state.fileSurat"
-        :label="TEXT.fileSurat"
-        :placeholder="TEXT.fileSurat"
-        :description="TEXT.fileSuratDescription"
-        layout="list"
-        accept="application/pdf"
-      />
+      <UFormField name="fileSurat" :label="TEXT.fileSurat" required>
+        <UFileUpload
+          v-model="state.fileSurat"
+          :label="TEXT.fileSurat"
+          :placeholder="TEXT.fileSurat"
+          :description="TEXT.fileSuratDescription"
+          layout="list"
+          accept="application/pdf"
+        />
+      </UFormField>
       <div class="flex w-full justify-end">
         <ButtonComponent
           :loading="isSubmitLoading"
