@@ -20,8 +20,10 @@ COPY . .
 # Set environment variables for build time
 ARG API_BASE_URL
 ARG API_BPH_URL
+ARG API_SURAT_URL
 ENV API_BASE_URL=$API_BASE_URL
 ENV API_BPH_URL=$API_BPH_URL
+ENV API_SURAT_URL=$API_SURAT_URL
 
 RUN npm run build
 
@@ -47,10 +49,13 @@ USER nuxtjs
 # Expose port
 EXPOSE 3000
 
-# Set environment variables
+# Set environment variables for runtime
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
+ENV API_BASE_URL=${API_BASE_URL}
+ENV API_BPH_URL=${API_BPH_URL}
+ENV API_SURAT_URL=${API_SURAT_URL}
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \

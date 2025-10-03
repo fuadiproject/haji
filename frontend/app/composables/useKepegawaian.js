@@ -70,7 +70,6 @@ export const useKepegawaian = () => {
 
   // Handle menu selection
   const handleMenuSelect = (index) => {
-    console.log(index);
     activeTab.value = index;
     // Navigate ke halaman yang sesuai
     navigateTo(`/kepegawaian/${menu.value[index].to}`);

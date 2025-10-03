@@ -88,7 +88,7 @@ const goToBanner = (index) => {
 <template>
   <ClientOnly>
     <div
-      class="mx-auto h-screen max-w-[1027px] overflow-y-auto bg-gradient-to-l from-[#FDFFFF42] to-[#C6F0F395]"
+      class="mx-auto h-screen max-w-[1027px] overflow-y-auto bg-gradient-to-l from-[#F8F5F0] to-[#EFDCC5]"
     >
       <!-- Banner Slider -->
       <div class="relative h-[260px] w-full sm:h-[360px] lg:h-[400px]">
@@ -121,7 +121,7 @@ const goToBanner = (index) => {
 
       <!-- Reminder (Presensi) -->
       <div
-        class="relative -mt-7.5 h-[calc(100vh-230px)] w-full rounded-t-3xl bg-white px-4 py-6"
+        class="relative -mt-7.5 h-[calc(100vh-230px)] min-h-[450px] w-full rounded-t-3xl bg-white px-4 py-6"
       >
         <div class="bg-neutral-8 relative rounded-2xl px-4 py-6">
           <NuxtImg

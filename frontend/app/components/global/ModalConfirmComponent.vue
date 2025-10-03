@@ -103,6 +103,7 @@ const handleButtonClick = (button, index) => {
           :key="index"
           :variant="button.variant"
           class="flex-1"
+          :loading="button.loading"
           @click="handleButtonClick(button, index)"
         >
           {{ button.text }}

@@ -12,7 +12,7 @@ export default defineNuxtConfig({
     "@nuxt/fonts",
     "@vite-pwa/nuxt",
   ],
-  css: ["~/assets/css/main.css"],
+  css: ["@/assets/css/main.css"],
   ui: {
     colorMode: false,
   },
@@ -20,6 +20,7 @@ export default defineNuxtConfig({
     public: {
       apiBaseUrl: process.env.API_BASE_URL,
       apiBphUrl: process.env.API_BPH_URL,
+      apiSuratUrl: process.env.API_SURAT_URL,
     },
   },
   pwa: {
