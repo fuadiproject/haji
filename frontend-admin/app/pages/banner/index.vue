@@ -198,8 +198,6 @@ const handleSaveBanner = async () => {
       keyFile = fileResponse.data.key;
     }
 
-    console.log("keyFile", keyFile);
-
     const payload = {
       title: formData.value.judul,
       image: keyFile,

@@ -1,6 +1,6 @@
 import hyperlinkModel from "../models/hyperlinkModel.js";
 import response from "../utils/response.js";
-
+import storage from "../utils/storage.js";
 /**
  * @typedef {import('../types/requests/userRequest.js').UserRequest} UserRequest
  * @typedef {import('../types/requests/hyperlinkRequest.js').CreateHyperlinkRequest} CreateHyperlinkRequest
@@ -60,6 +60,20 @@ class HyperlinkController {
         is_active
       );
 
+      // map the hyperlinks to get the signed url of the image
+      const hyperlinksWithSignedUrl = await Promise.all(
+        hyperlinks.data.map(async (hyperlink) => {
+          const signedUrl = await storage.generateSignedUrl(
+            hyperlink.logo,
+            5 * 60
+          );
+          return {
+            ...hyperlink,
+            logo: signedUrl,
+          };
+        })
+      );
+
       const total = hyperlinks.total;
       const totalPages = Math.ceil(total / parseInt(limit));
 
@@ -75,7 +89,7 @@ class HyperlinkController {
       return response.successWithPagination(
         res,
         "Hyperlinks fetched successfully",
-        hyperlinks.data,
+        hyperlinksWithSignedUrl,
         pagination
       );
     } catch (error) {

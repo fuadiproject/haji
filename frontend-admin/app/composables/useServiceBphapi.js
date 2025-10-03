@@ -7,6 +7,7 @@ export const useServiceBphapi = () => {
   const BASE_URL = `${config.public.apiBphUrl}/bphapi`;
   const BASE_URL_SUPER_APP_FILES = `${config.public.apiSuperAppUrl}/api/files`;
   const BASE_URL_SUPER_APP_FILE_BANNER = `${config.public.apiSuperAppUrl}/api/banners`;
+  const BASE_URL_SUPER_APP_FILE_HYPERLINKS = `${config.public.apiSuperAppUrl}/api/hyperlinks`;
 
   const handleError = (error) => {
     if (error?.status === 403) {
@@ -224,6 +225,52 @@ export const useServiceBphapi = () => {
     });
   };
 
+  // Hyperlinks
+  const createHyperlink = async (data) => {
+    return $fetch(`${BASE_URL_SUPER_APP_FILE_HYPERLINKS}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${jwtToken.value}`,
+      },
+      body: data,
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
+  const getHyperlink = async () => {
+    return $fetch(`${BASE_URL_SUPER_APP_FILE_HYPERLINKS}`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken.value}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
+  const deleteHyperlink = async (id) => {
+    return $fetch(`${BASE_URL_SUPER_APP_FILE_HYPERLINKS}/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${jwtToken.value}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
+  const updateHyperlink = async (id, data) => {
+    return $fetch(`${BASE_URL_SUPER_APP_FILE_HYPERLINKS}/${id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${jwtToken.value}`,
+      },
+      body: data,
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
   return {
     login,
 
@@ -248,5 +295,10 @@ export const useServiceBphapi = () => {
     getBanner,
     deleteBanner,
     updateBanner,
+
+    createHyperlink,
+    getHyperlink,
+    deleteHyperlink,
+    updateHyperlink,
   };
 };

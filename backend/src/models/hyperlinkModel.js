@@ -79,10 +79,44 @@ class HyperlinkModel extends BaseModel {
    * @returns {Promise<import('@prisma/client').Hyperlink[]>}
    */
   async getAllHyperlinks(page = 1, limit = 10, search = "", is_active = true) {
-    return await this.paginate(page, limit, {
+    const skip = (page - 1) * parseInt(limit);
+    const where = {
       OR: [{ title: { contains: search, mode: "insensitive" } }],
       is_active: is_active,
-    });
+    };
+
+    const [data, total] = await Promise.all([
+      this.findMany({
+        where,
+        skip,
+        take: parseInt(limit),
+        include: {
+          creator: {
+            select: {
+              nip: true,
+              nama: true,
+            },
+          },
+          updater: {
+            select: {
+              nip: true,
+              nama: true,
+            },
+          },
+        },
+        orderBy: {
+          created_at: "desc",
+        },
+      }),
+      this.count({ where }),
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      totalPages: Math.ceil(total / parseInt(limit)),
+    };
   }
 
   /**
