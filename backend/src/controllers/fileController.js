@@ -21,6 +21,7 @@ export class FileController {
       }
 
       const { nip } = req.user; // Get user NIK from JWT
+
       const data = {
         filename: req.file.originalname,
         mimetype: req.file.mimetype,

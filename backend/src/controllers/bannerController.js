@@ -1,5 +1,6 @@
 import bannerModel from "../models/bannerModel.js";
 import response from "../utils/response.js";
+import storage from "../utils/storage.js";
 
 /**
  * @typedef {import('../types/requests/userRequest.js').UserRequest} UserRequest
@@ -32,6 +33,19 @@ class BannerController {
         search,
         is_active
       );
+      // map the banners to get the signed url of the image
+      const bannersWithSignedUrl = await Promise.all(
+        banners.data.map(async (banner) => {
+          const signedUrl = await storage.generateSignedUrl(
+            banner.image,
+            5 * 60
+          );
+          return {
+            ...banner,
+            image: signedUrl,
+          };
+        })
+      );
 
       // TODO: Make a class to control pagination
       const total = banners.total;
@@ -49,7 +63,7 @@ class BannerController {
       return response.successWithPagination(
         res,
         "Banners fetched successfully",
-        banners.data,
+        bannersWithSignedUrl,
         pagination
       );
     } catch (error) {
@@ -110,6 +124,10 @@ class BannerController {
     try {
       const { nip } = req.user;
       const { id } = req.params;
+      const existingBanner = await bannerModel.findById(id);
+      if (req.body.image == null) {
+        req.body.image = existingBanner.image;
+      }
       const data = req.body;
       const banner = await bannerModel.updateWithUpdater(id, data, nip);
       return this.response.success(res, "Banner updated successfully", banner);
@@ -128,8 +146,14 @@ class BannerController {
   async deleteBanner(req, res) {
     try {
       const { id } = req.params;
-      const banner = await bannerModel.delete(id);
-      return this.response.success(res, "Banner deleted successfully", banner);
+
+      const banner = await bannerModel.findById(id);
+      // Delete the banner from the storage
+      await storage.deleteFile(banner.image);
+
+      // Delete the banner from the database
+      await bannerModel.delete({ where: { id } });
+      return this.response.success(res, "Banner deleted successfully");
     } catch (error) {
       console.error("❌ Delete banner error:", error);
       return this.response.error(res, error.message);

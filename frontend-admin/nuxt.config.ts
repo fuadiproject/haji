@@ -18,6 +18,7 @@ export default defineNuxtConfig({
       apiBaseUrl: process.env.API_BASE_URL,
       apiBphUrl: process.env.API_BPH_URL,
       apiMasterDataUrl: process.env.API_MASTER_DATA_URL,
+      apiSuperAppUrl: process.env.API_SUPER_APP_URL,
     },
   },
 });

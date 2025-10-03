@@ -30,9 +30,9 @@ export const decodeJWT = (req, res, next) => {
     }
 
     // Extract user info from JWT payload
-    const { nama, nip } = decoded;
+    const { user_id, nik, role } = decoded;
 
-    if (!nama || !nip) {
+    if (!user_id || !nik || !role) {
       return res.status(401).json({
         success: false,
         error: "Invalid token payload",
@@ -41,9 +41,9 @@ export const decodeJWT = (req, res, next) => {
 
     // Attach user info to request
     req.user = {
-      nama,
-      nip,
-      role: "user", // Default role is 'user'
+      user_id,
+      nip: nik,
+      role: role,
     };
 
     next();

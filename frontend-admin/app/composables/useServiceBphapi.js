@@ -5,6 +5,8 @@ export const useServiceBphapi = () => {
 
   const BASE_URL_MASTER = `${config.public.apiMasterDataUrl}/master`;
   const BASE_URL = `${config.public.apiBphUrl}/bphapi`;
+  const BASE_URL_SUPER_APP_FILES = `${config.public.apiSuperAppUrl}/api/files`;
+  const BASE_URL_SUPER_APP_FILE_BANNER = `${config.public.apiSuperAppUrl}/api/banners`;
 
   const handleError = (error) => {
     if (error?.status === 403) {
@@ -163,19 +165,88 @@ export const useServiceBphapi = () => {
     });
   };
 
+  // File
+  const createFile = async (data) => {
+    return $fetch(`${BASE_URL_SUPER_APP_FILES}/upload`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${jwtToken.value}`,
+      },
+      body: data,
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
+  // Banner
+  const createBanner = async (data) => {
+    return $fetch(`${BASE_URL_SUPER_APP_FILE_BANNER}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${jwtToken.value}`,
+      },
+      body: data,
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
+  const getBanner = async () => {
+    return $fetch(`${BASE_URL_SUPER_APP_FILE_BANNER}`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken.value}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
+  const deleteBanner = async (id) => {
+    return $fetch(`${BASE_URL_SUPER_APP_FILE_BANNER}/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${jwtToken.value}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
+  const updateBanner = async (id, data) => {
+    return $fetch(`${BASE_URL_SUPER_APP_FILE_BANNER}/${id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${jwtToken.value}`,
+      },
+      body: data,
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
   return {
     login,
+
     getPetunjuk,
     createPetunjuk,
     updatePetunjuk,
     deletePetunjuk,
+
     getSifatSurat,
     createSifatSurat,
     updateSifatSurat,
     deleteSifatSurat,
+
     getUrgensiSurat,
     createUrgensiSurat,
     updateUrgensiSurat,
     deleteUrgensiSurat,
+
+    createFile,
+
+    createBanner,
+    getBanner,
+    deleteBanner,
+    updateBanner,
   };
 };

@@ -1,4 +1,9 @@
 <script setup>
+const { createFile, createBanner, getBanner, deleteBanner, updateBanner } =
+  useServiceBphapi();
+const toast = useToast();
+const { formatDate } = useDateUtil();
+
 definePageMeta({
   title: "Daftar Banner",
   description: "Kelola data banner dan panduan",
@@ -7,10 +12,12 @@ definePageMeta({
 // Modal state
 const isModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
+const isImageModalOpen = ref(false);
 const itemToDelete = ref(null);
 const itemToEdit = ref(null);
-// Tracks current modal mode: 'add' | 'edit' | 'detail'
+const selectedImage = ref(null);
 const modalMode = ref("add");
+const isUploadFileEditExist = ref(false);
 
 // Form data
 const formData = ref({
@@ -20,6 +27,17 @@ const formData = ref({
   isActive: true,
   files: [],
 });
+
+const { data: allBannerData, refresh: refreshBanner } = await useAsyncData(
+  "banner", // unique key for caching
+  () => getBanner(), // function that returns a promise
+  {
+    default: () => [], // default value
+    transform: (data) => data.data || [], // transform the data
+    server: false, // run on server-side
+    lazy: true, // don't block page rendering
+  },
+);
 
 // Unified form handles both add and edit
 
@@ -33,106 +51,6 @@ const deleteModalMessage = computed(() => {
     : "Apakah Anda yakin ingin menghapus banner ini?";
 });
 
-// Sample data for the table (expanded for pagination demo)
-const allBannerData = ref([
-  {
-    id: 1,
-    image: "https://placehold.co/150x100",
-    judul: "Banner Teknis Penggunaan Sistem",
-    createdAt: new Date("2024-01-15T10:30:00"),
-    updatedAt: new Date("2024-01-20T14:45:00"),
-    createdBy: "Admin System",
-  },
-  {
-    id: 2,
-    image: "https://placehold.co/150x100",
-    judul: "Panduan Operasional Harian",
-    createdAt: new Date("2024-01-10T09:15:00"),
-    updatedAt: new Date("2024-01-18T16:20:00"),
-    createdBy: "Manager Operasional",
-  },
-  {
-    id: 3,
-    image: "https://placehold.co/150x100",
-    judul: "Prosedur Keamanan Data",
-    createdAt: new Date("2024-01-05T11:00:00"),
-    updatedAt: new Date("2024-01-22T13:30:00"),
-    createdBy: "IT Security",
-  },
-  {
-    id: 4,
-    image: "https://placehold.co/150x100",
-    judul: "Banner Backup dan Recovery",
-    createdAt: new Date("2024-01-12T08:45:00"),
-    updatedAt: new Date("2024-01-25T10:15:00"),
-    createdBy: "Database Admin",
-  },
-  {
-    id: 5,
-    image: "https://placehold.co/150x100",
-    judul: "Manual Troubleshooting",
-    createdAt: new Date("2024-01-08T14:20:00"),
-    updatedAt: new Date("2024-01-19T11:50:00"),
-    createdBy: "Technical Support",
-  },
-  {
-    id: 6,
-    image: "https://placehold.co/150x100",
-    judul: "Panduan Instalasi Software",
-    createdAt: new Date("2024-01-03T16:45:00"),
-    updatedAt: new Date("2024-01-15T09:30:00"),
-    createdBy: "IT Support",
-  },
-  {
-    id: 7,
-    image: "https://placehold.co/150x100",
-    judul: "Prosedur Maintenance Server",
-    createdAt: new Date("2024-01-07T13:20:00"),
-    updatedAt: new Date("2024-01-21T11:15:00"),
-    createdBy: "System Administrator",
-  },
-  {
-    id: 8,
-    image: "https://placehold.co/150x100",
-    judul: "Manual Konfigurasi Network",
-    createdAt: new Date("2024-01-11T08:00:00"),
-    updatedAt: new Date("2024-01-23T14:30:00"),
-    createdBy: "Network Engineer",
-  },
-  {
-    id: 9,
-    image: "https://placehold.co/150x100",
-    judul: "Banner Monitoring Sistem",
-    createdAt: new Date("2024-01-14T10:15:00"),
-    updatedAt: new Date("2024-01-26T16:45:00"),
-    createdBy: "Operations Team",
-  },
-  {
-    id: 10,
-    image: "https://placehold.co/150x100",
-    judul: "Panduan Recovery Database",
-    createdAt: new Date("2024-01-09T12:30:00"),
-    updatedAt: new Date("2024-01-24T13:20:00"),
-    createdBy: "Database Admin",
-  },
-  {
-    id: 11,
-    image: "https://placehold.co/150x100",
-    judul: "Manual User Management",
-    createdAt: new Date("2024-01-06T15:45:00"),
-    updatedAt: new Date("2024-01-17T10:30:00"),
-    createdBy: "Admin System",
-  },
-  {
-    id: 12,
-    image: "https://placehold.co/150x100",
-    judul: "Prosedur Audit Sistem",
-    createdAt: new Date("2024-01-13T09:20:00"),
-    updatedAt: new Date("2024-01-27T15:10:00"),
-    createdBy: "Audit Team",
-  },
-]);
-
 // Table columns configuration
 const columns = [
   {
@@ -141,7 +59,7 @@ const columns = [
     width: "20%",
   },
   {
-    key: "judul",
+    key: "title",
     label: "Judul",
     width: "40%",
   },
@@ -182,17 +100,6 @@ const paginationConfig = ref({
   ],
 });
 
-// Format date to Indonesian format
-const formatDate = (date) => {
-  return new Intl.DateTimeFormat("id-ID", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-};
-
 // Form validation
 const validateForm = () => {
   const errors = {};
@@ -201,7 +108,10 @@ const validateForm = () => {
     errors.judul = "Nama banner wajib diisi";
   }
 
-  if (!formData.value.files || formData.value.files.length === 0) {
+  if (
+    (!formData.value.files || formData.value.files.length === 0) &&
+    modalMode.value == "add"
+  ) {
     errors.files = "Gambar banner wajib diunggah";
   }
 
@@ -221,10 +131,9 @@ const resetForm = () => {
   formErrors.value = {};
 };
 
-// (removed) separate edit form reset - unified via resetForm
-
 // Action handlers
 const handleAddEditBanner = (type, item) => {
+  handleCloseImageModal();
   if (type === "add") {
     modalMode.value = "add";
     itemToEdit.value = null;
@@ -238,8 +147,8 @@ const handleAddEditBanner = (type, item) => {
     itemToEdit.value = item;
     // Prefill unified form from selected item (fallbacks for optional fields)
     formData.value = {
-      judul: item?.judul || "",
-      deskripsi: item?.deskripsi || "",
+      judul: item?.title || "",
+      deskripsi: item?.description || "",
       link: item?.link || "",
       isActive: item?.isActive ?? true,
       files: [],
@@ -254,8 +163,8 @@ const handleAddEditBanner = (type, item) => {
     itemToEdit.value = item;
     // Prefill to display in disabled fields
     formData.value = {
-      judul: item?.judul || "",
-      deskripsi: item?.deskripsi || "",
+      judul: item?.title || "",
+      deskripsi: item?.description || "",
       link: item?.link || "",
       isActive: item?.isActive ?? true,
       files: [],
@@ -265,61 +174,96 @@ const handleAddEditBanner = (type, item) => {
   }
 };
 
-// (removed) separate add handler - use handleAddEditBanner("add") directly
-
-const handleSaveBanner = () => {
+const handleSaveBanner = async () => {
   if (!validateForm()) {
     return;
   }
 
-  // Create image URL from uploaded file (in real app, you'd upload to server)
-  let imageUrl = "https://placehold.co/150x100";
-  if (formData.value.files && formData.value.files.length > 0) {
-    imageUrl = URL.createObjectURL(formData.value.files[0]);
-  }
-
   if (itemToEdit.value) {
-    // Update existing banner
-    const index = allBannerData.value.findIndex(
-      (p) => p.id === itemToEdit.value.id,
-    );
-    if (index > -1) {
-      const existing = allBannerData.value[index];
-      allBannerData.value[index] = {
-        ...existing,
-        judul: formData.value.judul.trim(),
-        // Replace image only if new file selected; otherwise keep existing
-        image:
-          formData.value.files && formData.value.files.length > 0
-            ? imageUrl
-            : existing.image,
-        updatedAt: new Date(),
-      };
+    let keyFile = null;
+    console.log("formData", formData.value);
+    if (formData.value.files.length != 0) {
+      const form = new FormData();
+      form.append("file", formData.value.files);
+
+      const fileResponse = await createFile(form);
+      if (!fileResponse.success) {
+        toast.add({
+          title: `Gagal Mengupload File. ${fileResponse.message}`,
+          description: fileResponse.message,
+          color: "error",
+        });
+        return;
+      }
+      keyFile = fileResponse.data.key;
     }
 
-    console.log("Banner updated:", allBannerData.value[index]);
-  } else {
-    // Generate new ID safely
-    const nextId =
-      allBannerData.value.length > 0
-        ? Math.max(...allBannerData.value.map((item) => item.id)) + 1
-        : 1;
+    console.log("keyFile", keyFile);
 
-    // Create new banner object
-    const newBanner = {
-      id: nextId,
-      judul: formData.value.judul.trim(),
-      image: imageUrl,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      createdBy: "Admin System",
+    const payload = {
+      title: formData.value.judul,
+      image: keyFile,
+      link: formData.value.link,
+      description: formData.value.deskripsi,
+      is_active: formData.value.isActive,
     };
 
-    // Add to the beginning of the array
-    allBannerData.value.unshift(newBanner);
+    const bannerResponse = await updateBanner(itemToEdit.value.id, payload);
+    if (!bannerResponse.success) {
+      toast.add({
+        title: `Gagal Mengupdate Banner. ${bannerResponse.message}`,
+        description: bannerResponse.message,
+        color: "error",
+      });
+      return;
+    }
 
-    console.log("New banner added:", newBanner);
+    toast.add({
+      title: "Berhasil",
+      description: "Banner berhasil diubah",
+      color: "success",
+    });
+  } else {
+    // upload the file
+    const form = new FormData();
+    form.append("file", formData.value.files);
+
+    const fileResponse = await createFile(form);
+    if (!fileResponse.success) {
+      toast.add({
+        title: `Gagal Mengupload File. ${fileResponse.message}`,
+        description: fileResponse.message,
+        color: "error",
+      });
+      return;
+    }
+
+    const payload = {
+      title: formData.value.judul,
+      image: fileResponse.data.key,
+      link: formData.value.link,
+      description: formData.value.deskripsi,
+      is_active: formData.value.isActive,
+    };
+
+    const bannerResponse = await createBanner(payload);
+    if (!bannerResponse.success) {
+      toast.add({
+        title: `Gagal Menambahkan Banner. ${bannerResponse.message}`,
+        description: bannerResponse.message,
+        color: "error",
+      });
+      return;
+    }
+
+    toast.add({
+      title: "Berhasil",
+      description: "Banner berhasil ditambahkan",
+      color: "success",
+    });
   }
+
+  await refreshBanner();
 
   // Close modal and reset form
   isModalOpen.value = false;
@@ -332,22 +276,20 @@ const handleCancelAdd = () => {
   resetForm();
 };
 
-// (removed) separate edit handler - use handleAddEditBanner("edit", item)
-
 const handleDeleteBanner = (item) => {
   itemToDelete.value = item;
   isDeleteModalOpen.value = true;
 };
 
-const handleConfirmDelete = () => {
+const handleConfirmDelete = async () => {
   if (itemToDelete.value) {
-    const index = allBannerData.value.findIndex(
-      (p) => p.id === itemToDelete.value.id,
-    );
-    if (index > -1) {
-      allBannerData.value.splice(index, 1);
-      console.log("Banner deleted:", itemToDelete.value);
-    }
+    await deleteBanner(itemToDelete.value.id);
+    await refreshBanner();
+    toast.add({
+      title: "Berhasil",
+      description: "Banner berhasil dihapus",
+      color: "success",
+    });
   }
   handleCancelDelete();
 };
@@ -367,10 +309,15 @@ const handleRowClick = ({ row, index }) => {
   // TODO: Implement row click functionality if needed
 };
 
-// Handle add/view image functionality
-const handleAddImage = (item) => {
-  // Open detail modal to preview image and read-only info
-  handleAddEditBanner("detail", item);
+// Handle image modal functionality
+const handleViewImage = (item) => {
+  selectedImage.value = item;
+  isImageModalOpen.value = true;
+};
+
+const handleCloseImageModal = () => {
+  isImageModalOpen.value = false;
+  selectedImage.value = null;
 };
 </script>
 
@@ -406,7 +353,7 @@ const handleAddImage = (item) => {
         <div class="flex items-center justify-center">
           <div
             class="group relative cursor-pointer"
-            @click="handleAddImage(row)"
+            @click="handleViewImage(row)"
           >
             <NuxtImg
               :src="row.image"
@@ -446,14 +393,14 @@ const handleAddImage = (item) => {
       <!-- Custom slot for createdAt column -->
       <template #createdAt-data="{ row }">
         <span class="text-sm text-gray-600">
-          {{ formatDate(row.createdAt) }}
+          {{ formatDate(row.created_at) }}
         </span>
       </template>
 
       <!-- Custom slot for updatedAt column -->
       <template #updatedAt-data="{ row }">
         <span class="text-sm text-gray-600">
-          {{ formatDate(row.updatedAt) }}
+          {{ formatDate(row.updated_at) }}
         </span>
       </template>
 
@@ -466,7 +413,7 @@ const handleAddImage = (item) => {
             <UIcon name="ph:user" class="text-primary-600 h-3 w-3" />
           </div>
           <span class="text-sm font-medium text-gray-700">
-            {{ row.createdBy }}
+            {{ row.creator.nama }}
           </span>
         </div>
       </template>
@@ -477,6 +424,7 @@ const handleAddImage = (item) => {
           <UButton
             icon="ph:info"
             size="sm"
+            color="white"
             :ui="{ rounded: 'rounded-full' }"
             @click="handleAddEditBanner('detail', row)"
           />
@@ -619,7 +567,12 @@ const handleAddImage = (item) => {
           <template v-else>
             <!-- Edit mode image preview (selected file takes precedence, falls back to existing image) -->
             <div
-              v-if="modalMode === 'edit'"
+              v-if="
+                (modalMode === 'edit' &&
+                  formData.files &&
+                  formData.files.length > 0) ||
+                !isUploadFileEditExist
+              "
               class="mb-3 flex items-start gap-4"
             >
               <div
@@ -645,21 +598,10 @@ const handleAddImage = (item) => {
               description="Format yang didukung: JPG, PNG, GIF (maksimal 2MB)"
               :color="formErrors.files ? 'red' : 'primary'"
               class="w-full"
+              @update:model-value="isUploadFileEditExist = true"
             >
               <template #actions="{ open, files, remove }">
                 <div class="flex flex-col gap-3">
-                  <UButton
-                    v-if="!files || files.length === 0"
-                    icon="i-heroicons-photo"
-                    color="primary"
-                    variant="outline"
-                    size="lg"
-                    class="w-full justify-center"
-                    @click="open()"
-                  >
-                    Pilih Gambar Banner
-                  </UButton>
-
                   <!-- Show selected file -->
                   <div v-if="files && files.length > 0" class="space-y-2">
                     <div
@@ -775,5 +717,74 @@ const handleAddImage = (item) => {
         </p>
       </div>
     </ModalConfirmComponent>
+
+    <!-- Image View Modal -->
+    <ModalComponent
+      v-model:is-open="isImageModalOpen"
+      title="Preview Gambar Banner"
+      size="xl"
+      @close="handleCloseImageModal"
+    >
+      <div class="space-y-4">
+        <div v-if="selectedImage" class="text-center">
+          <h3 class="mb-4 text-lg font-semibold text-gray-900">
+            {{ selectedImage.judul }}
+          </h3>
+          <div class="flex justify-center">
+            <div
+              class="max-w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-50"
+            >
+              <img
+                :src="selectedImage.image"
+                :alt="selectedImage.judul"
+                class="max-h-96 w-full object-contain"
+                loading="lazy"
+              />
+            </div>
+          </div>
+          <div
+            v-if="selectedImage.deskripsi"
+            class="mt-4 text-sm text-gray-600"
+          >
+            <p class="font-medium">Deskripsi:</p>
+            <p>{{ selectedImage.deskripsi }}</p>
+          </div>
+          <div v-if="selectedImage.link" class="mt-2 text-sm text-gray-600">
+            <p class="font-medium">Link:</p>
+            <a
+              :href="selectedImage.link"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-600 hover:text-blue-800 hover:underline"
+            >
+              {{ selectedImage.link }}
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <template #footer>
+        <div class="flex justify-end gap-3">
+          <UButton
+            type="button"
+            color="gray"
+            variant="soft"
+            size="lg"
+            @click="handleCloseImageModal"
+          >
+            Tutup
+          </UButton>
+          <UButton
+            type="button"
+            color="primary"
+            size="lg"
+            @click="handleAddEditBanner('detail', selectedImage)"
+          >
+            Lihat Detail Lengkap
+          </UButton>
+        </div>
+      </template>
+    </ModalComponent>
   </div>
 </template>
