@@ -4,77 +4,45 @@ definePageMeta({
   description: "Kelola data urgensi surat",
 });
 
+const toast = useToast();
+
+const bphapiService = useServiceBphapi();
+
 // Modal state
 const isModalOpen = ref(false);
-const isEditModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const itemToDelete = ref(null);
 const itemToEdit = ref(null);
+const isEditMode = ref(false);
 
 // Form data
 const formData = ref({
-  nama: "",
-});
-
-// Edit form data
-const editFormData = ref({
-  nama: "",
+  urgensi: "",
 });
 
 // Form validation errors
 const formErrors = ref({});
-const editFormErrors = ref({});
 
 // Computed properties
 const deleteModalMessage = computed(() => {
   return itemToDelete.value
-    ? `Apakah Anda yakin ingin menghapus urgensi surat "${itemToDelete.value.nama}"?`
+    ? `Apakah Anda yakin ingin menghapus urgensi surat "${itemToDelete.value.urgensi}"?`
     : "Apakah Anda yakin ingin menghapus urgensi surat ini?";
 });
 
-// Sample data for the table
-const allUrgensiSuratData = ref([
-  {
-    id: 1,
-    nama: "Sangat Urgent",
-    createdAt: new Date("2024-01-15T10:30:00"),
-    updatedAt: new Date("2024-01-20T14:45:00"),
-    createdBy: "Admin System",
-  },
-  {
-    id: 2,
-    nama: "Urgent",
-    createdAt: new Date("2024-01-10T09:15:00"),
-    updatedAt: new Date("2024-01-18T16:20:00"),
-    createdBy: "Manager Operasional",
-  },
-  {
-    id: 3,
-    nama: "Normal",
-    createdAt: new Date("2024-01-05T11:00:00"),
-    updatedAt: new Date("2024-01-22T13:30:00"),
-    createdBy: "IT Security",
-  },
-  {
-    id: 4,
-    nama: "Rendah",
-    createdAt: new Date("2024-01-12T08:45:00"),
-    updatedAt: new Date("2024-01-25T10:15:00"),
-    createdBy: "Database Admin",
-  },
-  {
-    id: 5,
-    nama: "Segera",
-    createdAt: new Date("2024-01-08T14:20:00"),
-    updatedAt: new Date("2024-01-19T11:50:00"),
-    createdBy: "Technical Support",
-  },
-]);
+// Correct implementation - fetch from backend
+const { data: allUrgensiSuratData, refresh: refreshUrgensi } =
+  await useAsyncData("urgensi-surat", () => bphapiService.getUrgensiSurat(), {
+    default: () => [],
+    transform: (data) => data?.data || [],
+    server: false,
+    lazy: true,
+  });
 
 // Table columns configuration
 const columns = [
   {
-    key: "nama",
+    key: "urgensi",
     label: "Nama Urgensi Surat",
     width: "40%",
   },
@@ -117,132 +85,101 @@ const paginationConfig = ref({
 
 // Format date to Indonesian format
 const formatDate = (date) => {
+  const dateObj = typeof date === "string" ? new Date(date) : date;
   return new Intl.DateTimeFormat("id-ID", {
     year: "numeric",
     month: "long",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(date);
+  }).format(dateObj);
 };
 
 // Form validation
 const validateForm = () => {
   const errors = {};
 
-  if (!formData.value.nama.trim()) {
-    errors.nama = "Nama urgensi surat wajib diisi";
+  if (!formData.value.urgensi.trim()) {
+    errors.urgensi = "Nama urgensi surat wajib diisi";
   }
 
   formErrors.value = errors;
   return Object.keys(errors).length === 0;
 };
 
-// Edit form validation
-const validateEditForm = () => {
-  const errors = {};
-
-  if (!editFormData.value.nama.trim()) {
-    errors.nama = "Nama urgensi surat wajib diisi";
-  }
-
-  editFormErrors.value = errors;
-  return Object.keys(errors).length === 0;
-};
-
 // Reset form
 const resetForm = () => {
   formData.value = {
-    nama: "",
+    urgensi: "",
   };
   formErrors.value = {};
 };
 
-// Reset edit form
-const resetEditForm = () => {
-  editFormData.value = {
-    nama: "",
-  };
-  editFormErrors.value = {};
-};
-
 // Action handlers
 const handleAddUrgensiSurat = () => {
+  isEditMode.value = false;
   resetForm();
   isModalOpen.value = true;
 };
 
-const handleSaveUrgensiSurat = () => {
+const handleEditUrgensiSurat = (item) => {
+  isEditMode.value = true;
+  itemToEdit.value = item;
+  formData.value = {
+    urgensi: item.urgensi,
+  };
+  formErrors.value = {};
+  isModalOpen.value = true;
+};
+
+const handleSaveUrgensiSurat = async () => {
   if (!validateForm()) {
     return;
   }
 
-  // Generate new ID
-  const newId =
-    Math.max(...allUrgensiSuratData.value.map((item) => item.id)) + 1;
-
-  // Create new urgensi surat object
-  const newUrgensiSurat = {
-    id: newId,
-    nama: formData.value.nama.trim(),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-
-  // Add to the beginning of the array
-  allUrgensiSuratData.value.unshift(newUrgensiSurat);
-
-  // Close modal and reset form
-  isModalOpen.value = false;
-  resetForm();
-
-  console.log("New urgensi surat added:", newUrgensiSurat);
-};
-
-const handleCancelAdd = () => {
-  isModalOpen.value = false;
-  resetForm();
-};
-
-const handleEditUrgensiSurat = (item) => {
-  itemToEdit.value = item;
-  editFormData.value = {
-    nama: item.nama,
-  };
-  editFormErrors.value = {};
-  isEditModalOpen.value = true;
-};
-
-const handleSaveEditUrgensiSurat = () => {
-  if (!validateEditForm()) {
-    return;
-  }
-
-  if (itemToEdit.value) {
-    const index = allUrgensiSuratData.value.findIndex(
-      (p) => p.id === itemToEdit.value.id,
-    );
-    if (index > -1) {
-      // Update the item
-      allUrgensiSuratData.value[index] = {
-        ...allUrgensiSuratData.value[index],
-        nama: editFormData.value.nama.trim(),
-        updatedAt: new Date(),
+  if (isEditMode.value) {
+    if (itemToEdit.value) {
+      const updatedData = {
+        urgensi: formData.value.urgensi.trim(),
       };
-      console.log("Urgensi surat updated:", allUrgensiSuratData.value[index]);
+
+      await bphapiService.updateUrgensiSurat(itemToEdit.value.id, updatedData);
+
+      await refreshUrgensi();
+
+      toast.add({
+        title: "Berhasil",
+        description: "Urgensi surat berhasil diubah",
+        color: "success",
+      });
     }
+  } else {
+    await bphapiService.createUrgensiSurat({
+      urgensi: formData.value.urgensi.trim(),
+    });
+
+    await refreshUrgensi();
+
+    toast.add({
+      title: "Berhasil",
+      description: "Urgensi surat berhasil ditambahkan",
+      color: "success",
+    });
   }
 
-  // Close modal and reset form
-  isEditModalOpen.value = false;
-  resetEditForm();
+  isModalOpen.value = false;
+  resetForm();
   itemToEdit.value = null;
+  isEditMode.value = false;
+
+  triggerRef(allUrgensiSuratData);
 };
 
-const handleCancelEdit = () => {
-  isEditModalOpen.value = false;
-  resetEditForm();
+const handleCancelModal = () => {
+  isModalOpen.value = false;
+  resetForm();
   itemToEdit.value = null;
+  isEditMode.value = false;
 };
 
 const handleDeleteUrgensiSurat = (item) => {
@@ -250,13 +187,14 @@ const handleDeleteUrgensiSurat = (item) => {
   isDeleteModalOpen.value = true;
 };
 
-const handleConfirmDelete = () => {
+const handleConfirmDelete = async () => {
   if (itemToDelete.value) {
     const index = allUrgensiSuratData.value.findIndex(
       (p) => p.id === itemToDelete.value.id,
     );
     if (index > -1) {
-      allUrgensiSuratData.value.splice(index, 1);
+      await bphapiService.deleteUrgensiSurat(itemToDelete.value.id);
+      await refreshUrgensi();
       console.log("Urgensi surat deleted:", itemToDelete.value);
     }
   }
@@ -307,41 +245,42 @@ const handleRowClick = ({ row, index }) => {
       @update:pagination="handlePaginationUpdate"
       @row-click="handleRowClick"
     >
-      <!-- Custom slot for nama column -->
-      <template #nama-data="{ row }">
+      <!-- Custom slot for urgensi column -->
+      <template #urgensi-data="{ row }">
         <div class="flex items-center gap-3">
           <div
             class="bg-primary-50 flex h-8 w-8 items-center justify-center rounded-lg"
           >
             <UIcon name="ph:clock" class="text-primary-600 h-4 w-4" />
           </div>
-          <span class="font-medium text-gray-900"> {{ row.nama }} </span>
+          <span class="font-medium text-gray-900"> {{ row.urgensi }} </span>
         </div>
       </template>
       <!-- Custom slot for createdAt column -->
       <template #createdAt-data="{ row }">
         <span class="text-sm text-gray-600">
-          {{ formatDate(row.createdAt) }}
+          {{ formatDate(row.created_at) }}
         </span>
       </template>
       <!-- Custom slot for updatedAt column -->
       <template #updatedAt-data="{ row }">
         <span class="text-sm text-gray-600">
-          {{ formatDate(row.updatedAt) }}
+          {{ formatDate(row.updated_at) }}
         </span>
       </template>
       <!-- Custom slot for createdBy column -->
       <template #createdBy-data="{ row }">
-        <div class="flex items-center gap-2">
+        <div v-if="row.creator" class="flex items-center gap-2">
           <div
             class="bg-primary-100 flex h-6 w-6 items-center justify-center rounded-full"
           >
             <UIcon name="ph:user" class="text-primary-600 h-3 w-3" />
           </div>
           <span class="text-sm font-medium text-gray-700">
-            {{ row.createdBy }}
+            {{ row.creator?.nama }}
           </span>
         </div>
+        <div v-else class="text-sm font-medium text-gray-700">-</div>
       </template>
       <!-- Custom slot for actions column -->
       <template #actions-data="{ row }">
@@ -365,33 +304,33 @@ const handleRowClick = ({ row, index }) => {
         </div>
       </template>
     </DataTableComponent>
-    <!-- Add Urgensi Surat Modal -->
+    <!-- Urgensi Surat Modal (Create/Edit) -->
     <ModalComponent
       v-model:is-open="isModalOpen"
-      title="Tambah Urgensi Surat Baru"
+      :title="isEditMode ? 'Edit Urgensi Surat' : 'Tambah Urgensi Surat Baru'"
       size="lg"
-      @close="handleCancelAdd"
+      @close="handleCancelModal"
     >
       <form class="space-y-6" @submit.prevent="handleSaveUrgensiSurat">
         <!-- Nama Urgensi Surat Field -->
         <div>
           <label
-            for="nama"
+            for="urgensi"
             class="mb-2 block text-sm font-medium text-gray-700"
           >
             Nama Urgensi Surat <span class="text-red-500">*</span>
           </label>
           <UInput
-            id="nama"
-            v-model="formData.nama"
+            id="urgensi"
+            v-model="formData.urgensi"
             type="text"
             placeholder="Masukkan nama urgensi surat..."
             size="lg"
-            :color="formErrors.nama ? 'red' : 'primary'"
+            :color="formErrors.urgensi ? 'red' : 'primary'"
             class="w-full"
           />
-          <p v-if="formErrors.nama" class="mt-1 text-sm text-red-600">
-            {{ formErrors.nama }}
+          <p v-if="formErrors.urgensi" class="mt-1 text-sm text-red-600">
+            {{ formErrors.urgensi }}
           </p>
         </div>
       </form>
@@ -403,7 +342,7 @@ const handleRowClick = ({ row, index }) => {
             color="gray"
             variant="soft"
             size="lg"
-            @click="handleCancelAdd"
+            @click="handleCancelModal"
           >
             Batal
           </UButton>
@@ -413,60 +352,7 @@ const handleRowClick = ({ row, index }) => {
             size="lg"
             @click="handleSaveUrgensiSurat"
           >
-            Simpan Urgensi Surat
-          </UButton>
-        </div>
-      </template>
-    </ModalComponent>
-    <!-- Edit Urgensi Surat Modal -->
-    <ModalComponent
-      v-model:is-open="isEditModalOpen"
-      title="Edit Urgensi Surat"
-      size="lg"
-      @close="handleCancelEdit"
-    >
-      <form class="space-y-6" @submit.prevent="handleSaveEditUrgensiSurat">
-        <!-- Nama Urgensi Surat Field -->
-        <div>
-          <label
-            for="edit-nama"
-            class="mb-2 block text-sm font-medium text-gray-700"
-          >
-            Nama Urgensi Surat <span class="text-red-500">*</span>
-          </label>
-          <UInput
-            id="edit-nama"
-            v-model="editFormData.nama"
-            type="text"
-            placeholder="Masukkan nama urgensi surat..."
-            size="lg"
-            :color="editFormErrors.nama ? 'red' : 'primary'"
-            class="w-full"
-          />
-          <p v-if="editFormErrors.nama" class="mt-1 text-sm text-red-600">
-            {{ editFormErrors.nama }}
-          </p>
-        </div>
-      </form>
-      <!-- Modal Footer -->
-      <template #footer>
-        <div class="flex justify-end gap-3">
-          <UButton
-            type="button"
-            color="gray"
-            variant="soft"
-            size="lg"
-            @click="handleCancelEdit"
-          >
-            Batal
-          </UButton>
-          <UButton
-            type="button"
-            color="primary"
-            size="lg"
-            @click="handleSaveEditUrgensiSurat"
-          >
-            Simpan Perubahan
+            {{ isEditMode ? "Simpan Perubahan" : "Simpan Urgensi Surat" }}
           </UButton>
         </div>
       </template>

@@ -4,77 +4,48 @@ definePageMeta({
   description: "Kelola data sifat surat",
 });
 
+const toast = useToast();
+
+const bphapiService = useServiceBphapi();
+
 // Modal state
 const isModalOpen = ref(false);
-const isEditModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const itemToDelete = ref(null);
 const itemToEdit = ref(null);
+const isEditMode = ref(false);
 
 // Form data
 const formData = ref({
-  nama: "",
-});
-
-// Edit form data
-const editFormData = ref({
-  nama: "",
+  sifat: "",
 });
 
 // Form validation errors
 const formErrors = ref({});
-const editFormErrors = ref({});
 
 // Computed properties
 const deleteModalMessage = computed(() => {
   return itemToDelete.value
-    ? `Apakah Anda yakin ingin menghapus sifat surat "${itemToDelete.value.nama}"?`
+    ? `Apakah Anda yakin ingin menghapus sifat surat "${itemToDelete.value.sifat}"?`
     : "Apakah Anda yakin ingin menghapus sifat surat ini?";
 });
 
-// Sample data for the table
-const allSifatSuratData = ref([
+// Correct implementation - fetch from backend
+const { data: allSifatSuratData, refresh: refreshSifat } = await useAsyncData(
+  "sifat-surat",
+  () => bphapiService.getSifatSurat(),
   {
-    id: 1,
-    nama: "Biasa",
-    createdAt: new Date("2024-01-15T10:30:00"),
-    updatedAt: new Date("2024-01-20T14:45:00"),
-    createdBy: "Admin System",
+    default: () => [],
+    transform: (data) => data?.data || [],
+    server: false,
+    lazy: true,
   },
-  {
-    id: 2,
-    nama: "Rahasia",
-    createdAt: new Date("2024-01-10T09:15:00"),
-    updatedAt: new Date("2024-01-18T16:20:00"),
-    createdBy: "Manager Operasional",
-  },
-  {
-    id: 3,
-    nama: "Sangat Rahasia",
-    createdAt: new Date("2024-01-05T11:00:00"),
-    updatedAt: new Date("2024-01-22T13:30:00"),
-    createdBy: "IT Security",
-  },
-  {
-    id: 4,
-    nama: "Terbatas",
-    createdAt: new Date("2024-01-12T08:45:00"),
-    updatedAt: new Date("2024-01-25T10:15:00"),
-    createdBy: "Database Admin",
-  },
-  {
-    id: 5,
-    nama: "Konfidensial",
-    createdAt: new Date("2024-01-08T14:20:00"),
-    updatedAt: new Date("2024-01-19T11:50:00"),
-    createdBy: "Technical Support",
-  },
-]);
+);
 
 // Table columns configuration
 const columns = [
   {
-    key: "nama",
+    key: "sifat",
     label: "Nama Sifat Surat",
     width: "40%",
   },
@@ -117,131 +88,101 @@ const paginationConfig = ref({
 
 // Format date to Indonesian format
 const formatDate = (date) => {
+  const dateObj = typeof date === "string" ? new Date(date) : date;
   return new Intl.DateTimeFormat("id-ID", {
     year: "numeric",
     month: "long",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(date);
+  }).format(dateObj);
 };
 
 // Form validation
 const validateForm = () => {
   const errors = {};
 
-  if (!formData.value.nama.trim()) {
-    errors.nama = "Nama sifat surat wajib diisi";
+  if (!formData.value.sifat.trim()) {
+    errors.sifat = "Nama sifat surat wajib diisi";
   }
 
   formErrors.value = errors;
   return Object.keys(errors).length === 0;
 };
 
-// Edit form validation
-const validateEditForm = () => {
-  const errors = {};
-
-  if (!editFormData.value.nama.trim()) {
-    errors.nama = "Nama sifat surat wajib diisi";
-  }
-
-  editFormErrors.value = errors;
-  return Object.keys(errors).length === 0;
-};
-
 // Reset form
 const resetForm = () => {
   formData.value = {
-    nama: "",
+    sifat: "",
   };
   formErrors.value = {};
 };
 
-// Reset edit form
-const resetEditForm = () => {
-  editFormData.value = {
-    nama: "",
-  };
-  editFormErrors.value = {};
-};
-
 // Action handlers
 const handleAddSifatSurat = () => {
+  isEditMode.value = false;
   resetForm();
   isModalOpen.value = true;
 };
 
-const handleSaveSifatSurat = () => {
+const handleEditSifatSurat = (item) => {
+  isEditMode.value = true;
+  itemToEdit.value = item;
+  formData.value = {
+    sifat: item.sifat,
+  };
+  formErrors.value = {};
+  isModalOpen.value = true;
+};
+
+const handleSaveSifatSurat = async () => {
   if (!validateForm()) {
     return;
   }
 
-  // Generate new ID
-  const newId = Math.max(...allSifatSuratData.value.map((item) => item.id)) + 1;
-
-  // Create new sifat surat object
-  const newSifatSurat = {
-    id: newId,
-    nama: formData.value.nama.trim(),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-
-  // Add to the beginning of the array
-  allSifatSuratData.value.unshift(newSifatSurat);
-
-  // Close modal and reset form
-  isModalOpen.value = false;
-  resetForm();
-
-  console.log("New sifat surat added:", newSifatSurat);
-};
-
-const handleCancelAdd = () => {
-  isModalOpen.value = false;
-  resetForm();
-};
-
-const handleEditSifatSurat = (item) => {
-  itemToEdit.value = item;
-  editFormData.value = {
-    nama: item.nama,
-  };
-  editFormErrors.value = {};
-  isEditModalOpen.value = true;
-};
-
-const handleSaveEditSifatSurat = () => {
-  if (!validateEditForm()) {
-    return;
-  }
-
-  if (itemToEdit.value) {
-    const index = allSifatSuratData.value.findIndex(
-      (p) => p.id === itemToEdit.value.id,
-    );
-    if (index > -1) {
-      // Update the item
-      allSifatSuratData.value[index] = {
-        ...allSifatSuratData.value[index],
-        nama: editFormData.value.nama.trim(),
-        updatedAt: new Date(),
+  if (isEditMode.value) {
+    if (itemToEdit.value) {
+      const updatedData = {
+        sifat: formData.value.sifat.trim(),
       };
-      console.log("Sifat surat updated:", allSifatSuratData.value[index]);
+
+      await bphapiService.updateSifatSurat(itemToEdit.value.id, updatedData);
+
+      await refreshSifat();
+
+      toast.add({
+        title: "Berhasil",
+        description: "Sifat surat berhasil diubah",
+        color: "success",
+      });
     }
+  } else {
+    await bphapiService.createSifatSurat({
+      sifat: formData.value.sifat.trim(),
+    });
+
+    await refreshSifat();
+
+    toast.add({
+      title: "Berhasil",
+      description: "Sifat surat berhasil ditambahkan",
+      color: "success",
+    });
   }
 
-  // Close modal and reset form
-  isEditModalOpen.value = false;
-  resetEditForm();
+  isModalOpen.value = false;
+  resetForm();
   itemToEdit.value = null;
+  isEditMode.value = false;
+
+  triggerRef(allSifatSuratData);
 };
 
-const handleCancelEdit = () => {
-  isEditModalOpen.value = false;
-  resetEditForm();
+const handleCancelModal = () => {
+  isModalOpen.value = false;
+  resetForm();
   itemToEdit.value = null;
+  isEditMode.value = false;
 };
 
 const handleDeleteSifatSurat = (item) => {
@@ -249,13 +190,14 @@ const handleDeleteSifatSurat = (item) => {
   isDeleteModalOpen.value = true;
 };
 
-const handleConfirmDelete = () => {
+const handleConfirmDelete = async () => {
   if (itemToDelete.value) {
     const index = allSifatSuratData.value.findIndex(
       (p) => p.id === itemToDelete.value.id,
     );
     if (index > -1) {
-      allSifatSuratData.value.splice(index, 1);
+      await bphapiService.deleteSifatSurat(itemToDelete.value.id);
+      await refreshSifat();
       console.log("Sifat surat deleted:", itemToDelete.value);
     }
   }
@@ -304,41 +246,40 @@ const handleRowClick = ({ row, index }) => {
       @update:pagination="handlePaginationUpdate"
       @row-click="handleRowClick"
     >
-      <!-- Custom slot for nama column -->
-      <template #nama-data="{ row }">
+      <!-- Custom slot for sifat column -->
+      <template #sifat-data="{ row }">
         <div class="flex items-center gap-3">
           <div
             class="bg-primary-50 flex h-8 w-8 items-center justify-center rounded-lg"
           >
             <UIcon name="ph:file-text" class="text-primary-600 h-4 w-4" />
           </div>
-          <span class="font-medium text-gray-900"> {{ row.nama }} </span>
+          <span class="font-medium text-gray-900"> {{ row.sifat }} </span>
         </div>
       </template>
       <!-- Custom slot for createdAt column -->
       <template #createdAt-data="{ row }">
         <span class="text-sm text-gray-600">
-          {{ formatDate(row.createdAt) }}
+          {{ formatDate(row.created_at) }}
         </span>
       </template>
       <!-- Custom slot for updatedAt column -->
       <template #updatedAt-data="{ row }">
         <span class="text-sm text-gray-600">
-          {{ formatDate(row.updatedAt) }}
+          {{ formatDate(row.updated_at) }}
         </span>
       </template>
       <!-- Custom slot for createdBy column -->
       <template #createdBy-data="{ row }">
-        <div class="flex items-center gap-2">
+        <div v-if="row.creator" class="flex items-center gap-2">
           <div
             class="bg-primary-100 flex h-6 w-6 items-center justify-center rounded-full"
-          >
-            <UIcon name="ph:user" class="text-primary-600 h-3 w-3" />
-          </div>
+          ></div>
           <span class="text-sm font-medium text-gray-700">
-            {{ row.createdBy }}
+            {{ row.creator?.nama }}
           </span>
         </div>
+        <div v-else class="text-sm font-medium text-gray-700">-</div>
       </template>
       <!-- Custom slot for actions column -->
       <template #actions-data="{ row }">
@@ -362,33 +303,33 @@ const handleRowClick = ({ row, index }) => {
         </div>
       </template>
     </DataTableComponent>
-    <!-- Add Sifat Surat Modal -->
+    <!-- Sifat Surat Modal (Create/Edit) -->
     <ModalComponent
       v-model:is-open="isModalOpen"
-      title="Tambah Sifat Surat Baru"
+      :title="isEditMode ? 'Edit Sifat Surat' : 'Tambah Sifat Surat Baru'"
       size="lg"
-      @close="handleCancelAdd"
+      @close="handleCancelModal"
     >
       <form class="space-y-6" @submit.prevent="handleSaveSifatSurat">
         <!-- Nama Sifat Surat Field -->
         <div>
           <label
-            for="nama"
+            for="sifat"
             class="mb-2 block text-sm font-medium text-gray-700"
           >
             Nama Sifat Surat <span class="text-red-500">*</span>
           </label>
           <UInput
-            id="nama"
-            v-model="formData.nama"
+            id="sifat"
+            v-model="formData.sifat"
             type="text"
             placeholder="Masukkan nama sifat surat..."
             size="lg"
-            :color="formErrors.nama ? 'red' : 'primary'"
+            :color="formErrors.sifat ? 'red' : 'primary'"
             class="w-full"
           />
-          <p v-if="formErrors.nama" class="mt-1 text-sm text-red-600">
-            {{ formErrors.nama }}
+          <p v-if="formErrors.sifat" class="mt-1 text-sm text-red-600">
+            {{ formErrors.sifat }}
           </p>
         </div>
       </form>
@@ -400,7 +341,7 @@ const handleRowClick = ({ row, index }) => {
             color="gray"
             variant="soft"
             size="lg"
-            @click="handleCancelAdd"
+            @click="handleCancelModal"
           >
             Batal
           </UButton>
@@ -410,60 +351,7 @@ const handleRowClick = ({ row, index }) => {
             size="lg"
             @click="handleSaveSifatSurat"
           >
-            Simpan Sifat Surat
-          </UButton>
-        </div>
-      </template>
-    </ModalComponent>
-    <!-- Edit Sifat Surat Modal -->
-    <ModalComponent
-      v-model:is-open="isEditModalOpen"
-      title="Edit Sifat Surat"
-      size="lg"
-      @close="handleCancelEdit"
-    >
-      <form class="space-y-6" @submit.prevent="handleSaveEditSifatSurat">
-        <!-- Nama Sifat Surat Field -->
-        <div>
-          <label
-            for="edit-nama"
-            class="mb-2 block text-sm font-medium text-gray-700"
-          >
-            Nama Sifat Surat <span class="text-red-500">*</span>
-          </label>
-          <UInput
-            id="edit-nama"
-            v-model="editFormData.nama"
-            type="text"
-            placeholder="Masukkan nama sifat surat..."
-            size="lg"
-            :color="editFormErrors.nama ? 'red' : 'primary'"
-            class="w-full"
-          />
-          <p v-if="editFormErrors.nama" class="mt-1 text-sm text-red-600">
-            {{ editFormErrors.nama }}
-          </p>
-        </div>
-      </form>
-      <!-- Modal Footer -->
-      <template #footer>
-        <div class="flex justify-end gap-3">
-          <UButton
-            type="button"
-            color="gray"
-            variant="soft"
-            size="lg"
-            @click="handleCancelEdit"
-          >
-            Batal
-          </UButton>
-          <UButton
-            type="button"
-            color="primary"
-            size="lg"
-            @click="handleSaveEditSifatSurat"
-          >
-            Simpan Perubahan
+            {{ isEditMode ? "Simpan Perubahan" : "Simpan Sifat Surat" }}
           </UButton>
         </div>
       </template>

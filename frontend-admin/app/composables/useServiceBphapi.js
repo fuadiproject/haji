@@ -86,7 +86,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_MASTER}/sifat`, {
       method: "POST",
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${jwtToken.value}`,
       },
       body: data,
     }).catch((error) => {
@@ -144,7 +144,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_MASTER}/urgensi/${id}`, {
       method: "PUT",
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${jwtToken.value}`,
       },
       body: data,
     }).catch((error) => {
