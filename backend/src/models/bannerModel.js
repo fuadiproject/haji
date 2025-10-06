@@ -107,6 +107,12 @@ class BannerModel extends BaseModel {
               nama: true,
             },
           },
+          file: {
+            select: {
+              filepath: true,
+              key: true,
+            },
+          },
         },
         orderBy: {
           created_at: "desc",

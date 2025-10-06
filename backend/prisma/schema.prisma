@@ -37,6 +37,8 @@ model File {
   creator User? @relation("UserCreatedFile", fields: [created_by], references: [nip], onDelete: SetNull)
   updater User? @relation("UserUpdatedFile", fields: [updated_by], references: [nip], onDelete: SetNull)
 
+  Banner Banner[] @relation("BannerImage")
+
   @@index([created_by])
   @@index([updated_by])
 }
@@ -44,7 +46,7 @@ model File {
 model Banner {
   id          String   @id @default(cuid())
   title       String
-  image       String
+  file_id     String? // FK -> File.id
   link        String
   description String?
   is_active   Boolean  @default(true)
@@ -56,6 +58,9 @@ model Banner {
   // Relations
   creator User? @relation("UserCreatedBanner", fields: [created_by], references: [nip], onDelete: SetNull)
   updater User? @relation("UserUpdatedBanner", fields: [updated_by], references: [nip], onDelete: SetNull)
+
+  // Image
+  file File? @relation("BannerImage", fields: [file_id], references: [id], onDelete: SetNull)
 
   @@index([created_by])
   @@index([updated_by])

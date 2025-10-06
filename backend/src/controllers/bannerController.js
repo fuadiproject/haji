@@ -1,6 +1,8 @@
 import bannerModel from "../models/bannerModel.js";
+import fileModel from "../models/fileModel.js";
 import response from "../utils/response.js";
 import storage from "../utils/storage.js";
+import prisma from "../utils/prisma.js";
 
 /**
  * @typedef {import('../types/requests/userRequest.js').UserRequest} UserRequest
@@ -33,11 +35,12 @@ class BannerController {
         search,
         is_active
       );
+
       // map the banners to get the signed url of the image
       const bannersWithSignedUrl = await Promise.all(
         banners.data.map(async (banner) => {
           const signedUrl = await storage.generateSignedUrl(
-            banner.image,
+            banner.file.key,
             5 * 60
           );
           return {
@@ -100,7 +103,7 @@ class BannerController {
       const { nip } = req.user;
       const data = {
         title: req.body.title,
-        image: req.body.image,
+        file_id: req.body.file_id,
         link: req.body.link,
         description: req.body.description,
         is_active: req.body.is_active,
@@ -124,12 +127,24 @@ class BannerController {
     try {
       const { nip } = req.user;
       const { id } = req.params;
-      const existingBanner = await bannerModel.findById(id);
-      if (req.body.image == null) {
-        req.body.image = existingBanner.image;
-      }
-      const data = req.body;
-      const banner = await bannerModel.updateWithUpdater(id, data, nip);
+
+      let banner;
+
+      await prisma.$transaction(async (tx) => {
+        const existingBanner = await bannerModel.findById(id);
+        if (req.body.file_id == null) {
+          req.body.file_id = existingBanner.file_id;
+        } else {
+          const file = await fileModel.findById(existingBanner.file_id);
+          if (file) {
+            await storage.deleteFile(file.filepath);
+            await tx.file.delete({ where: { id: file.id } });
+          }
+        }
+        const data = req.body;
+        banner = await bannerModel.updateWithUpdater(id, data, nip);
+      });
+
       return this.response.success(res, "Banner updated successfully", banner);
     } catch (error) {
       console.error("❌ Update banner error:", error);
@@ -148,11 +163,18 @@ class BannerController {
       const { id } = req.params;
 
       const banner = await bannerModel.findById(id);
+
+      // Use transaction to ensure atomicity of database operations
+      await prisma.$transaction(async (tx) => {
+        // Delete file data on database
+        await tx.file.delete({ where: { id: banner.file_id } });
+
+        // Delete the banner from the database
+        await tx.banner.delete({ where: { id } });
+      });
+
       // Delete the banner from the storage
       await storage.deleteFile(banner.image);
-
-      // Delete the banner from the database
-      await bannerModel.delete({ where: { id } });
       return this.response.success(res, "Banner deleted successfully");
     } catch (error) {
       console.error("❌ Delete banner error:", error);
