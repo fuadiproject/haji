@@ -162,7 +162,9 @@ class BannerController {
     try {
       const { id } = req.params;
 
-      const banner = await bannerModel.findById(id);
+      const banner = await bannerModel.findById(id, {
+        file: true,
+      });
 
       // Use transaction to ensure atomicity of database operations
       await prisma.$transaction(async (tx) => {
@@ -171,10 +173,11 @@ class BannerController {
 
         // Delete the banner from the database
         await tx.banner.delete({ where: { id } });
+
+        // Delete file from storage
+        await storage.deleteFile(banner.file.key);
       });
 
-      // Delete the banner from the storage
-      await storage.deleteFile(banner.image);
       return this.response.success(res, "Banner deleted successfully");
     } catch (error) {
       console.error("❌ Delete banner error:", error);
