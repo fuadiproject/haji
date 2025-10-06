@@ -180,8 +180,7 @@ const handleSaveBanner = async () => {
   }
 
   if (itemToEdit.value) {
-    let keyFile = null;
-    console.log("formData", formData.value);
+    let fileId = null;
     if (formData.value.files.length != 0) {
       const form = new FormData();
       form.append("file", formData.value.files);
@@ -195,18 +194,19 @@ const handleSaveBanner = async () => {
         });
         return;
       }
-      keyFile = fileResponse.data.key;
+      fileId = fileResponse.data.id;
     }
 
     const payload = {
       title: formData.value.judul,
-      image: keyFile,
+      file_id: fileId,
       link: formData.value.link,
       description: formData.value.deskripsi,
       is_active: formData.value.isActive,
     };
 
     const bannerResponse = await updateBanner(itemToEdit.value.id, payload);
+
     if (!bannerResponse.success) {
       toast.add({
         title: `Gagal Mengupdate Banner. ${bannerResponse.message}`,
@@ -238,7 +238,7 @@ const handleSaveBanner = async () => {
 
     const payload = {
       title: formData.value.judul,
-      image: fileResponse.data.key,
+      file_id: fileResponse.data.id,
       link: formData.value.link,
       description: formData.value.deskripsi,
       is_active: formData.value.isActive,
@@ -565,12 +565,7 @@ const handleCloseImageModal = () => {
           <template v-else>
             <!-- Edit mode image preview (selected file takes precedence, falls back to existing image) -->
             <div
-              v-if="
-                (modalMode === 'edit' &&
-                  formData.files &&
-                  formData.files.length > 0) ||
-                !isUploadFileEditExist
-              "
+              v-if="modalMode === 'edit' && !isUploadFileEditExist"
               class="mb-3 flex items-start gap-4"
             >
               <div
@@ -597,61 +592,7 @@ const handleCloseImageModal = () => {
               :color="formErrors.files ? 'red' : 'primary'"
               class="w-full"
               @update:model-value="isUploadFileEditExist = true"
-            >
-              <template #actions="{ open, files, remove }">
-                <div class="flex flex-col gap-3">
-                  <!-- Show selected file -->
-                  <div v-if="files && files.length > 0" class="space-y-2">
-                    <div
-                      v-for="(file, index) in files"
-                      :key="index"
-                      class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3"
-                    >
-                      <div class="flex items-center gap-3">
-                        <!-- Image preview -->
-                        <div
-                          class="h-12 w-12 overflow-hidden rounded-lg border border-gray-200"
-                        >
-                          <img
-                            :src="URL.createObjectURL(file)"
-                            :alt="file.name"
-                            class="h-full w-full object-cover"
-                          />
-                        </div>
-                        <div class="flex flex-col">
-                          <span
-                            class="max-w-48 truncate text-sm font-medium text-gray-900"
-                          >
-                            {{ file.name }}
-                          </span>
-                          <span class="text-xs text-gray-500">
-                            {{ (file.size / 1024 / 1024).toFixed(2) }} MB
-                          </span>
-                        </div>
-                      </div>
-                      <div class="flex items-center gap-2">
-                        <UButton
-                          icon="i-heroicons-photo"
-                          color="gray"
-                          variant="ghost"
-                          size="sm"
-                          @click="open()"
-                        >
-                          Ganti
-                        </UButton>
-                        <UButton
-                          icon="i-heroicons-x-mark"
-                          color="red"
-                          variant="ghost"
-                          size="sm"
-                          @click="remove(index)"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </template>
-            </UFileUpload>
+            />
             <p v-if="formErrors.files" class="mt-1 text-sm text-red-600">
               {{ formErrors.files }}
             </p>
