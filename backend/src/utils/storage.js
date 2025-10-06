@@ -21,6 +21,16 @@ const s3 = new S3Client({
   forcePathStyle: true, // penting untuk MinIO
 });
 
+const sanitizeFilename = (name) => {
+  const normalized = name.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+  const noSlashes = normalized.replace(/[/\\]+/g, "-");
+  const replaced = noSlashes.replace(/\s+/g, "-");
+  const safe = replaced.replace(/[^A-Za-z0-9._-]/g, "-");
+  const collapsed = safe.replace(/[-_.]{2,}/g, "-");
+  const trimmed = collapsed.replace(/^[-_.]+|[-_.]+$/g, "");
+  return trimmed || "file";
+};
+
 // Multer S3 storage configuration
 const storage = multerS3({
   s3: s3,
@@ -30,7 +40,8 @@ const storage = multerS3({
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, "0"); // 01-12
-    const filename = Date.now().toString() + "-" + file.originalname;
+    const sanitizedFilename = sanitizeFilename(file.originalname);
+    const filename = Date.now().toString() + "-" + sanitizedFilename;
 
     // hasil path: uploads/2025/01/1693742123456-report.pdf
     cb(null, `uploads/${year}/${month}/${filename}`);

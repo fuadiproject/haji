@@ -130,20 +130,40 @@ class BannerController {
 
       let banner;
 
-      await prisma.$transaction(async (tx) => {
-        const existingBanner = await bannerModel.findById(id);
-        if (req.body.file_id == null) {
-          req.body.file_id = existingBanner.file_id;
-        } else {
-          const file = await fileModel.findById(existingBanner.file_id);
-          if (file) {
-            await storage.deleteFile(file.filepath);
-            await tx.file.delete({ where: { id: file.id } });
+      // Preload existing banner and potential old file to delete
+      const existingBanner = await bannerModel.findById(id);
+      if (!existingBanner) {
+        return this.response.error(res, "Banner not found");
+      }
+
+      let oldFileToDelete = null;
+      if (req.body.file_id == null) {
+        req.body.file_id = existingBanner.file_id;
+      } else if (
+        existingBanner.file_id &&
+        existingBanner.file_id !== req.body.file_id
+      ) {
+        oldFileToDelete = await fileModel.findById(existingBanner.file_id);
+      }
+
+      await prisma.$transaction(
+        async (tx) => {
+          if (oldFileToDelete) {
+            await tx.file.delete({ where: { id: oldFileToDelete.id } });
           }
-        }
-        const data = req.body;
-        banner = await bannerModel.updateWithUpdater(id, data, nip);
-      });
+          const data = { ...req.body, updated_by: nip };
+          banner = await tx.banner.update({
+            where: { id },
+            data,
+          });
+        },
+        { timeout: 15000 }
+      );
+
+      // Do storage deletion after commit
+      if (oldFileToDelete) {
+        await storage.deleteFile(oldFileToDelete.key);
+      }
 
       return this.response.success(res, "Banner updated successfully", banner);
     } catch (error) {
@@ -165,18 +185,23 @@ class BannerController {
       const banner = await bannerModel.findById(id, {
         file: true,
       });
+      if (!banner) {
+        return this.response.error(res, "Banner not found");
+      }
 
-      // Use transaction to ensure atomicity of database operations
-      await prisma.$transaction(async (tx) => {
-        // Delete file data on database
-        await tx.file.delete({ where: { id: banner.file_id } });
+      await prisma.$transaction(
+        async (tx) => {
+          if (banner.file_id) {
+            await tx.file.delete({ where: { id: banner.file_id } });
+          }
+          await tx.banner.delete({ where: { id } });
+        },
+        { timeout: 15000 }
+      );
 
-        // Delete the banner from the database
-        await tx.banner.delete({ where: { id } });
-
-        // Delete file from storage
+      if (banner.file?.key) {
         await storage.deleteFile(banner.file.key);
-      });
+      }
 
       return this.response.success(res, "Banner deleted successfully");
     } catch (error) {
