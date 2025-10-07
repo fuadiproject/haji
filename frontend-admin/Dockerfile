@@ -20,8 +20,13 @@ COPY . .
 # Set environment variables for build time
 ARG API_BASE_URL
 ARG API_BPH_URL
+ARG API_MASTER_DATA_URL
+ARG API_SUPER_APP_URL
+
 ENV API_BASE_URL=$API_BASE_URL
 ENV API_BPH_URL=$API_BPH_URL
+ENV API_MASTER_DATA_URL=$API_MASTER_DATA_URL
+ENV API_SUPER_APP_URL=$API_SUPER_APP_URL
 
 RUN npm run build
 
@@ -45,11 +50,11 @@ COPY --from=builder --chown=nuxtjs:nodejs /app/.output /app/.output
 USER nuxtjs
 
 # Expose port
-EXPOSE 3000
+EXPOSE 3001
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=3001
 ENV HOSTNAME=0.0.0.0
 
 # Health check

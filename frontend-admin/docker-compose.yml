@@ -7,14 +7,18 @@ services:
       args:
         - API_BASE_URL=${API_BASE_URL}
         - API_BPH_URL=${API_BPH_URL}
+        - API_MASTER_DATA_URL=${API_MASTER_DATA_URL}
+        - API_SUPER_APP_URL=${API_SUPER_APP_URL}
     ports:
-      - "3000:3000"
+      - "3001:3001"
     env_file:
       - .env
     environment:
       - NODE_ENV=production
       - API_BASE_URL=${API_BASE_URL}
       - API_BPH_URL=${API_BPH_URL}
+      - API_MASTER_DATA_URL=${API_MASTER_DATA_URL}
+      - API_SUPER_APP_URL=${API_SUPER_APP_URL}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "--version"]
