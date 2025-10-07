@@ -1,0 +1,30 @@
+import multer from "multer";
+import path from "path";
+
+// Set tempat penyimpanan file
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); // semua file tersimpan di folder uploads
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  },
+});
+
+// Filter tipe file
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/png"];
+  if (!allowedTypes.includes(file.mimetype)) {
+    return cb(new Error("Hanya boleh upload PDF/JPG/PNG"), false);
+  }
+  cb(null, true);
+};
+
+// Batas ukuran file 5 MB
+const limits = {
+  fileSize: 5 * 1024 * 1024,
+};
+
+// Export middleware untuk route
+export const upload = multer({ storage, fileFilter, limits });

@@ -1,0 +1,130 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum StatusTTE {
+  REQUESTED
+  SIGNED
+  REJECTED
+}
+
+model File {
+  id       String  @id @default(cuid())
+  filename String
+  filepath String // URL ke bucket
+  key      String // key dari MinIO/multer-s3
+  mimetype String?
+  size     Int?
+
+  created_by String? // FK -> User.nip
+  updated_by String? // FK -> User.nip
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  version    Int      @default(1)
+
+  // Relations
+  creator User? @relation("UserCreatedFile", fields: [created_by], references: [nip], onDelete: SetNull)
+  updater User? @relation("UserUpdatedFile", fields: [updated_by], references: [nip], onDelete: SetNull)
+
+  Banner Banner[] @relation("BannerImage")
+
+  @@index([created_by])
+  @@index([updated_by])
+}
+
+model Banner {
+  id          String   @id @default(cuid())
+  title       String
+  file_id     String? // FK -> File.id
+  link        String
+  description String?
+  is_active   Boolean  @default(true)
+  created_by  String? // FK -> User.nip
+  updated_by  String? // FK -> User.nip
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Relations
+  creator User? @relation("UserCreatedBanner", fields: [created_by], references: [nip], onDelete: SetNull)
+  updater User? @relation("UserUpdatedBanner", fields: [updated_by], references: [nip], onDelete: SetNull)
+
+  // Image
+  file File? @relation("BannerImage", fields: [file_id], references: [id], onDelete: SetNull)
+
+  @@index([created_by])
+  @@index([updated_by])
+}
+
+model Hyperlink {
+  id         String   @id @default(cuid())
+  title      String
+  link       String
+  logo       String?
+  is_active  Boolean  @default(true)
+  created_by String? // FK -> User.nip
+  updated_by String? // FK -> User.nip
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relations
+  creator User? @relation("UserCreatedHyperlink", fields: [created_by], references: [nip], onDelete: SetNull)
+  updater User? @relation("UserUpdatedHyperlink", fields: [updated_by], references: [nip], onDelete: SetNull)
+
+  @@index([created_by])
+  @@index([updated_by])
+}
+
+model User {
+  id   String  @id @default(cuid()) // internal PK
+  nik  String  @unique // dipakai di semua FK
+  nip  String? @unique
+  nama String
+
+  created_by String? // FK -> User.nip (self-reference)
+  updated_by String? // FK -> User.nip (self-reference)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+  version    Int       @default(1)
+
+  // Relations
+  createdFiles      File[]      @relation("UserCreatedFile")
+  updatedFiles      File[]      @relation("UserUpdatedFile")
+  createdBanners    Banner[]    @relation("UserCreatedBanner")
+  updatedBanners    Banner[]    @relation("UserUpdatedBanner")
+  createdHyperlinks Hyperlink[] @relation("UserCreatedHyperlink")
+  updatedHyperlinks Hyperlink[] @relation("UserUpdatedHyperlink")
+
+  @@index([created_by])
+  @@index([updated_by])
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  type       String
+  title      String
+  message    String
+  userId     String
+  data       Json
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([userId])
+  @@index([created_at])
+  @@index([updated_at])
+  @@index([type])
+  @@index([title])
+  @@index([message])
+  @@index([data])
+}
