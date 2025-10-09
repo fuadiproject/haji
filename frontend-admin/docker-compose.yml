@@ -10,7 +10,7 @@ services:
         - API_MASTER_DATA_URL=${API_MASTER_DATA_URL}
         - API_SUPER_APP_URL=${API_SUPER_APP_URL}
     ports:
-      - "3001:3001"
+      - "3002:3002"
     env_file:
       - .env
     environment:
