@@ -37,7 +37,8 @@ model File {
   creator User? @relation("UserCreatedFile", fields: [created_by], references: [nip], onDelete: SetNull)
   updater User? @relation("UserUpdatedFile", fields: [updated_by], references: [nip], onDelete: SetNull)
 
-  Banner Banner[] @relation("BannerImage")
+  BannerDark  Banner[] @relation("BannerImageDark")
+  BannerLight Banner[] @relation("BannerImageLight")
 
   @@index([created_by])
   @@index([updated_by])
@@ -46,7 +47,8 @@ model File {
 model Banner {
   id          String   @id @default(cuid())
   title       String
-  file_id     String? // FK -> File.id
+  dark_image  String? // FK -> File.id
+  light_image String? // FK -> File.id
   link        String
   description String?
   is_active   Boolean  @default(true)
@@ -60,7 +62,8 @@ model Banner {
   updater User? @relation("UserUpdatedBanner", fields: [updated_by], references: [nip], onDelete: SetNull)
 
   // Image
-  file File? @relation("BannerImage", fields: [file_id], references: [id], onDelete: SetNull)
+  file_dark  File? @relation("BannerImageDark", fields: [dark_image], references: [id], onDelete: SetNull)
+  file_light File? @relation("BannerImageLight", fields: [light_image], references: [id], onDelete: SetNull)
 
   @@index([created_by])
   @@index([updated_by])
@@ -127,4 +130,16 @@ model Notification {
   @@index([title])
   @@index([message])
   @@index([data])
+}
+
+model UserSuperApp {
+  id         String   @id @default(cuid())
+  username   String   @unique
+  password   String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([username])
+  @@index([created_at])
+  @@index([updated_at])
 }
