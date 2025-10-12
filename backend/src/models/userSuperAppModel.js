@@ -23,7 +23,7 @@ class UserSuperAppModel extends BaseModel {
    * @returns {Promise<import('@prisma/client').UserSuperApp>}
    */
   async createUser(data) {
-    const { username, password, role } = data;
+    const { email, name, password, role } = data;
 
     // Validate role
     if (!["superadmin", "admin"].includes(role)) {
@@ -31,9 +31,9 @@ class UserSuperAppModel extends BaseModel {
     }
 
     // Check if username already exists
-    const existingUser = await this.findFirst({ where: { username } });
+    const existingUser = await this.findFirst({ where: { email } });
     if (existingUser) {
-      throw new Error("Username already exists");
+      throw new Error("Email already exists");
     }
 
     // Hash password
@@ -42,7 +42,8 @@ class UserSuperAppModel extends BaseModel {
 
     return await this.create({
       data: {
-        username,
+        email,
+        name: name,
         password: hashedPassword,
         role,
       },
@@ -50,13 +51,13 @@ class UserSuperAppModel extends BaseModel {
   }
 
   /**
-   * Find user by username
-   * @param {string} username - Username
+   * Find user by email
+   * @param {string} email - Email
    * @returns {Promise<import('@prisma/client').UserSuperApp|null>}
    */
-  async findByUsername(username) {
+  async findByEmail(email) {
     return await this.findFirst({
-      where: { username },
+      where: { email },
     });
   }
 
@@ -140,7 +141,8 @@ class UserSuperAppModel extends BaseModel {
         take: parseInt(limit),
         select: {
           id: true,
-          username: true,
+          email: true,
+          name: true,
           role: true,
           created_at: true,
           updated_at: true,

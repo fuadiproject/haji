@@ -36,9 +36,9 @@ export const authenticateToken = (req, res, next) => {
     }
 
     // Extract user info from JWT payload
-    const { id, username, role } = decoded;
+    const { id, email, role } = decoded;
 
-    if (!id || !username || !role) {
+    if (!id || !email || !role) {
       return res.status(401).json({
         success: false,
         error: "Invalid token payload",
@@ -48,7 +48,7 @@ export const authenticateToken = (req, res, next) => {
     // Attach user info to request
     req.user = {
       id,
-      username,
+      email,
       role,
     };
 
@@ -110,10 +110,10 @@ export const optionalAuth = (req, res, next) => {
     // Verify JWT token
     const decoded = verifyToken(token);
 
-    if (decoded && decoded.id && decoded.username && decoded.role) {
+    if (decoded && decoded.id && decoded.email && decoded.role) {
       req.user = {
         id: decoded.id,
-        username: decoded.username,
+        email: decoded.email,
         role: decoded.role,
       };
     }

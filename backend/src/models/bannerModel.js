@@ -16,26 +16,26 @@ class BannerModel extends BaseModel {
   /**
    * Create banner with creator
    * @param {import('@prisma/client').Banner} data
-   * @param {string} userNik
+   * @param {string} userId
    * @returns {Promise<import('@prisma/client').Banner>}
    */
-  async createWithCreator(data, userNik) {
+  async createWithCreator(data, userId) {
     return await this.create({
       data: {
         ...data,
-        created_by: userNik,
-        updated_by: userNik,
+        created_by: userId,
+        updated_by: userId,
       },
       include: {
         creator: {
           select: {
-            nip: true,
+            id: true,
             nama: true,
           },
         },
         updater: {
           select: {
-            nip: true,
+            id: true,
             nama: true,
           },
         },
@@ -47,24 +47,24 @@ class BannerModel extends BaseModel {
    * Update banner with updater
    * @param {string} id
    * @param {import('@prisma/client').Banner} data
-   * @param {string} userNik
+   * @param {string} userId
    * @returns {Promise<import('@prisma/client').Banner>}
    */
-  async updateWithUpdater(id, data, userNik) {
+  async updateWithUpdater(id, data, userId) {
     return await this.update({
       where: { id },
-      data: { ...data, updated_by: userNik },
+      data: { ...data, updated_by: userId },
       include: {
         creator: {
           select: {
             nama: true,
-            nip: true,
+            id: true,
           },
         },
         updater: {
           select: {
             nama: true,
-            nip: true,
+            id: true,
           },
         },
       },
@@ -97,13 +97,13 @@ class BannerModel extends BaseModel {
         include: {
           creator: {
             select: {
-              nip: true,
+              id: true,
               nama: true,
             },
           },
           updater: {
             select: {
-              nip: true,
+              id: true,
               nama: true,
             },
           },

@@ -25,15 +25,15 @@ class AuthController {
    */
   login = async (req, res) => {
     try {
-      const { username, password } = req.body;
+      const { email, password } = req.body;
 
       // Validate input
-      if (!username || !password) {
+      if (!email || !password) {
         return response.badRequest(res, "Username and password are required");
       }
 
       // Find user by username
-      const user = await this.userSuperAppModel.findByUsername(username);
+      const user = await this.userSuperAppModel.findByUsername(email);
       if (!user) {
         return response.unauthorized(res, "Invalid credentials");
       }
@@ -50,7 +50,8 @@ class AuthController {
       // Generate JWT token
       const tokenPayload = {
         id: user.id,
-        username: user.username,
+        email: user.email,
+        name: user.name,
         role: user.role,
         iat: Math.floor(Date.now() / 1000),
       };
@@ -60,7 +61,8 @@ class AuthController {
       // Return user data without password
       const userData = {
         id: user.id,
-        username: user.username,
+        email: user.email,
+        name: user.name,
         role: user.role,
         created_at: user.created_at,
         updated_at: user.updated_at,
@@ -94,7 +96,8 @@ class AuthController {
       // Return user data without password
       const userData = {
         id: user.id,
-        username: user.username,
+        email: user.email,
+        name: user.name,
         role: user.role,
         created_at: user.created_at,
         updated_at: user.updated_at,
@@ -115,10 +118,10 @@ class AuthController {
    */
   createUser = async (req, res) => {
     try {
-      const { username, password, role } = req.body;
+      const { email, name, password, role } = req.body;
 
       // Validate input
-      if (!username || !password || !role) {
+      if (!email || !name || !password || !role) {
         return response.badRequest(
           res,
           "Username, password, and role are required"
@@ -135,7 +138,8 @@ class AuthController {
 
       // Create user
       const user = await this.userSuperAppModel.createUser({
-        username,
+        email,
+        name,
         password,
         role,
       });
@@ -143,7 +147,8 @@ class AuthController {
       // Return user data without password
       const userData = {
         id: user.id,
-        username: user.username,
+        email: user.email,
+        name: user.name,
         role: user.role,
         created_at: user.created_at,
         updated_at: user.updated_at,
@@ -218,7 +223,8 @@ class AuthController {
       // Return user data without password
       const userData = {
         id: user.id,
-        username: user.username,
+        email: user.email,
+        name: user.name,
         role: user.role,
         created_at: user.created_at,
         updated_at: user.updated_at,

@@ -27,15 +27,15 @@ model File {
   mimetype String?
   size     Int?
 
-  created_by String? // FK -> User.nip
-  updated_by String? // FK -> User.nip
+  created_by String? // FK -> UserSuperApp.id
+  updated_by String? // FK -> UserSuperApp.id
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   version    Int      @default(1)
 
   // Relations
-  creator User? @relation("UserCreatedFile", fields: [created_by], references: [nip], onDelete: SetNull)
-  updater User? @relation("UserUpdatedFile", fields: [updated_by], references: [nip], onDelete: SetNull)
+  creator UserSuperApp? @relation("UserCreatedFile", fields: [created_by], references: [id], onDelete: SetNull)
+  updater UserSuperApp? @relation("UserUpdatedFile", fields: [updated_by], references: [id], onDelete: SetNull)
 
   BannerDark  Banner[] @relation("BannerImageDark")
   BannerLight Banner[] @relation("BannerImageLight")
@@ -52,14 +52,14 @@ model Banner {
   link        String
   description String?
   is_active   Boolean  @default(true)
-  created_by  String? // FK -> User.nip
-  updated_by  String? // FK -> User.nip
+  created_by  String? // FK -> UserSuperApp.id
+  updated_by  String? // FK -> UserSuperApp.id
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
   // Relations
-  creator User? @relation("UserCreatedBanner", fields: [created_by], references: [nip], onDelete: SetNull)
-  updater User? @relation("UserUpdatedBanner", fields: [updated_by], references: [nip], onDelete: SetNull)
+  creator UserSuperApp? @relation("UserCreatedBanner", fields: [created_by], references: [id], onDelete: SetNull)
+  updater UserSuperApp? @relation("UserUpdatedBanner", fields: [updated_by], references: [id], onDelete: SetNull)
 
   // Image
   file_dark  File? @relation("BannerImageDark", fields: [dark_image], references: [id], onDelete: SetNull)
@@ -75,14 +75,14 @@ model Hyperlink {
   link       String
   logo       String?
   is_active  Boolean  @default(true)
-  created_by String? // FK -> User.nip
-  updated_by String? // FK -> User.nip
+  created_by String? // FK -> UserSuperApp.id
+  updated_by String? // FK -> UserSuperApp.id
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   // Relations
-  creator User? @relation("UserCreatedHyperlink", fields: [created_by], references: [nip], onDelete: SetNull)
-  updater User? @relation("UserUpdatedHyperlink", fields: [updated_by], references: [nip], onDelete: SetNull)
+  creator UserSuperApp? @relation("UserCreatedHyperlink", fields: [created_by], references: [id], onDelete: SetNull)
+  updater UserSuperApp? @relation("UserUpdatedHyperlink", fields: [updated_by], references: [id], onDelete: SetNull)
 
   @@index([created_by])
   @@index([updated_by])
@@ -100,14 +100,6 @@ model User {
   updated_at DateTime  @updatedAt
   deleted_at DateTime?
   version    Int       @default(1)
-
-  // Relations
-  createdFiles      File[]      @relation("UserCreatedFile")
-  updatedFiles      File[]      @relation("UserUpdatedFile")
-  createdBanners    Banner[]    @relation("UserCreatedBanner")
-  updatedBanners    Banner[]    @relation("UserUpdatedBanner")
-  createdHyperlinks Hyperlink[] @relation("UserCreatedHyperlink")
-  updatedHyperlinks Hyperlink[] @relation("UserUpdatedHyperlink")
 
   @@index([created_by])
   @@index([updated_by])
@@ -133,14 +125,25 @@ model Notification {
 }
 
 model UserSuperApp {
-  id         String   @id @default(cuid())
-  username   String   @unique
+  id         String   @id @default(uuid(7))
+  name       String
+  email      String   @unique
   password   String
   role       String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  @@index([username])
+  // Relations
+  createdHyperlinks Hyperlink[] @relation("UserCreatedHyperlink")
+  updatedHyperlinks Hyperlink[] @relation("UserUpdatedHyperlink")
+
+  createdFiles File[] @relation("UserCreatedFile")
+  updatedFiles File[] @relation("UserUpdatedFile")
+
+  createdBanners Banner[] @relation("UserCreatedBanner")
+  updatedBanners Banner[] @relation("UserUpdatedBanner")
+
+  @@index([email])
   @@index([created_at])
   @@index([updated_at])
 }

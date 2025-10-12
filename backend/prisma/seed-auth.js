@@ -9,7 +9,7 @@ async function seedAuth() {
 
     // Check if superadmin already exists
     const existingSuperadmin = await prisma.userSuperApp.findFirst({
-      where: { username: "superadmin" },
+      where: { email: "superadmin@email.com" },
     });
 
     if (existingSuperadmin) {
@@ -23,7 +23,8 @@ async function seedAuth() {
 
     const superadmin = await prisma.userSuperApp.create({
       data: {
-        username: "superadmin",
+        name: "Superadmin",
+        email: "superadmin@email.com",
         password: hashedPassword,
         role: "superadmin",
       },
@@ -31,7 +32,7 @@ async function seedAuth() {
 
     console.log("✅ Superadmin user created:", {
       id: superadmin.id,
-      username: superadmin.username,
+      email: superadmin.email,
       role: superadmin.role,
     });
 
@@ -40,7 +41,8 @@ async function seedAuth() {
 
     const admin = await prisma.userSuperApp.create({
       data: {
-        username: "admin",
+        name: "Admin",
+        email: "admin@email.com",
         password: adminPassword,
         role: "admin",
       },
@@ -48,14 +50,16 @@ async function seedAuth() {
 
     console.log("✅ Admin user created:", {
       id: admin.id,
-      username: admin.username,
+      email: admin.email,
       role: admin.role,
     });
 
     console.log("🎉 Authentication seeding completed!");
     console.log("\n📝 Default credentials:");
-    console.log("Superadmin: username=superadmin, password=superadmin123");
-    console.log("Admin: username=admin, password=admin123");
+    console.log(
+      "Superadmin: email=superadmin@email.com, password=superadmin123"
+    );
+    console.log("Admin: email=admin@email.com, password=admin123");
   } catch (error) {
     console.error("❌ Error seeding authentication data:", error);
     throw error;
