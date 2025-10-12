@@ -40,12 +40,12 @@ class BannerController {
       const bannersWithSignedUrl = await Promise.all(
         banners.data.map(async (banner) => {
           const darkImageSignedUrl = await storage.generateSignedUrl(
-            banner.image_dark.key,
+            banner.file_dark.key,
             5 * 60
           );
 
           const lightImageSignedUrl = await storage.generateSignedUrl(
-            banner.image_light.key,
+            banner.file_light.key,
             5 * 60
           );
 

@@ -107,7 +107,13 @@ class BannerModel extends BaseModel {
               nama: true,
             },
           },
-          file: {
+          file_dark: {
+            select: {
+              filepath: true,
+              key: true,
+            },
+          },
+          file_light: {
             select: {
               filepath: true,
               key: true,

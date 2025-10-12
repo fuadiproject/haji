@@ -3,6 +3,7 @@ import fileRoutes from "./routes/fileRoutes.js";
 import bannerRoutes from "./routes/bannerRoutes.js";
 import hyperlinkRoutes from "./routes/hyperlinkRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 import response from "./utils/response.js";
 
 const app = express();
@@ -29,6 +30,7 @@ app.use((req, res, next) => {
   }
 });
 
+app.use("/api/auth", authRoutes);
 app.use("/api/files", fileRoutes);
 app.use("/api/banners", bannerRoutes);
 app.use("/api/hyperlinks", hyperlinkRoutes);
