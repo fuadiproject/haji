@@ -135,7 +135,11 @@ const sizeClasses = {
               </button>
             </div>
             <!-- Content area -->
-            <div class="p-4"><slot></slot></div>
+            <div
+              class="scrollbar-thin max-h-[calc(100vh-200px)] overflow-y-auto p-4"
+            >
+              <slot></slot>
+            </div>
             <!-- Footer (optional) -->
             <div
               v-if="$slots.footer"

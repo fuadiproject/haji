@@ -5,6 +5,15 @@ const { login } = useAuth();
 definePageMeta({
   layout: "auth",
 });
+
+const loginForm = ref({
+  username: "",
+  password: "",
+});
+
+const onLogin = () => {
+  login(loginForm.value);
+};
 </script>
 
 <template>
@@ -19,9 +28,32 @@ definePageMeta({
         </p>
       </div>
 
+      <div class="mb-5 flex flex-col gap-3">
+        <UInput
+          v-model="loginForm.username"
+          type="text"
+          placeholder="Username"
+          label="Username"
+          error="Username wajib diisi"
+          size="lg"
+        />
+        <UInput
+          v-model="loginForm.password"
+          class="mt-2"
+          type="password"
+          placeholder="Password"
+          label="Password"
+          error="Password wajib diisi"
+          size="lg"
+        />
+      </div>
+
       <div class="space-y-4">
-        <ButtonComponent class="w-full justify-center" @click="login">
-          {{ TEXT.loginSSO }}
+        <ButtonComponent
+          class="w-full justify-center"
+          @click="onLogin(loginForm)"
+        >
+          Login
         </ButtonComponent>
       </div>
 
