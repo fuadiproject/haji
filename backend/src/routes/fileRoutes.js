@@ -1,13 +1,13 @@
 import express from "express";
 import { createFileValidationMiddleware } from "../middleware/fileValidation.js";
 import { createSanitizationMiddleware } from "../middleware/sanitization.js";
-import { decodeJWT } from "../middleware/auth.js";
 import fileController from "../controllers/fileController.js";
+import { authenticateToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 // Apply JWT decode middleware to all routes
-router.use(decodeJWT);
+router.use(authenticateToken);
 
 // File upload dengan validation (multer integrated)
 router.post(

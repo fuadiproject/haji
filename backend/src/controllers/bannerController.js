@@ -107,7 +107,7 @@ class BannerController {
    */
   async createBanner(req, res) {
     try {
-      const { nip } = req.user;
+      const nip = "987654321098765432";
       const data = {
         title: req.body.title,
         dark_image: req.body.dark_image,
@@ -133,7 +133,7 @@ class BannerController {
    */
   async updateBanner(req, res) {
     try {
-      const { nip } = req.user;
+      const nip = "987654321098765432";
       const { id } = req.params;
 
       // Preload existing banner and potential old file to delete

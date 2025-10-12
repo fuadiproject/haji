@@ -1,12 +1,12 @@
 import express from "express";
 import { createSanitizationMiddleware } from "../middleware/sanitization.js";
-import { decodeJWT } from "../middleware/auth.js";
+import { authenticateToken } from "../middleware/authMiddleware.js";
 import notificationController from "../controllers/notificationController.js";
 
 const router = express.Router();
 
 // Apply JWT decode middleware to all routes
-router.use(decodeJWT);
+router.use(authenticateToken);
 
 // Create notification
 router.post(
@@ -16,7 +16,10 @@ router.post(
 );
 
 // Get all notifications with pagination and filtering
-router.get("/", notificationController.getAllNotifications.bind(notificationController));
+router.get(
+  "/",
+  notificationController.getAllNotifications.bind(notificationController)
+);
 
 // Get notification by ID
 router.get(
