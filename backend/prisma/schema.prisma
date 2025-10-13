@@ -40,6 +40,8 @@ model File {
   BannerDark  Banner[] @relation("BannerImageDark")
   BannerLight Banner[] @relation("BannerImageLight")
 
+  Hyperlink Hyperlink[] @relation("HyperlinkImage")
+
   @@index([created_by])
   @@index([updated_by])
 }
@@ -83,6 +85,8 @@ model Hyperlink {
   // Relations
   creator UserSuperApp? @relation("UserCreatedHyperlink", fields: [created_by], references: [id], onDelete: SetNull)
   updater UserSuperApp? @relation("UserUpdatedHyperlink", fields: [updated_by], references: [id], onDelete: SetNull)
+
+  file File? @relation("HyperlinkImage", fields: [logo], references: [id], onDelete: SetNull)
 
   @@index([created_by])
   @@index([updated_by])

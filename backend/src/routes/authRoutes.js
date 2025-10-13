@@ -3,7 +3,6 @@ import authController from "../controllers/authController.js";
 import {
   authenticateToken,
   requireSuperadmin,
-  requireAdmin,
 } from "../middleware/authMiddleware.js";
 import { body } from "express-validator";
 import { validateRequest } from "../middleware/validation.js";
@@ -14,11 +13,11 @@ const router = express.Router();
 router.post(
   "/login",
   [
-    body("username")
+    body("email")
       .notEmpty()
-      .withMessage("Username is required")
+      .withMessage("Email is required")
       .isLength({ min: 3 })
-      .withMessage("Username must be at least 3 characters long"),
+      .withMessage("Email must be at least 3 characters long"),
     body("password")
       .notEmpty()
       .withMessage("Password is required")

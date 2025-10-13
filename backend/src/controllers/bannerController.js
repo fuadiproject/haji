@@ -107,7 +107,7 @@ class BannerController {
    */
   async createBanner(req, res) {
     try {
-      const nip = "987654321098765432";
+      const { id: userId } = req.user;
       const data = {
         title: req.body.title,
         dark_image: req.body.dark_image,
@@ -117,7 +117,7 @@ class BannerController {
         is_active: req.body.is_active,
       };
 
-      const banner = await bannerModel.createWithCreator(data, nip);
+      const banner = await bannerModel.createWithCreator(data, userId);
       return this.response.created(res, "Banner created successfully", banner);
     } catch (error) {
       console.error("❌ Create banner error:", error);
@@ -133,7 +133,7 @@ class BannerController {
    */
   async updateBanner(req, res) {
     try {
-      const nip = "987654321098765432";
+      const { id: userId } = req.user;
       const { id } = req.params;
 
       // Preload existing banner and potential old file to delete
@@ -169,7 +169,7 @@ class BannerController {
           }
 
           // Update banner
-          const data = { ...req.body, updated_by: nip };
+          const data = { ...req.body, updated_by: userId };
           return await tx.banner.update({
             where: { id },
             data,
@@ -213,15 +213,15 @@ class BannerController {
         async (tx) => {
           if (banner.dark_image == banner.light_image) {
             if (banner.file_dark) {
-              await tx.file.delete({ where: { id: banner.file_dark } });
+              await tx.file.delete({ where: { id: banner.file_dark.id } });
             }
           } else {
             if (banner.file_dark) {
-              await tx.file.delete({ where: { id: banner.file_dark } });
+              await tx.file.delete({ where: { id: banner.file_dark.id } });
             }
 
             if (banner.file_light) {
-              await tx.file.delete({ where: { id: banner.file_light } });
+              await tx.file.delete({ where: { id: banner.file_light.id } });
             }
           }
 

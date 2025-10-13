@@ -26,6 +26,10 @@ class AuthController {
   login = async (req, res) => {
     try {
       const { email, password } = req.body;
+      console.log("HERE BROOOOO");
+
+      console.log("email", email);
+      console.log("password", password);
 
       // Validate input
       if (!email || !password) {
@@ -33,16 +37,17 @@ class AuthController {
       }
 
       // Find user by username
-      const user = await this.userSuperAppModel.findByUsername(email);
+      const user = await userSuperAppModel.findByEmail(email);
       if (!user) {
         return response.unauthorized(res, "Invalid credentials");
       }
 
       // Validate password
-      const isValidPassword = await this.userSuperAppModel.validatePassword(
+      const isValidPassword = await userSuperAppModel.validatePassword(
         password,
         user.password
       );
+
       if (!isValidPassword) {
         return response.unauthorized(res, "Username or password is incorrect");
       }

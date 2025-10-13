@@ -46,13 +46,13 @@ class FileModel extends BaseModel {
         creator: {
           select: {
             id: true,
-            nama: true,
+            name: true,
           },
         },
         updater: {
           select: {
             id: true,
-            nama: true,
+            name: true,
           },
         },
       },
@@ -76,13 +76,13 @@ class FileModel extends BaseModel {
       include: {
         creator: {
           select: {
-            nama: true,
+            name: true,
             id: true,
           },
         },
         updater: {
           select: {
-            nama: true,
+            name: true,
             id: true,
           },
         },

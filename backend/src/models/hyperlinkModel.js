@@ -29,13 +29,13 @@ class HyperlinkModel extends BaseModel {
         creator: {
           select: {
             id: true,
-            nama: true,
+            name: true,
           },
         },
         updater: {
           select: {
             id: true,
-            nama: true,
+            name: true,
           },
         },
       },
@@ -56,13 +56,13 @@ class HyperlinkModel extends BaseModel {
       include: {
         creator: {
           select: {
-            nama: true,
+            name: true,
             id: true,
           },
         },
         updater: {
           select: {
-            nama: true,
+            name: true,
             id: true,
           },
         },
@@ -94,13 +94,19 @@ class HyperlinkModel extends BaseModel {
           creator: {
             select: {
               id: true,
-              nama: true,
+              name: true,
             },
           },
           updater: {
             select: {
               id: true,
-              nama: true,
+              name: true,
+            },
+          },
+          file: {
+            select: {
+              filepath: true,
+              key: true,
             },
           },
         },
