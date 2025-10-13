@@ -23,7 +23,7 @@ const modalMode = ref("add");
 
 // Form data
 const formData = ref({
-  judul: "",
+  title: "",
   link: "",
   isActive: true,
   files: [],
@@ -37,7 +37,7 @@ const formErrors = ref({});
 // Computed properties
 const deleteModalMessage = computed(() => {
   return itemToDelete.value
-    ? `Apakah Anda yakin ingin menghapus hyperlink "${itemToDelete.value.judul}"?`
+    ? `Apakah Anda yakin ingin menghapus hyperlink "${itemToDelete.value.title}"?`
     : "Apakah Anda yakin ingin menghapus hyperlink ini?";
 });
 
@@ -48,7 +48,6 @@ const { data: allHyperlinkData, refresh: refreshHyperlink } =
     {
       default: () => [], // default value
       transform: (data) => {
-        console.log("Hyperlink API Response:", data);
         return data.data || [];
       }, // transform the data
       server: false, // run on server-side
@@ -114,8 +113,8 @@ const paginationConfig = ref({
 const validateForm = () => {
   const errors = {};
 
-  if (!formData.value.judul.trim()) {
-    errors.judul = "Judul hyperlink wajib diisi";
+  if (!formData.value.title.trim()) {
+    errors.title = "Judul hyperlink wajib diisi";
   }
 
   if (!formData.value.link.trim()) {
@@ -136,7 +135,7 @@ const validateForm = () => {
 // Reset form
 const resetForm = () => {
   formData.value = {
-    judul: "",
+    title: "",
     link: "",
     isActive: true,
     files: [],
@@ -161,7 +160,7 @@ const handleAddEditHyperlink = (type, item) => {
     itemToEdit.value = item;
     // Prefill unified form from selected item (fallbacks for optional fields)
     formData.value = {
-      judul: item?.judul || "",
+      title: item?.title || "",
       link: item?.link || "",
       isActive: item?.is_active ?? true,
       files: [],
@@ -176,7 +175,7 @@ const handleAddEditHyperlink = (type, item) => {
     itemToEdit.value = item;
     // Prefill to display in disabled fields
     formData.value = {
-      judul: item?.judul || "",
+      title: item?.title || "",
       link: item?.link || "",
       isActive: item?.is_active ?? true,
       files: [],
@@ -194,8 +193,7 @@ const handleSaveHyperlink = async () => {
   }
 
   if (itemToEdit.value) {
-    let keyFile = null;
-    console.log("formData", formData.value);
+    let fileId = null;
     if (formData.value.files.length != 0) {
       const form = new FormData();
       form.append("file", formData.value.files);
@@ -209,12 +207,12 @@ const handleSaveHyperlink = async () => {
         });
         return;
       }
-      keyFile = fileResponse.data.key;
+      fileId = fileResponse.data.id;
     }
 
     const payload = {
       title: formData.value.judul,
-      logo: keyFile,
+      logo: fileId,
       link: formData.value.link,
       is_active: formData.value.isActive,
     };
@@ -253,8 +251,8 @@ const handleSaveHyperlink = async () => {
     }
 
     const payload = {
-      title: formData.value.judul,
-      logo: fileResponse.data.key,
+      title: formData.value.title,
+      logo: fileResponse.data.id,
       link: formData.value.link,
       is_active: formData.value.isActive,
     };
@@ -317,11 +315,6 @@ const handleCancelDelete = () => {
 // Table event handlers
 const handlePaginationUpdate = (newPagination) => {
   paginationConfig.value = { ...newPagination };
-};
-
-const handleRowClick = ({ row, index }) => {
-  console.log("Row clicked:", row, index);
-  // TODO: Implement row click functionality if needed
 };
 </script>
 
@@ -417,7 +410,7 @@ const handleRowClick = ({ row, index }) => {
             <UIcon name="ph:user" class="text-primary-600 h-3 w-3" />
           </div>
           <span class="text-sm font-medium text-gray-700">
-            {{ row.creator.nama }}
+            {{ row.creator.name }}
           </span>
         </div>
       </template>
@@ -476,7 +469,7 @@ const handleRowClick = ({ row, index }) => {
           </label>
           <UInput
             id="judul"
-            v-model="formData.judul"
+            v-model="formData.title"
             type="text"
             placeholder="Masukkan judul hyperlink..."
             size="lg"
@@ -539,7 +532,7 @@ const handleRowClick = ({ row, index }) => {
               >
                 <img
                   :src="itemToEdit?.logo || 'https://placehold.co/80x80'"
-                  :alt="formData.judul || 'Logo'"
+                  :alt="formData.title || 'Logo'"
                   class="h-full w-full object-contain"
                 />
               </div>
@@ -560,7 +553,7 @@ const handleRowClick = ({ row, index }) => {
                       ? URL.createObjectURL(formData.files[0])
                       : itemToEdit?.logo || 'https://placehold.co/80x80'
                   "
-                  :alt="formData.judul || 'Logo'"
+                  :alt="formData.title || 'Logo'"
                   class="h-full w-full object-contain"
                 />
               </div>

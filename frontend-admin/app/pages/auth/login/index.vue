@@ -7,7 +7,7 @@ definePageMeta({
 });
 
 const loginForm = ref({
-  username: "",
+  email: "",
   password: "",
 });
 
@@ -30,11 +30,11 @@ const onLogin = () => {
 
       <div class="mb-5 flex flex-col gap-3">
         <UInput
-          v-model="loginForm.username"
-          type="text"
-          placeholder="Username"
-          label="Username"
-          error="Username wajib diisi"
+          v-model="loginForm.email"
+          type="email"
+          placeholder="Email"
+          label="Email"
+          error="Email wajib diisi"
           size="lg"
         />
         <UInput

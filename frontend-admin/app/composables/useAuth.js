@@ -50,7 +50,7 @@ export const useAuth = () => {
   const login = async (loginForm) => {
     try {
       const data = await superAppAuthApiService.login({
-        username: loginForm.username,
+        email: loginForm.email,
         password: loginForm.password,
       });
       jwtToken.value = data.data.token;
