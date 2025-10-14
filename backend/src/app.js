@@ -4,6 +4,7 @@ import bannerRoutes from "./routes/bannerRoutes.js";
 import hyperlinkRoutes from "./routes/hyperlinkRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import frontRoutes from "./routes/frontRoutes.js";
 import response from "./utils/response.js";
 
 const app = express();
@@ -35,6 +36,7 @@ app.use("/api/files", fileRoutes);
 app.use("/api/banners", bannerRoutes);
 app.use("/api/hyperlinks", hyperlinkRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/front", frontRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {

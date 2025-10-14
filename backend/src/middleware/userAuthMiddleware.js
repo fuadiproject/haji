@@ -31,7 +31,7 @@ export const decodeJWT = (req, res, next) => {
     }
 
     // Extract user info from JWT payload
-    const { user_id, nik, role } = decoded;
+    const { user_id, nik, role, exp } = decoded;
 
     if (!user_id || !nik) {
       return res.status(401).json({
@@ -44,8 +44,16 @@ export const decodeJWT = (req, res, next) => {
     req.user = {
       user_id,
       nik,
-      role: role || "user", // Default role is 'user'
+      role,
     };
+
+    // Check if token is expired
+    // if (exp < Date.now() / 1000) {
+    //   return res.status(401).json({
+    //     success: false,
+    //     error: "Token expired",
+    //   });
+    // }
 
     next();
   } catch (error) {

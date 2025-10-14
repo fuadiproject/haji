@@ -19,6 +19,48 @@ class BannerController {
     this.response = response;
   }
 
+  async getAllBannersWithoutPagination(req, res) {
+    try {
+      const banners = await bannerModel.getAllActiveBanners();
+
+      if (!banners || banners.length === 0) {
+        return this.response.success(res, "No banners found", []);
+      }
+
+      // Map the banners to get the signed url of the image
+      const bannersWithSignedUrl = await Promise.all(
+        banners.map(async (banner) => {
+          const darkImageSignedUrl = await storage.generateSignedUrl(
+            banner.file_dark.key,
+            10 * 60
+          );
+
+          const lightImageSignedUrl = await storage.generateSignedUrl(
+            banner.file_light.key,
+            10 * 60
+          );
+
+          return {
+            title: banner.title,
+            link: banner.link,
+            description: banner.description,
+            dark_image: darkImageSignedUrl,
+            light_image: lightImageSignedUrl,
+          };
+        })
+      );
+
+      return this.response.success(
+        res,
+        "Banners fetched successfully",
+        bannersWithSignedUrl
+      );
+    } catch (error) {
+      console.error("❌ Get all banners error:", error);
+      return this.response.error(res, error.message);
+    }
+  }
+
   /**
    * Get all banners
    * @param {import('express').Request} req
@@ -29,7 +71,7 @@ class BannerController {
     try {
       const { page = 1, limit = 10, search = "", is_active = true } = req.query;
 
-      const banners = await bannerModel.getAllBanners(
+      const banners = await bannerModel.getAllBannersWithPagination(
         page,
         limit,
         search,

@@ -71,6 +71,31 @@ class BannerModel extends BaseModel {
     });
   }
 
+  async getAllActiveBanners() {
+    return await this.findMany({
+      where: {
+        is_active: true,
+      },
+      include: {
+        file_dark: {
+          select: {
+            filepath: true,
+            key: true,
+          },
+        },
+        file_light: {
+          select: {
+            filepath: true,
+            key: true,
+          },
+        },
+      },
+      orderBy: {
+        created_at: "desc",
+      },
+    });
+  }
+
   /**
    * Get all banners
    * @param {number} page
@@ -79,7 +104,12 @@ class BannerModel extends BaseModel {
    * @param {boolean} is_active
    * @returns {Promise<import('@prisma/client').Banner[]>}
    */
-  async getAllBanners(page = 1, limit = 10, search = "", is_active = true) {
+  async getAllBannersWithPagination(
+    page = 1,
+    limit = 10,
+    search = "",
+    is_active = true
+  ) {
     const skip = (page - 1) * parseInt(limit);
     const where = {
       OR: [

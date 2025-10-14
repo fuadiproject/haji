@@ -70,6 +70,19 @@ class HyperlinkModel extends BaseModel {
     });
   }
 
+  async getAllHyperLinks() {
+    return await this.findMany({
+      include: {
+        file: {
+          select: {
+            filepath: true,
+            key: true,
+          },
+        },
+      },
+    });
+  }
+
   /**
    * Get all hyperlinks
    * @param {number} page
@@ -78,7 +91,12 @@ class HyperlinkModel extends BaseModel {
    * @param {boolean} is_active
    * @returns {Promise<import('@prisma/client').Hyperlink[]>}
    */
-  async getAllHyperlinks(page = 1, limit = 10, search = "", is_active = true) {
+  async getAllHyperlinksWithPagination(
+    page = 1,
+    limit = 10,
+    search = "",
+    is_active = true
+  ) {
     const skip = (page - 1) * parseInt(limit);
     const where = {
       OR: [{ title: { contains: search, mode: "insensitive" } }],

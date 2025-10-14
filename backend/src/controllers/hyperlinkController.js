@@ -46,6 +46,40 @@ class HyperlinkController {
     }
   }
 
+  async getAllHyperlinksWithoutPagination(req, res) {
+    try {
+      const hyperlinks = await hyperlinkModel.getAllHyperLinks();
+
+      if (!hyperlinks || hyperlinks.length === 0) {
+        return this.response.success(res, "No hyperlinks found", []);
+      }
+
+      // map the hyperlinks to get the signed url of the image
+      const hyperlinksWithSignedUrl = await Promise.all(
+        hyperlinks.map(async (hyperlink) => {
+          const signedUrl = await storage.generateSignedUrl(
+            hyperlink.file.key,
+            10 * 60
+          );
+          return {
+            title: hyperlink.title,
+            link: hyperlink.link,
+            logo: signedUrl,
+          };
+        })
+      );
+
+      return this.response.success(
+        res,
+        "Hyperlinks fetched successfully",
+        hyperlinksWithSignedUrl
+      );
+    } catch (error) {
+      console.error("❌ Get all hyperlinks error:", error);
+      return this.response.error(res, error.message);
+    }
+  }
+
   /**
    * Get all hyperlinks
    * @param {import('express').Request & {user: UserRequest}} req
@@ -56,7 +90,7 @@ class HyperlinkController {
     try {
       const { page = 1, limit = 10, search = "", is_active = true } = req.query;
 
-      const hyperlinks = await hyperlinkModel.getAllHyperlinks(
+      const hyperlinks = await hyperlinkModel.getAllHyperlinksWithPagination(
         page,
         limit,
         search,
