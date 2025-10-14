@@ -74,11 +74,11 @@ const togglePasswordVisibility = () => {
 
 <template>
   <div class="flex flex-col gap-1">
-    <label v-if="label" class="text-neutral-7 text-sm font-semibold">
+    <label v-if="label" class="text-body-2 text-sm font-semibold">
       {{ label }}
     </label>
     <div
-      class="bg-neutral-8 flex items-center rounded-xl border"
+      class="bg-body-10 flex items-center rounded-xl border"
       :class="[sizeClasses, errorClasses, 'gap-2 pt-2 pr-3 pb-2 pl-3']"
     >
       <!-- Left Slot -->

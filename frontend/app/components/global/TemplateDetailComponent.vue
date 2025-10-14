@@ -24,7 +24,7 @@ const emit = defineEmits(["back"]);
       :class="isFullWidth ? 'w-full max-w-5xl' : 'w-full max-w-[1027px]'"
     >
       <div
-        class="relative h-[260px] w-full bg-gradient-to-l from-[#F8F5F0] to-[#EFDCC5]"
+        class="from-primary-4 to-primary-3 relative h-[260px] w-full bg-gradient-to-l"
       >
         <div class="relative flex h-full w-full flex-col items-center gap-3">
           <!-- <NuxtImg
@@ -45,14 +45,14 @@ const emit = defineEmits(["back"]);
                 class="h-4 w-4"
                 @click="emit('back')"
               />
-              <h1 class="text-gray-title text-xl font-semibold">{{ title }}</h1>
+              <h1 class="text-body-1 text-xl font-semibold">{{ title }}</h1>
             </div>
           </div>
         </div>
       </div>
 
       <main
-        class="relative -mt-46 bg-white px-4 py-6 shadow-[0px_3px_14px_0px_#070D311A]"
+        class="bg-container-secondary relative -mt-46 px-4 py-6 shadow-[0px_3px_14px_0px_#070D311A]"
         :class="
           variant === 'default'
             ? 'min-h-[calc(100vh-77px)] w-full rounded-t-3xl'

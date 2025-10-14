@@ -9,7 +9,7 @@ import { TEXT } from "@/constants/text";
         name="ph:spinner-bold"
         class="text-primary-main h-6 w-6 animate-spin"
       />
-      <p class="text-neutral-6 text-sm">{{ TEXT.memuatData }}</p>
+      <p class="text-body-3 text-sm">{{ TEXT.memuatData }}</p>
     </div>
   </div>
 </template>

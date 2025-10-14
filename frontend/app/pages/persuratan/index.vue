@@ -172,7 +172,7 @@ const handleBack = () => {
     title="Persuratan"
     @back="handleBack"
   >
-    <h1 class="text-neutral-7 text-xl font-semibold">
+    <h1 class="text-body-2 text-xl font-semibold">
       {{ TEXT.listDisposisi }}
     </h1>
     <UInput
@@ -200,7 +200,7 @@ const handleBack = () => {
         >
           <UIcon
             name="ph:tray-arrow-down-bold"
-            class="text-neutral-6 h-5 w-5"
+            class="text-body-3 h-5 w-5"
             :class="activeTab === tab ? 'text-primary-main' : ''"
           />
           {{ tab === "suratMasuk" ? TEXT.suratMasuk : TEXT.suratKeluar }}

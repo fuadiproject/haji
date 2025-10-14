@@ -19,7 +19,7 @@ defineProps({
         alt="Empty State"
         :class="imageClass"
       />
-      <p class="text-neutral-6 text-center text-sm">
+      <p class="text-body-3 text-center text-sm">
         {{ text }}
       </p>
     </div>
