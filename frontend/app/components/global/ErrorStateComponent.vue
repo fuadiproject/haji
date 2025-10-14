@@ -15,7 +15,7 @@ const emit = defineEmits(["refresh"]);
   <div class="flex h-32 items-center justify-center">
     <div class="flex flex-col items-center gap-2">
       <UIcon name="ph:warning-bold" class="h-6 w-6 text-red-500" />
-      <p class="text-neutral-6 text-center text-sm">{{ error }}</p>
+      <p class="text-body-3 text-center text-sm">{{ error }}</p>
       <button
         class="text-primary-main text-sm font-semibold"
         @click="emit('refresh')"

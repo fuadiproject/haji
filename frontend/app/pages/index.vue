@@ -88,7 +88,7 @@ const goToBanner = (index) => {
 <template>
   <ClientOnly>
     <div
-      class="mx-auto h-screen max-w-[1027px] overflow-y-auto bg-gradient-to-l from-[#F8F5F0] to-[#EFDCC5]"
+      class="from-primary-4 to-primary-3 mx-auto h-screen max-w-[1027px] overflow-y-auto bg-gradient-to-l"
     >
       <!-- Banner Slider -->
       <div class="relative h-[260px] w-full sm:h-[360px] lg:h-[400px]">
@@ -121,18 +121,20 @@ const goToBanner = (index) => {
 
       <!-- Reminder (Presensi) -->
       <div
-        class="relative -mt-7.5 h-[calc(100vh-230px)] min-h-[450px] w-full rounded-t-3xl bg-white px-4 py-6"
+        class="bg-container-main relative -mt-7.5 h-[calc(100vh-230px)] min-h-[450px] w-full rounded-t-3xl px-4 py-6"
       >
-        <div class="bg-neutral-8 relative rounded-2xl px-4 py-6">
+        <div
+          class="bg-body-10 dark:bg-container-secondary relative rounded-2xl px-4 py-6"
+        >
           <NuxtImg
             src="/images/reminder-image.svg"
             alt="Reminder Image"
             class="absolute -top-4 right-1 h-[75px] w-[78px]"
           />
-          <p class="text-gray-5 text-base leading-4 font-medium">
+          <p class="text-body-2 text-base leading-4 font-medium">
             Halo, Abdurrahman!
           </p>
-          <p class="text-gray-4 mt-2.5 text-sm leading-4">
+          <p class="text-body-4 mt-2.5 text-sm leading-4">
             {{ TEXT.reminderDescription }}
           </p>
           <div
@@ -169,7 +171,7 @@ const goToBanner = (index) => {
           <NuxtLink
             v-for="menu in mainMenu.slice(0, 5)"
             :key="menu.id"
-            class="border-neutral-9 flex h-20 w-full flex-col items-center justify-center gap-2 rounded-xl border bg-white"
+            class="border-border-main bg-container-secondary flex h-20 w-full flex-col items-center justify-center gap-2 rounded-xl border"
             :to="menu.to"
           >
             <NuxtImg
@@ -177,10 +179,10 @@ const goToBanner = (index) => {
               alt="Menu Icon"
               class="h-7 w-7"
             />
-            <span class="text-gray-4 text-center text-xs">{{ menu.name }}</span>
+            <span class="text-body-4 text-center text-xs">{{ menu.name }}</span>
           </NuxtLink>
           <div
-            class="border-neutral-9 flex h-20 w-full flex-col items-center justify-center gap-2 rounded-xl border bg-white"
+            class="border-border-main bg-container-secondary flex h-20 w-full flex-col items-center justify-center gap-2 rounded-xl border"
             @click="isModalOpen = true"
           >
             <NuxtImg
@@ -188,7 +190,7 @@ const goToBanner = (index) => {
               alt="Lainnya"
               class="h-7 w-7"
             />
-            <span class="text-gray-4 text-center text-xs">{{
+            <span class="text-body-4 text-center text-xs">{{
               TEXT.lainnya
             }}</span>
           </div>
@@ -234,7 +236,7 @@ const goToBanner = (index) => {
           <NuxtLink
             v-for="menu in mainMenu"
             :key="menu.id"
-            class="border-neutral-9 flex h-20 w-full flex-col items-center justify-center gap-2 rounded-xl border bg-white"
+            class="border-border-main bg-container-secondary flex h-20 w-full flex-col items-center justify-center gap-2 rounded-xl border"
             :to="menu.to"
           >
             <NuxtImg
@@ -242,7 +244,7 @@ const goToBanner = (index) => {
               alt="Menu Icon"
               class="h-7 w-7"
             />
-            <span class="text-gray-4 text-center text-xs">{{ menu.name }}</span>
+            <span class="text-body-4 text-center text-xs">{{ menu.name }}</span>
           </NuxtLink>
         </div>
       </ModalBottomComponent>

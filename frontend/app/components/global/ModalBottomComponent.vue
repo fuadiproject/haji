@@ -106,7 +106,7 @@ watch(
     >
       <div
         ref="modalRef"
-        class="relative flex h-[75vh] max-h-[75vh] w-full max-w-[1027px] transform flex-col rounded-t-2xl bg-white shadow-2xl transition-transform duration-150 ease-out sm:h-[75vh] sm:max-h-[75vh] md:h-[85vh] md:max-h-[85vh]"
+        class="bg-container-main relative flex h-[75vh] max-h-[75vh] w-full max-w-[1027px] transform flex-col rounded-t-2xl shadow-2xl transition-transform duration-150 ease-out sm:h-[75vh] sm:max-h-[75vh] md:h-[85vh] md:max-h-[85vh]"
         :class="{
           'translate-y-full': isClosing,
           '!h-[95vh] !max-h-[95vh]': isFullHeight,
@@ -120,14 +120,14 @@ watch(
           @touchmove="handleTouchMove"
           @touchend="handleTouchEnd"
         >
-          <div class="h-1 w-10 rounded-full bg-gray-300"></div>
+          <div class="bg-body-7 h-1 w-10 rounded-full"></div>
         </div>
 
         <!-- Header dengan tombol close -->
         <div
-          class="flex items-center justify-between border-b border-gray-100 px-4 pb-2 sm:px-5 sm:pb-2.5"
+          class="dark:border-border-main flex items-center justify-between border-b border-gray-100 px-4 pb-2 sm:px-5 sm:pb-2.5"
         >
-          <p class="text-gray-5 text-base font-medium">{{ title }}</p>
+          <p class="text-body-8 text-base font-medium">{{ title }}</p>
           <button
             class="flex cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-2 text-gray-500 transition-all duration-200 hover:bg-gray-100 hover:text-gray-700 active:scale-95"
             aria-label="Tutup modal"

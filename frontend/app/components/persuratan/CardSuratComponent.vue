@@ -48,7 +48,7 @@ const emit = defineEmits(["disposisi", "detail", "delete", "edit"]);
   <CardComponent>
     <div class="space-y-3">
       <div class="flex items-center justify-between">
-        <span class="text-neutral-7 text-sm font-semibold">
+        <span class="text-body-2 text-sm font-semibold">
           {{ TEXT.nomor }} : {{ nomorSurat }}
         </span>
 
@@ -74,7 +74,7 @@ const emit = defineEmits(["disposisi", "detail", "delete", "edit"]);
 
       <div v-if="tanggalSurat" class="flex items-center gap-2">
         <NuxtTime
-          class="text-neutral-6 text-xs"
+          class="text-body-3 text-xs"
           :datetime="tanggalSurat"
           day="numeric"
           month="long"
@@ -90,7 +90,7 @@ const emit = defineEmits(["disposisi", "detail", "delete", "edit"]);
         </span>
       </div>
 
-      <div class="border-neutral-9 border-t pt-3">
+      <div class="border-border-main border-t pt-3">
         <div class="flex items-center justify-between gap-2">
           <ButtonComponent
             size="sm"
@@ -115,7 +115,7 @@ const emit = defineEmits(["disposisi", "detail", "delete", "edit"]);
               </a>
             </div>
 
-            <div>
+            <div v-if="type === 'suratMasuk'">
               <ButtonComponent
                 size="sm"
                 variant="primary"

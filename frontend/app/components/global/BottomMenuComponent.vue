@@ -42,7 +42,7 @@ const isActive = (id) => {
 
 <template>
   <div
-    class="fixed bottom-0 left-1/2 flex h-[70px] w-full max-w-[1027px] -translate-x-1/2 items-center bg-white px-4 py-3 shadow-[0px_-4px_10px_0px_#8484841A]"
+    class="bg-container-main fixed bottom-0 left-1/2 flex h-[70px] w-full max-w-[1027px] -translate-x-1/2 items-center px-4 py-3 shadow-[0px_-4px_10px_0px_#8484841A]"
   >
     <NuxtLink
       v-for="menu in bottomMenu"
@@ -52,11 +52,11 @@ const isActive = (id) => {
     >
       <UIcon
         :name="menu.icon"
-        :class="isActive(menu.to) ? 'text-primary-main' : 'text-gray-4'"
+        :class="isActive(menu.to) ? 'text-primary-main' : 'text-body-4'"
         class="h-6 w-6"
       />
       <span
-        :class="isActive(menu.to) ? 'text-primary-main' : 'text-gray-4'"
+        :class="isActive(menu.to) ? 'text-primary-main' : 'text-body-4'"
         class="text-xs"
         >{{ menu.name }}</span
       >

@@ -1,4 +1,6 @@
 <script setup>
+import { useTheme } from "@/composables/useTheme";
+
 const toaster = { duration: 3000, position: "top-right" };
 
 // PWA Meta Tags
@@ -46,6 +48,9 @@ useHead({
 
 // Notification Permission
 useNotificationPermission();
+
+// Theme
+useTheme();
 </script>
 
 <template>

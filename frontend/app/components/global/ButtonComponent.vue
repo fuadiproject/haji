@@ -38,13 +38,13 @@ const loadingClasses = computed(() => {
     :class="[
       sizeClasses[size],
       variant === 'outline'
-        ? 'border-neutral-9 text-neutral-6 border'
+        ? 'border-border-main text-body-3 border'
         : variant === 'primary-outline'
           ? 'border-primary-main text-primary-main border'
           : variant === 'text-only'
-            ? '!text-gray-5'
+            ? '!text-body-8'
             : variant === 'secondary'
-              ? 'bg-secondary-main-2 text-white'
+              ? 'bg-primary-2 text-white'
               : 'bg-primary-main text-white',
     ]"
   >

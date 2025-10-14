@@ -405,7 +405,7 @@ watch(
     <!-- Catatan Section -->
     <div class="mt-4">
       <div class="mb-4 flex items-center justify-between">
-        <h3 class="text-base font-medium text-gray-900">Catatan</h3>
+        <h3 class="text-body-11 text-base font-medium">Catatan</h3>
         <ButtonComponent variant="outline" size="sm" @click="addCatatan">
           + {{ TEXT.tambahCatatan }}
         </ButtonComponent>
@@ -414,7 +414,7 @@ watch(
       <div
         v-for="(catatan, catatanIndex) in formData.catatan"
         :key="catatanIndex"
-        class="mb-4 rounded-lg border border-gray-200 p-4"
+        class="dark:border-border-main mb-4 rounded-lg border border-gray-200 p-4"
       >
         <!-- Catatan Header -->
         <div class="mb-3 flex items-center justify-between">

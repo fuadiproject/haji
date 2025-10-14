@@ -53,7 +53,7 @@ const handleBack = () => {
     @back="handleBack"
   >
     <div class="flex w-full flex-col items-center justify-center gap-3">
-      <div class="text-neutral-7 text-base font-semibold">
+      <div class="text-body-2 text-base font-semibold">
         {{ TEXT.laporanKehadiran }}
       </div>
 
@@ -61,17 +61,19 @@ const handleBack = () => {
         {{ currentTime }}
       </div>
 
-      <div class="text-neutral-6 text-base font-normal">
+      <div class="text-body-3 text-base font-normal">
         {{ currentDate }}
       </div>
     </div>
 
-    <div class="bg-neutral-8 mt-6 flex flex-col gap-4 rounded-xl p-4">
+    <div
+      class="bg-body-10 dark:bg-container-main mt-6 flex flex-col gap-4 rounded-xl p-4"
+    >
       <div class="flex flex-col items-center gap-2">
-        <p class="text-neutral-6 text-sm leading-4 font-medium">
+        <p class="text-body-3 text-sm leading-4 font-medium">
           {{ TEXT.jadwalKerja }}:
         </p>
-        <p class="text-neutral-7 text-base font-semibold">
+        <p class="text-body-2 text-base font-semibold">
           {{ TEXT.stafKhusus }}: {{ TEXT.stafKhususDescription }}
         </p>
       </div>
@@ -106,14 +108,14 @@ const handleBack = () => {
 
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-2">
-          <UIcon name="ph:info-bold" class="text-neutral-6 h-4 w-4" />
-          <p class="text-neutral-6 text-xs leading-4">
+          <UIcon name="ph:info-bold" class="text-body-3 h-4 w-4" />
+          <p class="text-body-3 text-xs leading-4">
             {{ TEXT.infoKehadiran }}
           </p>
         </div>
         <div class="flex items-center gap-2">
           <UIcon name="ph:percent-bold" class="text-primary-main h-4 w-4" />
-          <p class="text-neutral-6 text-xs leading-4 font-medium">
+          <p class="text-body-3 text-xs leading-4 font-medium">
             {{ TEXT.persenPemotongan }}:
           </p>
           <p class="text-primary-main text-xs font-semibold">
@@ -128,9 +130,9 @@ const handleBack = () => {
         <div class="flex items-center gap-2">
           <UIcon
             name="ph:clock-counter-clockwise-bold"
-            class="text-neutral-7 h-5 w-5"
+            class="text-body-2 h-5 w-5"
           />
-          <p class="text-neutral-7 text-base leading-4 font-semibold">
+          <p class="text-body-2 text-base leading-4 font-semibold">
             {{ TEXT.riwayatKehadiran }}
           </p>
         </div>
@@ -152,7 +154,7 @@ const handleBack = () => {
           alt="Empty State"
           class="h-20 w-20"
         />
-        <p class="text-neutral-6 text-sm leading-4">
+        <p class="text-body-3 text-sm leading-4">
           {{ TEXT.belumAdaDataKehadiranHariIni }}
         </p>
       </div>
@@ -167,14 +169,14 @@ const handleBack = () => {
                 class="h-6 w-6"
               />
               <p
-                class="text-neutral-7 text-sm leading-4 font-semibold tracking-wide"
+                class="text-body-2 text-sm leading-4 font-semibold tracking-wide"
               >
                 {{ TEXT.clockIn }}
               </p>
             </div>
             <div class="flex items-center gap-2">
               <div
-                class="bg-neutral-2 flex items-center gap-2 rounded-lg px-3 py-2"
+                class="bg-body-9 dark:bg-container-main flex items-center gap-2 rounded-lg px-3 py-2"
               >
                 <UIcon
                   name="ph:clock-bold"
@@ -202,14 +204,14 @@ const handleBack = () => {
                 class="h-6 w-6"
               />
               <p
-                class="text-neutral-7 text-sm leading-4 font-semibold tracking-wide"
+                class="text-body-2 text-sm leading-4 font-semibold tracking-wide"
               >
                 {{ TEXT.clockOut }}
               </p>
             </div>
             <div class="flex items-center gap-2">
               <div
-                class="bg-neutral-2 flex items-center gap-2 rounded-lg px-3 py-2"
+                class="bg-body-9 dark:bg-container-main flex items-center gap-2 rounded-lg px-3 py-2"
               >
                 <UIcon
                   name="ph:clock-bold"

@@ -137,30 +137,36 @@ onMounted(() => {
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <!-- Nomor Surat -->
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">{{
+            <label class="text-body-4 mb-1 block text-sm font-medium">{{
               TEXT.nomorSurat
             }}</label>
-            <p class="rounded bg-gray-50 p-2 text-sm text-gray-900">
+            <p
+              class="text-body-11 dark:bg-container-main rounded bg-gray-50 p-2 text-sm"
+            >
               {{ suratData?.data?.nomor_surat }}
             </p>
           </div>
 
           <!-- Tanggal Surat -->
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">{{
+            <label class="text-body-4 mb-1 block text-sm font-medium">{{
               TEXT.tanggalSurat
             }}</label>
-            <p class="rounded bg-gray-50 p-2 text-sm text-gray-900">
+            <p
+              class="text-body-11 dark:bg-container-main rounded bg-gray-50 p-2 text-sm"
+            >
               {{ formatDate(suratData?.data?.created_at) }}
             </p>
           </div>
 
           <!-- Created By -->
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">{{
+            <label class="text-body-4 mb-1 block text-sm font-medium">{{
               TEXT.dibuatOleh
             }}</label>
-            <p class="rounded bg-gray-50 p-2 text-sm text-gray-900">
+            <p
+              class="text-body-11 dark:bg-container-main rounded bg-gray-50 p-2 text-sm"
+            >
               {{ suratData?.data?.created_by }}
             </p>
           </div>
@@ -170,7 +176,7 @@ onMounted(() => {
       <!-- Disposisi Information Section -->
       <div v-if="suratData?.data?.disposisi?.length > 0" class="space-y-4">
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-gray-900">
+          <h3 class="text-body-11 text-lg font-semibold">
             {{ TEXT.informasiDisposisi }}
           </h3>
           <span
@@ -185,10 +191,10 @@ onMounted(() => {
           <div
             v-for="(disposisi, disposisiIndex) in suratData?.data?.disposisi"
             :key="disposisi.id"
-            class="rounded-lg border border-gray-200 bg-white p-4"
+            class="bg-container-main dark:border-border-main rounded-lg border border-gray-200 p-4"
           >
             <div class="mb-3 flex items-center justify-between">
-              <h4 class="text-sm font-medium text-gray-900">
+              <h4 class="text-body-11 text-sm font-medium">
                 {{ TEXT.disposisi }} #{{ disposisiIndex + 1 }}
               </h4>
               <span class="text-xs text-gray-500">ID: {{ disposisi.id }}</span>
@@ -197,26 +203,24 @@ onMounted(() => {
             <div class="space-y-3">
               <!-- Sifat dan Urgensi -->
               <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-                <div class="rounded bg-gray-50 p-2">
-                  <span class="text-xs font-medium text-gray-600">Sifat:</span>
-                  <p class="text-sm text-gray-900">
+                <div class="dark:bg-container-main rounded bg-gray-50 p-2">
+                  <span class="text-body-5 text-xs font-medium">Sifat:</span>
+                  <p class="text-body-11 text-sm">
                     {{ disposisi.sifat?.sifat || "-" }}
                   </p>
                 </div>
-                <div class="rounded bg-gray-50 p-2">
-                  <span class="text-xs font-medium text-gray-600"
-                    >Urgensi:</span
-                  >
-                  <p class="text-sm text-gray-900">
+                <div class="dark:bg-container-main rounded bg-gray-50 p-2">
+                  <span class="text-body-5 text-xs font-medium">Urgensi:</span>
+                  <p class="text-body-11 text-sm">
                     {{ disposisi.urgensi?.urgensi || "-" }}
                   </p>
                 </div>
               </div>
 
               <!-- Pengirim -->
-              <div class="rounded bg-gray-50 p-2">
-                <span class="text-xs font-medium text-gray-600">Pengirim:</span>
-                <p class="text-sm text-gray-900">
+              <div class="dark:bg-container-main rounded bg-gray-50 p-2">
+                <span class="text-body-5 text-xs font-medium">Pengirim:</span>
+                <p class="text-body-11 text-sm">
                   {{
                     disposisi.pengirim?.nik
                       ? `${disposisi.pengirim?.nama} (${disposisi.pengirim?.nik})`
@@ -230,28 +234,28 @@ onMounted(() => {
                 v-if="disposisi.catatan && disposisi.catatan.length > 0"
                 class="space-y-2"
               >
-                <span class="text-xs font-medium text-gray-600">Catatan:</span>
+                <span class="text-body-5 text-xs font-medium">Catatan:</span>
                 <div class="space-y-2">
                   <div
                     v-for="(catatan, catatanIndex) in disposisi.catatan"
                     :key="catatanIndex"
-                    class="rounded bg-gray-50 p-3"
+                    class="dark:bg-container-main rounded bg-gray-50 p-3"
                   >
-                    <p class="mb-2 text-sm text-gray-900">
+                    <p class="text-body-11 mb-2 text-sm">
                       "{{ catatan.catatan }}"
                     </p>
 
                     <div v-if="catatan.petunjuk?.petunjuk" class="mt-2">
-                      <span class="text-xs font-medium text-gray-600"
+                      <span class="text-body-5 text-xs font-medium"
                         >{{ TEXT.petunjuk }}:</span
                       >
-                      <span class="ml-1 text-xs text-gray-700">{{
+                      <span class="text-body-4 ml-1 text-xs">{{
                         catatan.petunjuk?.petunjuk
                       }}</span>
                     </div>
 
                     <div v-if="catatan.targets && catatan.targets.length > 0">
-                      <span class="text-xs font-medium text-gray-600"
+                      <span class="text-body-5 text-xs font-medium"
                         >Target:</span
                       >
                       <div class="mt-1 flex flex-wrap gap-1">
@@ -300,18 +304,18 @@ onMounted(() => {
               v-if="
                 suratData?.data?.file?.filepath && (isMobile || showPdfFallback)
               "
-              class="flex flex-col items-center justify-center rounded-lg border border-gray-300 bg-gray-50 p-8"
+              class="dark:bg-container-main flex flex-col items-center justify-center rounded-lg border border-gray-300 bg-gray-50 p-8"
               :style="{ minHeight: isMobile ? '400px' : '700px' }"
             >
               <UIcon name="ph:file-pdf" class="mb-4 h-16 w-16 text-red-500" />
-              <h3 class="mb-2 text-center text-lg font-semibold text-gray-900">
+              <h3 class="text-body-11 mb-2 text-center text-lg font-semibold">
                 {{
                   isMobile
                     ? "Preview PDF tidak tersedia di mobile"
                     : "Tidak dapat memuat PDF"
                 }}
               </h3>
-              <p class="mb-4 text-center text-sm text-gray-600">
+              <p class="text-body-5 mb-4 text-center text-sm">
                 {{
                   isMobile
                     ? "Untuk melihat dokumen PDF, silakan download dan buka dengan aplikasi PDF reader."
@@ -358,7 +362,7 @@ onMounted(() => {
 
       <!-- Action Buttons -->
       <div
-        class="fixed right-0 bottom-0 left-0 flex w-full justify-between gap-2 border-t border-gray-200 bg-white p-4 pt-4 sm:flex-row"
+        class="bg-container-main dark:border-border-main fixed right-0 bottom-0 left-0 flex w-full justify-between gap-2 border-t border-gray-200 p-4 pt-4 sm:flex-row"
       >
         <div class="flex items-center gap-2">
           <UButton
@@ -383,6 +387,7 @@ onMounted(() => {
         </div>
 
         <ButtonComponent
+          v-if="type === 'suratMasuk'"
           variant="primary"
           class="max-w-fit flex-1 sm:flex-none"
           @click="handleDisposisi"
