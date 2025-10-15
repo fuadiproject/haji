@@ -13,12 +13,6 @@ services:
       - "3002:3002"
     env_file:
       - .env
-    environment:
-      - NODE_ENV=production
-      - API_BASE_URL=${API_BASE_URL}
-      - API_BPH_URL=${API_BPH_URL}
-      - API_MASTER_DATA_URL=${API_MASTER_DATA_URL}
-      - API_SUPER_APP_URL=${API_SUPER_APP_URL}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "--version"]
