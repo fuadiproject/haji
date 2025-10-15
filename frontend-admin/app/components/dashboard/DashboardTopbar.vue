@@ -5,6 +5,7 @@ const route = useRoute();
 const currentTime = useRealtimeClock();
 
 const handleLogout = async () => {
+  console.log("handleLogout");
   await logout();
   await navigateTo("/auth/login");
 };
@@ -69,73 +70,71 @@ const breadcrumbs = computed(() => {
 </script>
 
 <template>
-
   <header class="border-neutral-9 border-b bg-white px-6 py-4">
-
     <div class="flex items-center justify-between">
-       <!-- Page Title / Breadcrumb -->
+      <!-- Page Title / Breadcrumb -->
       <div>
-
-        <h2 class="text-gray-title text-xl font-semibold mb-1">
-           {{
+        <h2 class="text-gray-title mb-1 text-xl font-semibold">
+          {{
             $route.meta.title ||
             breadcrumbs[breadcrumbs.length - 1]?.label ||
             "Dashboard"
           }}
         </h2>
-         <!-- Breadcrumb Navigation -->
+        <!-- Breadcrumb Navigation -->
         <nav
           class="flex items-center space-x-1 text-sm"
           aria-label="Breadcrumb"
         >
-           <template v-for="(crumb, index) in breadcrumbs" :key="crumb.to"
-            > <!-- Breadcrumb Item -->
+          <template v-for="(crumb, index) in breadcrumbs" :key="crumb.to">
+            <!-- Breadcrumb Item -->
             <div class="flex items-center">
-               <!-- Separator (not for first item) --> <UIcon
+              <!-- Separator (not for first item) -->
+              <UIcon
                 v-if="index > 0"
                 name="ph:caret-right"
-                class="h-3 w-3 text-gray-4 mx-1"
-              /> <!-- Breadcrumb Link/Text --> <NuxtLink
+                class="text-gray-4 mx-1 h-3 w-3"
+              />
+              <!-- Breadcrumb Link/Text -->
+              <NuxtLink
                 v-if="!crumb.isActive"
                 :to="crumb.to"
                 class="text-gray-4 hover:text-primary-main transition-colors duration-200 hover:underline"
-                > {{ crumb.label }} </NuxtLink
-              > <span v-else class="text-primary-main font-medium"
-                > {{ crumb.label }} </span
               >
+                {{ crumb.label }}
+              </NuxtLink>
+              <span v-else class="text-primary-main font-medium">
+                {{ crumb.label }}
+              </span>
             </div>
-             </template
-          >
+          </template>
         </nav>
-
       </div>
-       <!-- Right Section -->
+      <!-- Right Section -->
       <div class="flex items-center gap-4">
-         <!-- Current Time -->
+        <!-- Current Time -->
         <div class="text-gray-4 hidden text-sm md:block">
-           <span class="font-medium text-primary-main">{{
+          <span class="text-primary-main font-medium">{{
             currentTime.currentDate
-          }}</span
-          > <span class="font-medium text-primary-main mx-2">•</span> <span
-            class="font-medium text-primary-main"
-            >{{ currentTime.currentTime }}</span
-          >
+          }}</span>
+          <span class="text-primary-main mx-2 font-medium">•</span>
+          <span class="text-primary-main font-medium">{{
+            currentTime.currentTime
+          }}</span>
         </div>
-         <!-- User Menu -->
+        <!-- User Menu -->
         <div class="flex items-center gap-3">
-
           <div class="hidden text-right md:block">
-
             <p class="text-gray-title text-sm font-medium">
-               {{ user?.name || "Admin User" }}
+              {{ user?.name || "Admin User" }}
             </p>
 
             <p class="text-gray-subtitle text-xs">
-               {{ user?.role || "Administrator" }}
+              {{ user?.role || "Administrator" }}
             </p>
-
           </div>
-           <!-- User Avatar & Dropdown --> <UDropdownMenu
+          <!-- User Avatar & Dropdown -->
+          <UDropdownMenu
             :items="[
               [
                 {
@@ -148,27 +147,27 @@ const breadcrumbs = computed(() => {
                 {
                   label: 'Logout',
                   icon: 'ph:sign-out',
-                  click: handleLogout,
+                  slot: 'logout',
+                  onSelect() {
+                    handleLogout();
+                  },
                 },
               ],
             ]"
-            > <button
+          >
+            <button
               class="hover:bg-neutral-2 flex items-center gap-2 rounded-lg p-2"
             >
-               <NuxtImg
+              <NuxtImg
                 src="/images/default-avatar.svg"
                 alt="User Avatar"
                 class="h-8 w-8 rounded-full"
-              /> <UIcon name="ph:caret-down" class="text-gray-4 h-4 w-4" /> </button
-            > </UDropdownMenu
-          >
+              />
+              <UIcon name="ph:caret-down" class="text-gray-4 h-4 w-4" />
+            </button>
+          </UDropdownMenu>
         </div>
-
       </div>
-
     </div>
-
   </header>
-
 </template>
-

@@ -36,7 +36,7 @@ export const TEXT = {
   absenBerhasil: "Absen berhasil",
   absenMasukBerhasil: "Absen masuk berhasil",
   absenKeluarBerhasil: "Absen keluar berhasil",
-  loginSSO: "Login SSO",
+  login: "Login",
   keluarDariAkun: "Keluar dari akun",
   ya: "Ya",
   tidak: "Tidak",

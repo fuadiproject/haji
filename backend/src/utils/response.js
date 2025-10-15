@@ -26,9 +26,14 @@ const response = {
   },
 
   // Error response
-  error(res, error = "Internal Server Error", statusCode = 500) {
+  error(
+    res,
+    error = "Internal Server Error",
+    statusCode = 500,
+    withoutSanitize = false
+  ) {
     // Sanitize error message untuk keamanan
-    const sanitizedError = this.sanitizeError(error);
+    const sanitizedError = withoutSanitize ? error : this.sanitizeError(error);
 
     return res.status(statusCode).json({
       success: false,
@@ -102,32 +107,38 @@ const response = {
 
   // Created response (201)
   created(res, message = "Created successfully", data = null) {
-    return this.success(res, message, data, 201);
+    return response.success(res, message, data, 201);
   },
 
   // Not found response (404)
   notFound(res, message = "Resource not found") {
-    return this.error(res, message, 404);
+    return response.error(res, message, 404);
+  },
+
+  // Internal server error response (500)
+  internalServerError(res, message = "Internal server error") {
+    return response.error(res, message, 500, true);
   },
 
   // Bad request response (400)
   badRequest(res, message = "Bad request") {
-    return this.error(res, message, 400);
+    return response.error(res, message, 400);
   },
 
   // Unauthorized response (401)
   unauthorized(res, message = "Unauthorized") {
+    console.log("About to return unauthorized");
     return this.error(res, message, 401);
   },
 
   // Forbidden response (403)
   forbidden(res, message = "Forbidden") {
-    return this.error(res, message, 403);
+    return response.error(res, message, 403);
   },
 
   // Validation error response (422)
   validationError(res, message = "Validation error") {
-    return this.error(res, message, 422);
+    return response.error(res, message, 422);
   },
 };
 

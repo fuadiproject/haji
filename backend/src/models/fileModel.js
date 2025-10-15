@@ -32,27 +32,27 @@ class FileModel extends BaseModel {
   /**
    * Create file with creator
    * @param {import('@prisma/client').File} data
-   * @param {string} userNik
+   * @param {string} userId
    * @returns {Promise<import('@prisma/client').File>}
    */
-  async createWithCreator(data, userNik) {
+  async createWithCreator(data, userId) {
     return await this.create({
       data: {
         ...data,
-        created_by: userNik,
-        updated_by: userNik,
+        created_by: userId,
+        updated_by: userId,
       },
       include: {
         creator: {
           select: {
-            nip: true,
-            nama: true,
+            id: true,
+            name: true,
           },
         },
         updater: {
           select: {
-            nip: true,
-            nama: true,
+            id: true,
+            name: true,
           },
         },
       },
@@ -63,27 +63,27 @@ class FileModel extends BaseModel {
    * Update file with updater tracking
    * @param {string} id
    * @param {import('@prisma/client').File} data
-   * @param {string} userNik
+   * @param {string} userId
    * @returns {Promise<import('@prisma/client').File>}
    */
-  async updateWithUpdater(id, data, userNik) {
+  async updateWithUpdater(id, data, userId) {
     return await this.update({
       where: { id },
       data: {
         ...data,
-        updated_by: userNik,
+        updated_by: userId,
       },
       include: {
         creator: {
           select: {
-            nama: true,
-            nip: true,
+            name: true,
+            id: true,
           },
         },
         updater: {
           select: {
-            nama: true,
-            nip: true,
+            name: true,
+            id: true,
           },
         },
       },

@@ -19,6 +19,48 @@ class BannerController {
     this.response = response;
   }
 
+  async getAllBannersWithoutPagination(req, res) {
+    try {
+      const banners = await bannerModel.getAllActiveBanners();
+
+      if (!banners || banners.length === 0) {
+        return this.response.success(res, "No banners found", []);
+      }
+
+      // Map the banners to get the signed url of the image
+      const bannersWithSignedUrl = await Promise.all(
+        banners.map(async (banner) => {
+          const darkImageSignedUrl = await storage.generateSignedUrl(
+            banner.file_dark.key,
+            10 * 60
+          );
+
+          const lightImageSignedUrl = await storage.generateSignedUrl(
+            banner.file_light.key,
+            10 * 60
+          );
+
+          return {
+            title: banner.title,
+            link: banner.link,
+            description: banner.description,
+            dark_image: darkImageSignedUrl,
+            light_image: lightImageSignedUrl,
+          };
+        })
+      );
+
+      return this.response.success(
+        res,
+        "Banners fetched successfully",
+        bannersWithSignedUrl
+      );
+    } catch (error) {
+      console.error("❌ Get all banners error:", error);
+      return this.response.error(res, error.message);
+    }
+  }
+
   /**
    * Get all banners
    * @param {import('express').Request} req
@@ -29,7 +71,7 @@ class BannerController {
     try {
       const { page = 1, limit = 10, search = "", is_active = true } = req.query;
 
-      const banners = await bannerModel.getAllBanners(
+      const banners = await bannerModel.getAllBannersWithPagination(
         page,
         limit,
         search,
@@ -39,13 +81,20 @@ class BannerController {
       // map the banners to get the signed url of the image
       const bannersWithSignedUrl = await Promise.all(
         banners.data.map(async (banner) => {
-          const signedUrl = await storage.generateSignedUrl(
-            banner.file.key,
+          const darkImageSignedUrl = await storage.generateSignedUrl(
+            banner.file_dark.key,
             5 * 60
           );
+
+          const lightImageSignedUrl = await storage.generateSignedUrl(
+            banner.file_light.key,
+            5 * 60
+          );
+
           return {
             ...banner,
-            image: signedUrl,
+            dark_image: darkImageSignedUrl,
+            light_image: lightImageSignedUrl,
           };
         })
       );
@@ -100,16 +149,17 @@ class BannerController {
    */
   async createBanner(req, res) {
     try {
-      const { nip } = req.user;
+      const { id: userId } = req.user;
       const data = {
         title: req.body.title,
-        file_id: req.body.file_id,
+        dark_image: req.body.dark_image,
+        light_image: req.body.light_image,
         link: req.body.link,
         description: req.body.description,
         is_active: req.body.is_active,
       };
 
-      const banner = await bannerModel.createWithCreator(data, nip);
+      const banner = await bannerModel.createWithCreator(data, userId);
       return this.response.created(res, "Banner created successfully", banner);
     } catch (error) {
       console.error("❌ Create banner error:", error);
@@ -125,10 +175,8 @@ class BannerController {
    */
   async updateBanner(req, res) {
     try {
-      const { nip } = req.user;
+      const { id: userId } = req.user;
       const { id } = req.params;
-
-      let banner;
 
       // Preload existing banner and potential old file to delete
       const existingBanner = await bannerModel.findById(id);
@@ -136,23 +184,35 @@ class BannerController {
         return this.response.error(res, "Banner not found");
       }
 
-      let oldFileToDelete = null;
-      if (req.body.file_id == null) {
-        req.body.file_id = existingBanner.file_id;
-      } else if (
-        existingBanner.file_id &&
-        existingBanner.file_id !== req.body.file_id
-      ) {
-        oldFileToDelete = await fileModel.findById(existingBanner.file_id);
+      const fileFields = ["dark_image", "light_image"];
+      const oldFilesToDelete = [];
+
+      // Process file fields and collect old files to delete
+      for (const key of fileFields) {
+        if (req.body[key] == null) {
+          req.body[key] = existingBanner[key];
+        } else if (
+          existingBanner[key] &&
+          existingBanner[key] !== req.body[key]
+        ) {
+          const oldFile = await fileModel.findById(existingBanner[key]);
+          if (oldFile) {
+            oldFilesToDelete.push(oldFile);
+          }
+        }
       }
 
-      await prisma.$transaction(
+      // Update banner in transaction
+      const banner = await prisma.$transaction(
         async (tx) => {
-          if (oldFileToDelete) {
-            await tx.file.delete({ where: { id: oldFileToDelete.id } });
+          // Delete old files from database
+          for (const oldFile of oldFilesToDelete) {
+            await tx.file.delete({ where: { id: oldFile.id } });
           }
-          const data = { ...req.body, updated_by: nip };
-          banner = await tx.banner.update({
+
+          // Update banner
+          const data = { ...req.body, updated_by: userId };
+          return await tx.banner.update({
             where: { id },
             data,
           });
@@ -160,10 +220,10 @@ class BannerController {
         { timeout: 15000 }
       );
 
-      // Do storage deletion after commit
-      if (oldFileToDelete) {
-        await storage.deleteFile(oldFileToDelete.key);
-      }
+      // Delete old files from storage after successful database commit
+      await Promise.all(
+        oldFilesToDelete.map((oldFile) => storage.deleteFile(oldFile.key))
+      );
 
       return this.response.success(res, "Banner updated successfully", banner);
     } catch (error) {
@@ -183,24 +243,41 @@ class BannerController {
       const { id } = req.params;
 
       const banner = await bannerModel.findById(id, {
-        file: true,
+        file_dark: true,
+        file_light: true,
       });
+
       if (!banner) {
         return this.response.error(res, "Banner not found");
       }
 
       await prisma.$transaction(
         async (tx) => {
-          if (banner.file_id) {
-            await tx.file.delete({ where: { id: banner.file_id } });
+          if (banner.dark_image == banner.light_image) {
+            if (banner.file_dark) {
+              await tx.file.delete({ where: { id: banner.file_dark.id } });
+            }
+          } else {
+            if (banner.file_dark) {
+              await tx.file.delete({ where: { id: banner.file_dark.id } });
+            }
+
+            if (banner.file_light) {
+              await tx.file.delete({ where: { id: banner.file_light.id } });
+            }
           }
+
           await tx.banner.delete({ where: { id } });
         },
         { timeout: 15000 }
       );
 
-      if (banner.file?.key) {
-        await storage.deleteFile(banner.file.key);
+      if (banner.file_dark?.key) {
+        await storage.deleteFile(banner.file_dark.key);
+      }
+
+      if (banner.file_light?.key) {
+        await storage.deleteFile(banner.file_light.key);
       }
 
       return this.response.success(res, "Banner deleted successfully");

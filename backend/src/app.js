@@ -3,6 +3,8 @@ import fileRoutes from "./routes/fileRoutes.js";
 import bannerRoutes from "./routes/bannerRoutes.js";
 import hyperlinkRoutes from "./routes/hyperlinkRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import frontRoutes from "./routes/frontRoutes.js";
 import response from "./utils/response.js";
 
 const app = express();
@@ -10,7 +12,7 @@ const app = express();
 app.use(express.json());
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // Replace with your frontend URL
+  res.header("Access-Control-Allow-Origin", "*"); // Replace with your frontend URL
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.header(
     "Access-Control-Allow-Headers",
@@ -29,10 +31,12 @@ app.use((req, res, next) => {
   }
 });
 
+app.use("/api/auth", authRoutes);
 app.use("/api/files", fileRoutes);
 app.use("/api/banners", bannerRoutes);
 app.use("/api/hyperlinks", hyperlinkRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/front", frontRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {

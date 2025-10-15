@@ -16,27 +16,27 @@ class BannerModel extends BaseModel {
   /**
    * Create banner with creator
    * @param {import('@prisma/client').Banner} data
-   * @param {string} userNik
+   * @param {string} userId
    * @returns {Promise<import('@prisma/client').Banner>}
    */
-  async createWithCreator(data, userNik) {
+  async createWithCreator(data, userId) {
     return await this.create({
       data: {
         ...data,
-        created_by: userNik,
-        updated_by: userNik,
+        created_by: userId,
+        updated_by: userId,
       },
       include: {
         creator: {
           select: {
-            nip: true,
-            nama: true,
+            id: true,
+            name: true,
           },
         },
         updater: {
           select: {
-            nip: true,
-            nama: true,
+            id: true,
+            name: true,
           },
         },
       },
@@ -47,26 +47,51 @@ class BannerModel extends BaseModel {
    * Update banner with updater
    * @param {string} id
    * @param {import('@prisma/client').Banner} data
-   * @param {string} userNik
+   * @param {string} userId
    * @returns {Promise<import('@prisma/client').Banner>}
    */
-  async updateWithUpdater(id, data, userNik) {
+  async updateWithUpdater(id, data, userId) {
     return await this.update({
       where: { id },
-      data: { ...data, updated_by: userNik },
+      data: { ...data, updated_by: userId },
       include: {
         creator: {
           select: {
-            nama: true,
-            nip: true,
+            name: true,
+            id: true,
           },
         },
         updater: {
           select: {
-            nama: true,
-            nip: true,
+            name: true,
+            id: true,
           },
         },
+      },
+    });
+  }
+
+  async getAllActiveBanners() {
+    return await this.findMany({
+      where: {
+        is_active: true,
+      },
+      include: {
+        file_dark: {
+          select: {
+            filepath: true,
+            key: true,
+          },
+        },
+        file_light: {
+          select: {
+            filepath: true,
+            key: true,
+          },
+        },
+      },
+      orderBy: {
+        created_at: "desc",
       },
     });
   }
@@ -79,7 +104,12 @@ class BannerModel extends BaseModel {
    * @param {boolean} is_active
    * @returns {Promise<import('@prisma/client').Banner[]>}
    */
-  async getAllBanners(page = 1, limit = 10, search = "", is_active = true) {
+  async getAllBannersWithPagination(
+    page = 1,
+    limit = 10,
+    search = "",
+    is_active = true
+  ) {
     const skip = (page - 1) * parseInt(limit);
     const where = {
       OR: [
@@ -97,17 +127,23 @@ class BannerModel extends BaseModel {
         include: {
           creator: {
             select: {
-              nip: true,
-              nama: true,
+              id: true,
+              name: true,
             },
           },
           updater: {
             select: {
-              nip: true,
-              nama: true,
+              id: true,
+              name: true,
             },
           },
-          file: {
+          file_dark: {
+            select: {
+              filepath: true,
+              key: true,
+            },
+          },
+          file_light: {
             select: {
               filepath: true,
               key: true,

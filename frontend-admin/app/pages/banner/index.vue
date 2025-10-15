@@ -15,9 +15,11 @@ const isDeleteModalOpen = ref(false);
 const isImageModalOpen = ref(false);
 const itemToDelete = ref(null);
 const itemToEdit = ref(null);
-const selectedImage = ref(null);
+const selectedImage = ref({
+  row: null,
+  image: null,
+});
 const modalMode = ref("add");
-const isUploadFileEditExist = ref(false);
 
 // Form data
 const formData = ref({
@@ -25,7 +27,14 @@ const formData = ref({
   deskripsi: "",
   link: "",
   isActive: true,
-  files: [],
+  lightImage: {
+    files: null,
+    preview: null,
+  },
+  darkImage: {
+    files: null,
+    preview: null,
+  },
 });
 
 const { data: allBannerData, refresh: refreshBanner } = await useAsyncData(
@@ -54,14 +63,19 @@ const deleteModalMessage = computed(() => {
 // Table columns configuration
 const columns = [
   {
-    key: "image",
-    label: "Gambar",
-    width: "20%",
+    key: "dark_image",
+    label: "Gambar Tema Gelap",
+    width: "25%",
+  },
+  {
+    key: "light_image",
+    label: "Gambar Tema Terang",
+    width: "25%",
   },
   {
     key: "title",
     label: "Judul",
-    width: "40%",
+    width: "30%",
   },
   {
     key: "createdAt",
@@ -108,11 +122,24 @@ const validateForm = () => {
     errors.judul = "Nama banner wajib diisi";
   }
 
-  if (
-    (!formData.value.files || formData.value.files.length === 0) &&
-    modalMode.value == "add"
-  ) {
-    errors.files = "Gambar banner wajib diunggah";
+  if (!formData.value.deskripsi.trim()) {
+    errors.deskripsi = "Deskripsi banner wajib diisi";
+  }
+
+  // Validate images for add mode
+  if (modalMode.value === "add") {
+    if (
+      !formData.value.lightImage.files ||
+      formData.value.lightImage.files.length === 0
+    ) {
+      errors.lightImage = "Gambar tema terang wajib diunggah";
+    }
+    if (
+      !formData.value.darkImage.files ||
+      formData.value.darkImage.files.length === 0
+    ) {
+      errors.darkImage = "Gambar tema gelap wajib diunggah";
+    }
   }
 
   formErrors.value = errors;
@@ -126,7 +153,14 @@ const resetForm = () => {
     deskripsi: "",
     link: "",
     isActive: true,
-    files: [],
+    lightImage: {
+      files: [],
+      preview: null,
+    },
+    darkImage: {
+      files: [],
+      preview: null,
+    },
   };
   formErrors.value = {};
 };
@@ -151,7 +185,14 @@ const handleAddEditBanner = (type, item) => {
       deskripsi: item?.description || "",
       link: item?.link || "",
       isActive: item?.isActive ?? true,
-      files: [],
+      lightImage: {
+        files: null,
+        preview: item?.light_image || null,
+      },
+      darkImage: {
+        files: null,
+        preview: item?.dark_image || null,
+      },
     };
     formErrors.value = {};
     isModalOpen.value = true;
@@ -167,7 +208,14 @@ const handleAddEditBanner = (type, item) => {
       deskripsi: item?.description || "",
       link: item?.link || "",
       isActive: item?.isActive ?? true,
-      files: [],
+      lightImage: {
+        files: [],
+        preview: item?.light_image || null,
+      },
+      darkImage: {
+        files: [],
+        preview: item?.dark_image || null,
+      },
     };
     formErrors.value = {};
     isModalOpen.value = true;
@@ -180,26 +228,50 @@ const handleSaveBanner = async () => {
   }
 
   if (itemToEdit.value) {
-    let fileId = null;
-    if (formData.value.files.length != 0) {
+    // Edit mode: upload new images only if provided
+    let lightImageId = null;
+    let darkImageId = null;
+
+    console.log("formData", formData.value);
+
+    // Upload light image if a new one is selected
+    if (formData.value.lightImage.files != null) {
       const form = new FormData();
-      form.append("file", formData.value.files);
+      form.append("file", formData.value.lightImage.files);
 
       const fileResponse = await createFile(form);
       if (!fileResponse.success) {
         toast.add({
-          title: `Gagal Mengupload File. ${fileResponse.message}`,
+          title: `Gagal Mengupload Gambar Tema Terang. ${fileResponse.message}`,
           description: fileResponse.message,
           color: "error",
         });
         return;
       }
-      fileId = fileResponse.data.id;
+      lightImageId = fileResponse.data.id;
+    }
+
+    // Upload dark image if a new one is selected
+    if (formData.value.darkImage.files != null) {
+      const form = new FormData();
+      form.append("file", formData.value.darkImage.files);
+
+      const fileResponse = await createFile(form);
+      if (!fileResponse.success) {
+        toast.add({
+          title: `Gagal Mengupload Gambar Tema Gelap. ${fileResponse.message}`,
+          description: fileResponse.message,
+          color: "error",
+        });
+        return;
+      }
+      darkImageId = fileResponse.data.id;
     }
 
     const payload = {
       title: formData.value.judul,
-      file_id: fileId,
+      light_image: lightImageId,
+      dark_image: darkImageId,
       link: formData.value.link,
       description: formData.value.deskripsi,
       is_active: formData.value.isActive,
@@ -222,15 +294,30 @@ const handleSaveBanner = async () => {
       color: "success",
     });
   } else {
-    // upload the file
-    const form = new FormData();
-    form.append("file", formData.value.files);
+    // Add mode: both images are required
+    // Upload light image
+    const lightForm = new FormData();
+    lightForm.append("file", formData.value.lightImage.files);
 
-    const fileResponse = await createFile(form);
-    if (!fileResponse.success) {
+    const lightFileResponse = await createFile(lightForm);
+    if (!lightFileResponse.success) {
       toast.add({
-        title: `Gagal Mengupload File. ${fileResponse.message}`,
-        description: fileResponse.message,
+        title: `Gagal Mengupload Gambar Tema Terang. ${lightFileResponse.message}`,
+        description: lightFileResponse.message,
+        color: "error",
+      });
+      return;
+    }
+
+    // Upload dark image
+    const darkForm = new FormData();
+    darkForm.append("file", formData.value.darkImage.files);
+
+    const darkFileResponse = await createFile(darkForm);
+    if (!darkFileResponse.success) {
+      toast.add({
+        title: `Gagal Mengupload Gambar Tema Gelap. ${darkFileResponse.message}`,
+        description: darkFileResponse.message,
         color: "error",
       });
       return;
@@ -238,7 +325,8 @@ const handleSaveBanner = async () => {
 
     const payload = {
       title: formData.value.judul,
-      file_id: fileResponse.data.id,
+      light_image: lightFileResponse.data.id,
+      dark_image: darkFileResponse.data.id,
       link: formData.value.link,
       description: formData.value.deskripsi,
       is_active: formData.value.isActive,
@@ -302,20 +390,19 @@ const handlePaginationUpdate = (newPagination) => {
   paginationConfig.value = { ...newPagination };
 };
 
-const handleRowClick = ({ row, index }) => {
-  console.log("Row clicked:", row, index);
-  // TODO: Implement row click functionality if needed
-};
-
 // Handle image modal functionality
-const handleViewImage = (item) => {
-  selectedImage.value = item;
+const handleViewImage = (item, image) => {
+  selectedImage.value.image = image;
+  selectedImage.value.row = item;
   isImageModalOpen.value = true;
 };
 
 const handleCloseImageModal = () => {
   isImageModalOpen.value = false;
-  selectedImage.value = null;
+  selectedImage.value = {
+    row: null,
+    image: null,
+  };
 };
 </script>
 
@@ -347,14 +434,42 @@ const handleCloseImageModal = () => {
       @row-click="handleRowClick"
     >
       <!-- Custom slot for image column -->
-      <template #image-data="{ row }">
+      <template #dark_image-data="{ row }">
         <div class="flex items-center justify-center">
           <div
             class="group relative cursor-pointer"
-            @click="handleViewImage(row)"
+            @click="handleViewImage(row, row.dark_image)"
           >
             <NuxtImg
-              :src="row.image"
+              :src="row.dark_image"
+              :alt="row.judul"
+              class="h-12 w-16 rounded-lg border border-gray-200 object-cover shadow-sm transition-all duration-200 group-hover:shadow-md"
+              loading="lazy"
+              placeholder
+              :placeholder-class="'w-16 h-12 bg-gray-100 rounded-lg border border-gray-200'"
+            />
+            <!-- Overlay for hover effect -->
+            <div
+              class="group-hover:bg-opacity-20 absolute inset-0 flex items-center justify-center rounded-lg opacity-0 transition-all duration-200 hover:bg-black hover:opacity-50"
+            >
+              <UIcon
+                name="ph:eye"
+                class="h-4 w-4 text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+              />
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- Custom slot for image column -->
+      <template #light_image-data="{ row }">
+        <div class="flex items-center justify-center">
+          <div
+            class="group relative cursor-pointer"
+            @click="handleViewImage(row, row.light_image)"
+          >
+            <NuxtImg
+              :src="row.light_image"
               :alt="row.judul"
               class="h-12 w-16 rounded-lg border border-gray-200 object-cover shadow-sm transition-all duration-200 group-hover:shadow-md"
               loading="lazy"
@@ -529,74 +644,172 @@ const handleCloseImageModal = () => {
           </p>
         </div>
 
-        <div>
-          <label
-            for="link"
-            class="mb-2 block text-sm font-medium text-gray-700"
-          >
-            Status Banner
-          </label>
-          <USwitch
-            id="isActive"
-            v-model="formData.isActive"
-            :label="formData.isActive ? 'Aktif' : 'Tidak Aktif'"
-            :disabled="modalMode === 'detail'"
-          />
+        <div
+          class="flex flex-row items-center justify-between rounded-lg border-1 border-gray-200 p-2"
+        >
+          <div>
+            <label for="link" class="block text-sm font-medium text-gray-700">
+              Status Banner
+            </label>
+            <label class="font-sm block text-sm text-gray-600">
+              Aktifkan banner untuk ditampilkan
+            </label>
+          </div>
+
+          <div>
+            <USwitch
+              id="isActive"
+              v-model="formData.isActive"
+              :label="formData.isActive ? 'Aktif' : 'Tidak Aktif'"
+              :disabled="modalMode === 'detail'"
+            />
+          </div>
         </div>
 
-        <!-- File Upload or Preview -->
-        <div>
-          <label class="mb-2 block text-sm font-medium text-gray-700">
+        <!-- Dual Image Upload Section -->
+        <div class="space-y-4">
+          <label class="block text-sm font-medium text-gray-700">
             Gambar Banner <span class="text-red-500">*</span>
           </label>
-          <template v-if="modalMode === 'detail'">
-            <div class="flex items-start gap-4">
-              <div
-                class="h-40 w-64 overflow-hidden rounded-lg border border-gray-200 bg-gray-50"
-              >
-                <img
-                  :src="itemToEdit?.image || 'https://placehold.co/256x160'"
-                  :alt="formData.judul || 'Banner'"
-                  class="h-full w-full object-contain"
-                />
-              </div>
+          <p class="text-sm text-gray-600">
+            Upload gambar untuk tema terang dan tema gelap
+          </p>
+
+          <!-- Light Mode Image -->
+          <div
+            class="rounded-lg border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-4"
+          >
+            <div class="mb-3 flex items-center gap-2">
+              <UIcon name="ph:sun-duotone" class="h-5 w-5 text-yellow-500" />
+              <h4 class="text-sm font-semibold text-gray-900">
+                Gambar Tema Terang <span class="text-red-500">*</span>
+              </h4>
             </div>
-          </template>
-          <template v-else>
-            <!-- Edit mode image preview (selected file takes precedence, falls back to existing image) -->
-            <div
-              v-if="modalMode === 'edit' && !isUploadFileEditExist"
-              class="mb-3 flex items-start gap-4"
-            >
-              <div
-                class="h-40 w-64 overflow-hidden rounded-lg border border-gray-200 bg-gray-50"
-              >
-                <img
-                  :src="
-                    formData.files && formData.files.length > 0
-                      ? URL.createObjectURL(formData.files[0])
-                      : itemToEdit?.image || 'https://placehold.co/256x160'
-                  "
-                  :alt="formData.judul || 'Banner'"
-                  class="h-full w-full object-contain"
-                />
+
+            <template v-if="modalMode === 'detail'">
+              <div class="flex items-start gap-4">
+                <div
+                  class="h-40 w-full overflow-hidden rounded-lg border border-gray-300 bg-white"
+                >
+                  <img
+                    :src="
+                      formData.lightImage.preview ||
+                      'https://placehold.co/640x160/f3f4f6/9ca3af?text=Tema+Terang'
+                    "
+                    :alt="`${formData.judul || 'Banner'} - Tema Terang`"
+                    class="h-full w-full object-contain"
+                  />
+                </div>
               </div>
+            </template>
+            <template v-else>
+              <!-- Preview existing or new light image -->
+              <div
+                v-if="
+                  modalMode === 'edit' &&
+                  formData.lightImage.preview &&
+                  formData.lightImage.files == null
+                "
+                class="mb-3"
+              >
+                <div
+                  class="h-40 w-full overflow-hidden rounded-lg border border-gray-300 bg-white"
+                >
+                  <img
+                    :src="
+                      formData.lightImage.files != null
+                        ? URL.createObjectURL(formData.lightImage.files[0])
+                        : formData.lightImage.preview ||
+                          'https://placehold.co/640x160/f3f4f6/9ca3af?text=Tema+Terang'
+                    "
+                    :alt="`${formData.judul || 'Banner'} - Tema Terang`"
+                    class="h-full w-full object-contain"
+                  />
+                </div>
+              </div>
+              <UFileUpload
+                v-model="formData.lightImage.files"
+                accept="image/*"
+                :max-files="1"
+                :max-size="2000000"
+                label="Pilih gambar tema terang"
+                description="Format: JPG, PNG, GIF (maks. 2MB)"
+                :color="formErrors.lightImage ? 'red' : 'primary'"
+                class="w-full"
+              />
+              <p v-if="formErrors.lightImage" class="mt-1 text-sm text-red-600">
+                {{ formErrors.lightImage }}
+              </p>
+            </template>
+          </div>
+
+          <!-- Dark Mode Image -->
+          <div
+            class="rounded-lg border-2 border-gray-700 bg-gradient-to-br from-gray-800 to-gray-900 p-4"
+          >
+            <div class="mb-3 flex items-center gap-2">
+              <UIcon name="ph:moon-duotone" class="h-5 w-5 text-blue-400" />
+              <h4 class="text-sm font-semibold text-white">
+                Gambar Tema Gelap <span class="text-red-400">*</span>
+              </h4>
             </div>
-            <UFileUpload
-              v-model="formData.files"
-              accept="image/*"
-              :max-files="1"
-              :max-size="2000000"
-              label="Pilih gambar banner"
-              description="Format yang didukung: JPG, PNG, GIF (maksimal 2MB)"
-              :color="formErrors.files ? 'red' : 'primary'"
-              class="w-full"
-              @update:model-value="isUploadFileEditExist = true"
-            />
-            <p v-if="formErrors.files" class="mt-1 text-sm text-red-600">
-              {{ formErrors.files }}
-            </p>
-          </template>
+
+            <template v-if="modalMode === 'detail'">
+              <div class="flex items-start gap-4">
+                <div
+                  class="h-40 w-full overflow-hidden rounded-lg border border-gray-600 bg-gray-800"
+                >
+                  <img
+                    :src="
+                      formData.darkImage.preview ||
+                      'https://placehold.co/640x160/1f2937/9ca3af?text=Tema+Gelap'
+                    "
+                    :alt="`${formData.judul || 'Banner'} - Tema Gelap`"
+                    class="h-full w-full object-contain"
+                  />
+                </div>
+              </div>
+            </template>
+            <template v-else>
+              <!-- Preview existing or new dark image -->
+              <div
+                v-if="
+                  modalMode === 'edit' &&
+                  formData.darkImage.preview &&
+                  formData.darkImage.files == null
+                "
+                class="mb-3"
+              >
+                <div
+                  class="h-40 w-full overflow-hidden rounded-lg border border-gray-600 bg-gray-800"
+                >
+                  <img
+                    :src="
+                      formData.darkImage.files != null
+                        ? URL.createObjectURL(formData.darkImage.files[0])
+                        : formData.darkImage.preview ||
+                          'https://placehold.co/640x160/1f2937/9ca3af?text=Tema+Gelap'
+                    "
+                    :alt="`${formData.judul || 'Banner'} - Tema Gelap`"
+                    class="h-full w-full object-contain"
+                  />
+                </div>
+              </div>
+              <UFileUpload
+                v-model="formData.darkImage.files"
+                accept="image/*"
+                :max-files="1"
+                :max-size="2000000"
+                label="Pilih gambar tema gelap"
+                description="Format: JPG, PNG, GIF (maks. 2MB)"
+                :color="formErrors.darkImage ? 'red' : 'primary'"
+                class="w-full"
+              />
+              <p v-if="formErrors.darkImage" class="mt-1 text-sm text-red-600">
+                {{ formErrors.darkImage }}
+              </p>
+            </template>
+          </div>
         </div>
       </form>
 
@@ -667,7 +880,7 @@ const handleCloseImageModal = () => {
       <div class="space-y-4">
         <div v-if="selectedImage" class="text-center">
           <h3 class="mb-4 text-lg font-semibold text-gray-900">
-            {{ selectedImage.judul }}
+            {{ selectedImage.row.judul }}
           </h3>
           <div class="flex justify-center">
             <div
@@ -675,28 +888,28 @@ const handleCloseImageModal = () => {
             >
               <img
                 :src="selectedImage.image"
-                :alt="selectedImage.judul"
+                :alt="selectedImage.row.judul"
                 class="max-h-96 w-full object-contain"
                 loading="lazy"
               />
             </div>
           </div>
           <div
-            v-if="selectedImage.deskripsi"
+            v-if="selectedImage.row.deskripsi"
             class="mt-4 text-sm text-gray-600"
           >
             <p class="font-medium">Deskripsi:</p>
-            <p>{{ selectedImage.deskripsi }}</p>
+            <p>{{ selectedImage.row.deskripsi }}</p>
           </div>
           <div v-if="selectedImage.link" class="mt-2 text-sm text-gray-600">
             <p class="font-medium">Link:</p>
             <a
-              :href="selectedImage.link"
+              :href="selectedImage.row.link"
               target="_blank"
               rel="noopener noreferrer"
               class="text-blue-600 hover:text-blue-800 hover:underline"
             >
-              {{ selectedImage.link }}
+              {{ selectedImage.row.link }}
             </a>
           </div>
         </div>

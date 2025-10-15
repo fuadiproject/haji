@@ -18,10 +18,11 @@ export const decodeJWT = (req, res, next) => {
       });
     }
 
-    const token = authHeader.replace("Bearer ", "");
+    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
     // Decode JWT without verification (API Manager handles validation)
     const decoded = jwt.decode(token);
+
     if (!decoded) {
       return res.status(401).json({
         success: false,
@@ -30,9 +31,9 @@ export const decodeJWT = (req, res, next) => {
     }
 
     // Extract user info from JWT payload
-    const { user_id, nik, role } = decoded;
+    const { user_id, nik, role, exp } = decoded;
 
-    if (!user_id || !nik || !role) {
+    if (!user_id || !nik) {
       return res.status(401).json({
         success: false,
         error: "Invalid token payload",
@@ -42,9 +43,17 @@ export const decodeJWT = (req, res, next) => {
     // Attach user info to request
     req.user = {
       user_id,
-      nip: nik,
-      role: role,
+      nik,
+      role,
     };
+
+    // Check if token is expired
+    // if (exp < Date.now() / 1000) {
+    //   return res.status(401).json({
+    //     success: false,
+    //     error: "Token expired",
+    //   });
+    // }
 
     next();
   } catch (error) {
@@ -67,47 +76,4 @@ export const requireAdmin = (req, res, next) => {
     });
   }
   next();
-};
-
-/**
- * Check if user can access disposisi
- * Rules:
- * 1. User created the disposisi, OR
- * 2. User is in nik_penerima of this disposisi
- */
-export const canAccessDisposisi = async (req, res, next) => {
-  try {
-    const { disposisi_id, id } = req.params;
-    const disposisiId = disposisi_id || id;
-    const { nik } = req.user;
-
-    // If no disposisi ID, skip authorization (for routes that don't need it)
-    if (!disposisiId) {
-      return next();
-    }
-
-    // Import models dynamically to avoid circular dependency
-    const disposisiModel = (await import("../models/disposisiModel.js"))
-      .default;
-
-    // Check if user can access this disposisi
-    const canAccess = await disposisiModel.canUserAccess(disposisiId, nik);
-
-    if (!canAccess) {
-      // Always return 404 to prevent information disclosure
-      // User should not know if the record exists or not
-      return res.status(404).json({
-        success: false,
-        error: "Disposisi tidak ditemukan",
-      });
-    }
-
-    next();
-  } catch (error) {
-    console.error("❌ Disposisi access check error:", error);
-    return res.status(500).json({
-      success: false,
-      error: "Disposisi access check failed",
-    });
-  }
 };

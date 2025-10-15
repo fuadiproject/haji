@@ -1,10 +1,6 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
-* {
-  font-family: Roboto, sans-serif;
-}
-
 /* Global button cursor pointer */
 button,
 [role="button"],
@@ -12,10 +8,19 @@ button,
   cursor: pointer;
 }
 
+* {
+  font-family: Roboto, sans-serif;
+}
+
+:root {
+  --ui-primary: #71510b;
+  --ui-secondary: #c3a61f;
+}
+
 @theme {
-  --color-primary-main: #019eab;
+  --color-primary-main: #71510b;
   --color-secondary-main: #ffcf56;
-  --color-secondary-main-2: #f4b923;
+  --color-secondary-main-2: #c3a61f;
   --color-gray-3: #777777;
   --color-gray-4: #666666;
   --color-gray-5: #444444;
@@ -31,7 +36,7 @@ button,
 
 /* Ensure custom ButtonComponent uses the same teal color */
 .bg-primary-main {
-  background-color: theme("colors.teal.500") !important;
+  background-color: theme("colors.primary-main") !important;
 }
 
 /* Dashboard specific styles */

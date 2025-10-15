@@ -1,12 +1,12 @@
 import express from "express";
 import { createSanitizationMiddleware } from "../middleware/sanitization.js";
-import { decodeJWT } from "../middleware/auth.js";
+import { authenticateToken } from "../middleware/authMiddleware.js";
 import hyperlinkController from "../controllers/hyperlinkController.js";
 
 const router = express.Router();
 
 // Apply JWT decode middleware to all routes
-router.use(decodeJWT);
+router.use(authenticateToken);
 
 router.post(
   "/",

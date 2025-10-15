@@ -1,4 +1,6 @@
 import hyperlinkModel from "../models/hyperlinkModel.js";
+import fileModel from "../models/fileModel.js";
+import prisma from "../utils/prisma.js";
 import response from "../utils/response.js";
 import storage from "../utils/storage.js";
 /**
@@ -23,7 +25,7 @@ class HyperlinkController {
    */
   async createHyperlink(req, res) {
     try {
-      const { nip } = req.user;
+      const { id: userId } = req.user;
       const data = {
         title: req.body.title,
         link: req.body.link,
@@ -31,7 +33,8 @@ class HyperlinkController {
         is_active: req.body.is_active,
       };
 
-      const hyperlink = await this.hyperlinkModel.createWithCreator(data, nip);
+      const hyperlink = await hyperlinkModel.createWithCreator(data, userId);
+
       return this.response.created(
         res,
         "Hyperlink created successfully",
@@ -39,6 +42,40 @@ class HyperlinkController {
       );
     } catch (error) {
       console.error("❌ Create hyperlink error:", error);
+      return this.response.error(res, error.message);
+    }
+  }
+
+  async getAllHyperlinksWithoutPagination(req, res) {
+    try {
+      const hyperlinks = await hyperlinkModel.getAllHyperLinks();
+
+      if (!hyperlinks || hyperlinks.length === 0) {
+        return this.response.success(res, "No hyperlinks found", []);
+      }
+
+      // map the hyperlinks to get the signed url of the image
+      const hyperlinksWithSignedUrl = await Promise.all(
+        hyperlinks.map(async (hyperlink) => {
+          const signedUrl = await storage.generateSignedUrl(
+            hyperlink.file.key,
+            10 * 60
+          );
+          return {
+            title: hyperlink.title,
+            link: hyperlink.link,
+            logo: signedUrl,
+          };
+        })
+      );
+
+      return this.response.success(
+        res,
+        "Hyperlinks fetched successfully",
+        hyperlinksWithSignedUrl
+      );
+    } catch (error) {
+      console.error("❌ Get all hyperlinks error:", error);
       return this.response.error(res, error.message);
     }
   }
@@ -53,7 +90,7 @@ class HyperlinkController {
     try {
       const { page = 1, limit = 10, search = "", is_active = true } = req.query;
 
-      const hyperlinks = await hyperlinkModel.getAllHyperlinks(
+      const hyperlinks = await hyperlinkModel.getAllHyperlinksWithPagination(
         page,
         limit,
         search,
@@ -64,7 +101,7 @@ class HyperlinkController {
       const hyperlinksWithSignedUrl = await Promise.all(
         hyperlinks.data.map(async (hyperlink) => {
           const signedUrl = await storage.generateSignedUrl(
-            hyperlink.logo,
+            hyperlink.file.key,
             5 * 60
           );
           return {
@@ -128,13 +165,52 @@ class HyperlinkController {
   async updateHyperlink(req, res) {
     try {
       const { id } = req.params;
-      const { nip } = req.user;
+      const { id: userId } = req.user;
       const data = req.body;
-      const hyperlink = await this.hyperlinkModel.updateWithUpdater(
-        id,
-        data,
-        nip
+
+      const existingHyperlink = await this.hyperlinkModel.findById(id);
+      if (!existingHyperlink) {
+        return this.response.error(res, "Hyperlink not found");
+      }
+
+      let oldFile = null;
+      if (data.logo == null) {
+        data.logo = existingHyperlink.logo;
+      } else if (
+        existingHyperlink.logo &&
+        existingHyperlink.logo !== data.logo
+      ) {
+        oldFile = await fileModel.findById(existingHyperlink.logo);
+      }
+
+      const hyperlink = await prisma.$transaction(
+        async (tx) => {
+          if (oldFile) {
+            await tx.file.delete({ where: { id: oldFile.id } });
+          }
+
+          const hyperlink = await tx.hyperlink.update({
+            where: { id },
+            data: { ...data, updated_by: userId },
+            include: {
+              creator: {
+                select: {
+                  name: true,
+                  id: true,
+                },
+              },
+            },
+          });
+
+          return hyperlink;
+        },
+        { timeout: 15000 }
       );
+
+      if (oldFile?.key) {
+        await storage.deleteFile(oldFile.key);
+      }
+
       return this.response.success(
         res,
         "Hyperlink updated successfully",

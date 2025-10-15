@@ -19,23 +19,23 @@ class HyperlinkModel extends BaseModel {
   /**
    * Create hyperlink with creator
    * @param {import('@prisma/client').Hyperlink} data
-   * @param {string} userNik
+   * @param {string} userId
    * @returns {Promise<import('@prisma/client').Hyperlink>}
    */
-  async createWithCreator(data, userNik) {
+  async createWithCreator(data, userId) {
     return await this.create({
-      data: { ...data, created_by: userNik, updated_by: userNik },
+      data: { ...data, created_by: userId, updated_by: userId },
       include: {
         creator: {
           select: {
-            nip: true,
-            nama: true,
+            id: true,
+            name: true,
           },
         },
         updater: {
           select: {
-            nip: true,
-            nama: true,
+            id: true,
+            name: true,
           },
         },
       },
@@ -46,24 +46,37 @@ class HyperlinkModel extends BaseModel {
    * Update hyperlink with updater
    * @param {string} id
    * @param {import('@prisma/client').Hyperlink} data
-   * @param {string} userNik
+   * @param {string} userId
    * @returns {Promise<import('@prisma/client').Hyperlink>}
    */
-  async updateWithUpdater(id, data, userNik) {
+  async updateWithUpdater(id, data, userId) {
     return await this.update({
       where: { id },
-      data: { ...data, updated_by: userNik },
+      data: { ...data, updated_by: userId },
       include: {
         creator: {
           select: {
-            nama: true,
-            nip: true,
+            name: true,
+            id: true,
           },
         },
         updater: {
           select: {
-            nama: true,
-            nip: true,
+            name: true,
+            id: true,
+          },
+        },
+      },
+    });
+  }
+
+  async getAllHyperLinks() {
+    return await this.findMany({
+      include: {
+        file: {
+          select: {
+            filepath: true,
+            key: true,
           },
         },
       },
@@ -78,7 +91,12 @@ class HyperlinkModel extends BaseModel {
    * @param {boolean} is_active
    * @returns {Promise<import('@prisma/client').Hyperlink[]>}
    */
-  async getAllHyperlinks(page = 1, limit = 10, search = "", is_active = true) {
+  async getAllHyperlinksWithPagination(
+    page = 1,
+    limit = 10,
+    search = "",
+    is_active = true
+  ) {
     const skip = (page - 1) * parseInt(limit);
     const where = {
       OR: [{ title: { contains: search, mode: "insensitive" } }],
@@ -93,14 +111,20 @@ class HyperlinkModel extends BaseModel {
         include: {
           creator: {
             select: {
-              nip: true,
-              nama: true,
+              id: true,
+              name: true,
             },
           },
           updater: {
             select: {
-              nip: true,
-              nama: true,
+              id: true,
+              name: true,
+            },
+          },
+          file: {
+            select: {
+              filepath: true,
+              key: true,
             },
           },
         },

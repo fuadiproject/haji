@@ -20,7 +20,7 @@ export class FileController {
         return response.badRequest(res, "No file uploaded");
       }
 
-      const { nip } = req.user; // Get user NIK from JWT
+      const { id } = req.user; // Get user NIK from JWT
 
       const data = {
         filename: req.file.originalname,
@@ -30,7 +30,7 @@ export class FileController {
         size: req.file.size, // tambah size
       };
 
-      const file = await fileModel.createWithCreator(data, nip);
+      const file = await fileModel.createWithCreator(data, id);
       return response.created(res, "File uploaded successfully", file);
     } catch (error) {
       console.error("❌ Upload error:", error);

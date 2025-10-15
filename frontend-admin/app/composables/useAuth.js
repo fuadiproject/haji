@@ -1,21 +1,13 @@
 import { useRouter, useRoute } from "vue-router";
 import { useStorage } from "@vueuse/core";
 
-import { useServiceBphapi } from "@/composables/useServiceBphapi";
+import { useSuperAppAuthApi } from "@/composables/useSuperAppAuthApi";
 
 export const jwtToken = useStorage("t", "", undefined, {
   initOnMounted: true,
   listenToStorageChanges: true,
 });
 
-/**
- * {
-      "nama": "Test",
-      "nip": "1",
-      "iat": 1758102939,
-      "exp": 1758106539
-    }
- */
 export const jwtInfo = computed(() => {
   return jwtToken.value ? JSON.parse(atob(jwtToken.value.split(".")[1])) : null;
 });
@@ -33,7 +25,7 @@ export const logout = () => {
 export const useAuth = () => {
   const route = useRoute();
   const toast = useToast();
-  const bphapiService = useServiceBphapi();
+  const superAppAuthApiService = useSuperAppAuthApi();
   const router = useRouter();
 
   // State untuk loading autentikasi
@@ -55,10 +47,13 @@ export const useAuth = () => {
   });
 
   // Fungsi untuk login
-  const login = async () => {
+  const login = async (loginForm) => {
     try {
-      const data = await bphapiService.login({ nip: "1", password: "1" });
-      jwtToken.value = data.token;
+      const data = await superAppAuthApiService.login({
+        email: loginForm.email,
+        password: loginForm.password,
+      });
+      jwtToken.value = data.data.token;
       router.push("/");
     } catch (error) {
       toast.add({
