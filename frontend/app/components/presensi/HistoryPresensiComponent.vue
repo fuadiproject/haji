@@ -121,7 +121,7 @@ const getStatusChipClass = (status) => {
     case "tidak_hadir":
       return "bg-red-100 text-red-800 border border-red-200";
     default:
-      return "bg-gray-100 text-gray-800 border border-gray-200";
+      return "bg-gray-100 text-gray-800 border border-gray-200 dark:border-border-main";
   }
 };
 
@@ -152,29 +152,31 @@ const getPemotonganColor = (pemotongan) => {
 <template>
   <div class="flex h-full flex-col">
     <!-- Header dengan filter bulan -->
-    <div class="border-neutral-9 sticky top-0 z-10 border-b bg-white px-4 py-3">
+    <div
+      class="border-border-main bg-container-main sticky top-0 z-10 border-b px-4 py-3"
+    >
       <div class="flex items-center justify-between">
         <button
-          class="border-neutral-9 flex h-8 w-8 items-center justify-center rounded-full border"
+          class="border-border-main flex h-8 w-8 items-center justify-center rounded-full border"
           @click="changeMonth('prev')"
         >
-          <UIcon name="ph:caret-left-bold" class="text-neutral-7 h-4 w-4" />
+          <UIcon name="ph:caret-left-bold" class="text-body-2 h-4 w-4" />
         </button>
 
         <div class="flex flex-col items-center">
-          <h3 class="text-neutral-7 text-base font-semibold">
+          <h3 class="text-body-2 text-base font-semibold">
             {{ selectedMonthName }} {{ selectedYear }}
           </h3>
-          <p class="text-neutral-6 text-xs">
+          <p class="text-body-3 text-xs">
             {{ TEXT.riwayatKehadiran }}
           </p>
         </div>
 
         <button
-          class="border-neutral-9 flex h-8 w-8 items-center justify-center rounded-full border"
+          class="border-border-main flex h-8 w-8 items-center justify-center rounded-full border"
           @click="changeMonth('next')"
         >
-          <UIcon name="ph:caret-right-bold" class="text-neutral-7 h-4 w-4" />
+          <UIcon name="ph:caret-right-bold" class="text-body-2 h-4 w-4" />
         </button>
       </div>
     </div>
@@ -200,7 +202,7 @@ const getPemotonganColor = (pemotongan) => {
           <!-- Header Hari -->
           <div class="mb-3 flex items-center justify-between">
             <div>
-              <h4 class="text-neutral-7 text-sm font-semibold">
+              <h4 class="text-body-2 text-sm font-semibold">
                 {{ formatDate(item.tanggal) }}
               </h4>
             </div>
@@ -224,11 +226,11 @@ const getPemotonganColor = (pemotongan) => {
                   alt="Clock In"
                   class="h-4 w-4"
                 />
-                <span class="text-neutral-6 text-xs">{{ TEXT.clockIn }}</span>
+                <span class="text-body-3 text-xs">{{ TEXT.clockIn }}</span>
               </div>
               <div class="flex items-center gap-2">
-                <UIcon name="ph:clock-bold" class="text-neutral-6 h-4 w-4" />
-                <span class="text-neutral-7 text-xs font-medium">
+                <UIcon name="ph:clock-bold" class="text-body-3 h-4 w-4" />
+                <span class="text-body-2 text-xs font-medium">
                   {{ formatTime(item.jam_datang) }}
                 </span>
               </div>
@@ -242,11 +244,11 @@ const getPemotonganColor = (pemotongan) => {
                   alt="Clock Out"
                   class="h-4 w-4"
                 />
-                <span class="text-neutral-6 text-xs">{{ TEXT.clockOut }}</span>
+                <span class="text-body-3 text-xs">{{ TEXT.clockOut }}</span>
               </div>
               <div class="flex items-center gap-2">
-                <UIcon name="ph:clock-bold" class="text-neutral-6 h-4 w-4" />
-                <span class="text-neutral-7 text-xs font-medium">
+                <UIcon name="ph:clock-bold" class="text-body-3 h-4 w-4" />
+                <span class="text-body-2 text-xs font-medium">
                   {{ formatTime(item.jam_pulang) }}
                 </span>
               </div>
@@ -255,10 +257,8 @@ const getPemotonganColor = (pemotongan) => {
             <!-- Pemotongan -->
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <UIcon name="ph:percent-bold" class="text-neutral-6 h-4 w-4" />
-                <span class="text-neutral-6 text-xs">{{
-                  TEXT.pemotongan
-                }}</span>
+                <UIcon name="ph:percent-bold" class="text-body-3 h-4 w-4" />
+                <span class="text-body-3 text-xs">{{ TEXT.pemotongan }}</span>
               </div>
               <div class="flex items-center gap-2">
                 <span

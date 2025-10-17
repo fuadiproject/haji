@@ -96,7 +96,7 @@ const sizeClasses = {
         <div
           v-if="isOpen"
           ref="modalRef"
-          class="relative max-h-[90vh] w-full transform rounded-lg bg-white shadow-xl"
+          class="bg-container-main relative max-h-[90vh] w-full transform overflow-hidden rounded-lg shadow-xl dark:outline-1"
           :class="[
             sizeClasses[props.size],
             { 'scale-95 opacity-0': isClosing },
@@ -105,9 +105,9 @@ const sizeClasses = {
         >
           <!-- Header dengan tombol close -->
           <div
-            class="flex items-center justify-between border-b border-gray-200 px-4 py-3"
+            class="dark:border-border-main flex items-center justify-between border-b border-gray-200 px-4 py-3"
           >
-            <h3 v-if="title" class="text-lg font-semibold text-gray-900">
+            <h3 v-if="title" class="text-body-11 text-lg font-semibold">
               {{ title }}
             </h3>
             <div v-else class="flex-1"></div>
@@ -145,7 +145,7 @@ const sizeClasses = {
           <!-- Footer (optional) -->
           <div
             v-if="$slots.footer"
-            class="absolute bottom-0 w-full border-t border-gray-200 bg-white px-4 py-3"
+            class="bg-container-main dark:border-border-main absolute bottom-0 w-full border-t border-gray-200 px-4 py-3"
           >
             <slot name="footer"></slot>
           </div>
