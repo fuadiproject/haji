@@ -19,10 +19,9 @@
     "test:controller": "jest tests/unit/fileController.test.js",
     "test:flow": "jest tests/integration/fileFlow.test.js",
     "seed": "node prisma/seed.js",
-    "seed:test": "node prisma/seed-test.js",
-    "seed:ref": "node prisma/seed-ref.js",
+    "seed:user": "node prisma/seed-user.js",    
     "seed:auth": "node prisma/seed-auth.js",
-    "seed:all": "npm run seed:ref && npm run seed:test",
+    "seed:all": "npm run seed:user && npm run seed:auth",
     "cleanup:db": "node prisma/cleanup-db.js",
     "lint": "eslint src/**/*.js",
     "lint:fix": "eslint src/**/*.js --fix"
