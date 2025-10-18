@@ -1,6 +1,5 @@
 import { useRouter, useRoute } from "vue-router";
 import { useStorage } from "@vueuse/core";
-
 import { useServiceBphapi } from "@/composables/useServiceBphapi";
 
 export const jwtToken = useStorage("t", "", undefined, {
@@ -25,7 +24,8 @@ export const isAuthenticated = computed(() => {
 });
 
 // Fungsi untuk logout
-export const logout = () => {
+export const logout = async () => {
+  // Logout from OneSignal
   jwtToken.value = "";
   window.location.href = "/auth/login";
 };
@@ -59,6 +59,9 @@ export const useAuth = () => {
     try {
       const data = await bphapiService.login({ nip: "1", password: "1" });
       jwtToken.value = data.token;
+      // jwtToken.value =
+      //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2x4MTIzNDU2Nzg5MGFiY2RlZiIsIm5payI6IjEyMzQ1Njc4OTAxMjM0NTYiLCJyb2xlIjoidXNlciIsImlhdCI6MTY5NDUxNTIwMCwiZXhwIjoxNjk0NjAxNjAwfQ.user1_signature";
+
       router.push("/");
     } catch (error) {
       toast.add({

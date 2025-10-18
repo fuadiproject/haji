@@ -1,5 +1,8 @@
+import { useOneSignal } from "@/composables/useOneSignal";
+
 export const useNotificationPermission = () => {
   const notificationPermission = ref(false);
+  const { isSubscribed } = useOneSignal();
 
   const checkNotificationPermission = async () => {
     if (!("Notification" in window)) {
@@ -7,8 +10,13 @@ export const useNotificationPermission = () => {
       return false;
     }
 
-    const permission = await Notification.requestPermission();
-    notificationPermission.value = permission;
+    // Check permission
+    const permission = Notification.permission;
+    notificationPermission.value = permission === "granted";
+
+    // Check OneSignal subscription
+    const subscribed = await isSubscribed();
+    console.log("OneSignal subscribed:", subscribed);
   };
 
   onMounted(() => {

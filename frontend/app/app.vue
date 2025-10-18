@@ -1,6 +1,7 @@
 <script setup>
 import { useTheme } from "@/composables/useTheme";
 
+const { initializeOneSignal } = useOneSignal();
 const toaster = { duration: 3000, position: "top-right" };
 
 // PWA Meta Tags
@@ -44,6 +45,14 @@ useHead({
     { rel: "icon", type: "image/svg+xml", href: "/icons/icon-192x192.svg" },
     { rel: "manifest", href: "/manifest.json" },
   ],
+});
+
+onMounted(async () => {
+  initializeOneSignal();
+  // check if user already logged in
+  if (jwtToken.value) {
+    await initializeOneSignal();
+  }
 });
 
 // Notification Permission
