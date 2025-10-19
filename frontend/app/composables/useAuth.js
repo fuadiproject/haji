@@ -35,6 +35,7 @@ export const useAuth = () => {
   const toast = useToast();
   const bphapiService = useServiceBphapi();
   const router = useRouter();
+  const { setExternalUserId } = useOneSignal();
 
   // State untuk loading autentikasi
   const isLoading = ref(true);
@@ -59,9 +60,13 @@ export const useAuth = () => {
     try {
       const data = await bphapiService.login({ nip: "1", password: "1" });
       jwtToken.value = data.token;
+      await setExternalUserId(data.user.nip);
+
+      // Temporary token for testing, will removed once the implementation is complete and stable
+      // TODO: need to check how to receive the push notification
       // jwtToken.value =
       //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2x4MTIzNDU2Nzg5MGFiY2RlZiIsIm5payI6IjEyMzQ1Njc4OTAxMjM0NTYiLCJyb2xlIjoidXNlciIsImlhdCI6MTY5NDUxNTIwMCwiZXhwIjoxNjk0NjAxNjAwfQ.user1_signature";
-
+      // await setExternalUserId("000000000000000002");
       router.push("/");
     } catch (error) {
       toast.add({

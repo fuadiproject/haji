@@ -4,18 +4,15 @@
 
 export const useOneSignal = () => {
   const nuxtApp = useNuxtApp();
-  const config = useRuntimeConfig();
+  // const config = useRuntimeConfig();
 
   /** @type {OneSignalInstance} */
   const $OneSignal = nuxtApp.$OneSignal;
 
   const initializeOneSignal = async () => {
     try {
-      await $OneSignal.init({
-        appId: config.public.onesignalAppId,
-        allowLocalhostAsSecureOrigin: true,
-      });
       await $OneSignal.Slidedown.promptPush();
+      await $OneSignal.User.PushSubscription.optIn();
 
       return true;
     } catch (error) {
@@ -26,7 +23,8 @@ export const useOneSignal = () => {
 
   const isSubscribed = async () => {
     try {
-      return await $OneSignal.User.PushSubscription.optedIn;
+      const isSubscribed = await $OneSignal.User.PushSubscription.optedIn;
+      return isSubscribed;
     } catch (error) {
       console.error("Error checking subscription status", error);
       return false;

@@ -18,6 +18,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
+      environment: process.env.NODE_ENV,
       apiBaseUrl: process.env.API_BASE_URL,
       apiBphUrl: process.env.API_BPH_URL,
       apiSuratUrl: process.env.API_SURAT_URL,
