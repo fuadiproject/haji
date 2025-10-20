@@ -8,44 +8,17 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("🌱 Seeding test users...");
 
-  // Test users yang sesuai dengan mock JWT
-  const testUsers = [
-    {
-      nik: "1234567890123456",
-      nip: "123456789012345678",
-      nama: "Test User 1",
+  // Generate 150 test users using loop
+  const testUsers = [];
+  for (let i = 1; i <= 150; i++) {
+    testUsers.push({
+      nik: String(i).padStart(16, "0"), // 16-digit NIK
+      nip: String(i).padStart(18, "0"), // 18-digit NIP
+      nama: `Test User ${i}`,
       created_by: null,
       updated_by: null,
-    },
-    {
-      nik: "9876543210987654",
-      nip: "987654321098765432",
-      nama: "Test User 2",
-      created_by: null,
-      updated_by: null,
-    },
-    {
-      nik: "5555555555555555",
-      nip: "555555555555555555",
-      nama: "Test User 3",
-      created_by: null,
-      updated_by: null,
-    },
-    {
-      nik: "1111111111111111",
-      nip: "111111111111111111",
-      nama: "Test User 4",
-      created_by: null,
-      updated_by: null,
-    },
-    {
-      nik: "2222222222222222",
-      nip: "222222222222222222",
-      nama: "Test User 5",
-      created_by: null,
-      updated_by: null,
-    },
-  ];
+    });
+  }
 
   for (const user of testUsers) {
     try {

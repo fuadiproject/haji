@@ -1,6 +1,7 @@
 <script setup>
 import { useTheme } from "@/composables/useTheme";
 
+// const { initializeOneSignal } = useOneSignal();
 const toaster = { duration: 3000, position: "top-right" };
 
 // PWA Meta Tags

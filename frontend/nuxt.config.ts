@@ -18,9 +18,11 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
+      environment: process.env.NODE_ENV,
       apiBaseUrl: process.env.API_BASE_URL,
       apiBphUrl: process.env.API_BPH_URL,
       apiSuratUrl: process.env.API_SURAT_URL,
+      onesignalAppId: process.env.ONESIGNAL_APP_ID,
     },
   },
   pwa: {
@@ -28,6 +30,7 @@ export default defineNuxtConfig({
     workbox: {
       navigateFallback: "/",
       globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
+      globIgnores: ["**/OneSignalSDKWorker.js"],
     },
     client: {
       installPrompt: true,

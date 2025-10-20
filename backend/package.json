@@ -19,10 +19,9 @@
     "test:controller": "jest tests/unit/fileController.test.js",
     "test:flow": "jest tests/integration/fileFlow.test.js",
     "seed": "node prisma/seed.js",
-    "seed:test": "node prisma/seed-test.js",
-    "seed:ref": "node prisma/seed-ref.js",
+    "seed:user": "node prisma/seed-user.js",
     "seed:auth": "node prisma/seed-auth.js",
-    "seed:all": "npm run seed:ref && npm run seed:test",
+    "seed:all": "npm run seed:user && npm run seed:auth",
     "cleanup:db": "node prisma/cleanup-db.js",
     "lint": "eslint src/**/*.js",
     "lint:fix": "eslint src/**/*.js --fix"
@@ -32,6 +31,7 @@
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/s3-request-presigner": "^3.887.0",
+    "@onesignal/node-onesignal": "^5.3.1-beta1",
     "@prisma/client": "^6.16.1",
     "bcryptjs": "^3.0.2",
     "dompurify": "^3.2.6",
@@ -44,7 +44,7 @@
     "multer": "^2.0.2",
     "multer-s3": "^3.0.1"
   },
- "devDependencies": {
+  "devDependencies": {
     "@babel/core": "^7.28.4",
     "@babel/preset-env": "^7.28.3",
     "babel-jest": "^30.1.2",

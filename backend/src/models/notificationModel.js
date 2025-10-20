@@ -30,6 +30,17 @@ class NotificationModel extends BaseModel {
   }
 
   /**
+   * Create bulk notifications
+   * @param {import('@prisma/client').Notification[]} data
+   * @returns {Promise<import('@prisma/client').Notification[]>}
+   */
+  async createBulkNotifications(data) {
+    return await this.createMany({
+      data: data,
+    });
+  }
+
+  /**
    * Get notification by user ID
    * @param {string} userId
    * @returns {Promise<import('@prisma/client').Notification[]>}
