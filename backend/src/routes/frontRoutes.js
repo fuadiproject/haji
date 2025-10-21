@@ -22,7 +22,7 @@ router.get(
 
 router.get(
   "/notifications",
-  notificationController.getNotificationsByNip.bind(notificationController)
+  notificationController.getNotificationsByNik.bind(notificationController)
 );
 
 router.put(

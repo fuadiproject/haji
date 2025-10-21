@@ -187,7 +187,7 @@ class NotificationController {
    * @param {import('express').Response} res
    * @returns {Promise<void>}
    */
-  async getNotificationsByNip(req, res) {
+  async getNotificationsByNik(req, res) {
     try {
       const { page = 1, limit = 10, search = "", type = "" } = req.query;
 
