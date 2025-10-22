@@ -189,7 +189,7 @@ class NotificationController {
    */
   async getNotificationsByNik(req, res) {
     try {
-      const { page = 1, limit = 10, search = "", type = "" } = req.query;
+      const { page = 1, limit = 10, search = "", read = false } = req.query;
 
       const { nik: userId } = req.user;
 
@@ -197,7 +197,7 @@ class NotificationController {
         page,
         limit,
         search,
-        type,
+        read,
         userId
       );
 
@@ -259,6 +259,27 @@ class NotificationController {
       );
     } catch (error) {
       console.error("❌ Update notification read error:", error);
+      return this.response.error(res, error.message);
+    }
+  }
+
+  /**
+   * Get not read count
+   * @param {import('express').Request & {user: UserRequest}} req
+   * @param {import('express').Response} res
+   * @returns {Promise<void>}
+   */
+  async getNotReadCount(req, res) {
+    try {
+      const { nik: userId } = req.user;
+      const notReadCount = await notificationModel.getNotReadCount(userId);
+      return this.response.success(
+        res,
+        "Not read count fetched successfully",
+        notReadCount
+      );
+    } catch (error) {
+      console.error("❌ Get not read count error:", error);
       return this.response.error(res, error.message);
     }
   }

@@ -26,10 +26,6 @@ class AuthController {
   login = async (req, res) => {
     try {
       const { email, password } = req.body;
-      console.log("HERE BROOOOO");
-
-      console.log("email", email);
-      console.log("password", password);
 
       // Validate input
       if (!email || !password) {

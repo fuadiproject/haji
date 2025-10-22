@@ -25,6 +25,11 @@ router.get(
   notificationController.getNotificationsByNik.bind(notificationController)
 );
 
+router.get(
+  "/notifications/not-read-count",
+  notificationController.getNotReadCount.bind(notificationController)
+);
+
 router.put(
   "/notifications/:id/read",
   notificationController.updateNotificationRead.bind(notificationController)
