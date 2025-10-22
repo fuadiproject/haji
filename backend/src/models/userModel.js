@@ -1,6 +1,7 @@
 import { BaseModel } from "./BaseModel.js";
+import prisma from "../utils/prisma.js";
 
-export default class UserModel extends BaseModel {
+class UserModel extends BaseModel {
   constructor(prisma) {
     super(prisma, "user");
   }
@@ -13,3 +14,5 @@ export default class UserModel extends BaseModel {
     });
   }
 }
+
+export default new UserModel(prisma);

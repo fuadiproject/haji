@@ -75,7 +75,7 @@ class NotificationModel extends BaseModel {
     page = 1,
     limit = 10,
     search = "",
-    type = "",
+    read = false,
     userId = ""
   ) {
     const whereConditions = {
@@ -88,8 +88,12 @@ class NotificationModel extends BaseModel {
               ],
             }
           : {},
-        type ? { type } : {},
         userId ? { userId } : {},
+        read === "true"
+          ? { read: true }
+          : read === "false"
+          ? { read: false }
+          : {},
       ].filter((condition) => Object.keys(condition).length > 0),
     };
 
@@ -122,6 +126,15 @@ class NotificationModel extends BaseModel {
     return await this.delete({
       where: { id },
     });
+  }
+
+  /**
+   * Get not read count
+   * @param {string} userId
+   * @returns {Promise<number>}
+   */
+  async getNotReadCount(userId) {
+    return await this.count({ where: { userId, read: false } });
   }
 }
 

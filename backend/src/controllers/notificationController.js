@@ -180,6 +180,109 @@ class NotificationController {
       return this.response.error(res, error.message);
     }
   }
+
+  /**
+   * Get notifications by NIP
+   * @param {import('express').Request & {user: UserRequest}} req
+   * @param {import('express').Response} res
+   * @returns {Promise<void>}
+   */
+  async getNotificationsByNik(req, res) {
+    try {
+      const { page = 1, limit = 10, search = "", read = false } = req.query;
+
+      const { nik: userId } = req.user;
+
+      const notifications = await notificationModel.getAllNotifications(
+        page,
+        limit,
+        search,
+        read,
+        userId
+      );
+
+      const total = notifications.total;
+      const totalPages = Math.ceil(total / parseInt(limit));
+
+      const pagination = {
+        currentPage: parseInt(page),
+        totalPages: notifications.totalPages,
+        totalItems: total,
+        itemsPerPage: parseInt(limit),
+        hasNextPage: parseInt(page) < totalPages,
+        hasPrevPage: parseInt(page) > 1,
+      };
+
+      return this.response.successWithPagination(
+        res,
+        "Notifications fetched successfully",
+        notifications.data,
+        pagination
+      );
+    } catch (error) {
+      console.error("❌ Get all notifications error:", error);
+      return this.response.error(res, error.message);
+    }
+  }
+
+  /**
+   * Update notification read
+   * @param {import('express').Request & {user: UserRequest}} req
+   * @param {import('express').Response} res
+   * @returns {Promise<void>}
+   */
+  async updateNotificationRead(req, res) {
+    try {
+      const { id } = req.params;
+      const { nik: userId } = req.user;
+      const checkNotification = await notificationModel.getNotificationById(id);
+
+      if (!checkNotification) {
+        return this.response.notFound(res, "Notification not found");
+      }
+
+      if (checkNotification.userId !== userId) {
+        return this.response.unauthorized(
+          res,
+          "You are not authorized to update this notification"
+        );
+      }
+
+      const notification = await notificationModel.updateNotification(id, {
+        read: true,
+      });
+
+      return this.response.success(
+        res,
+        "Notification read updated successfully",
+        notification
+      );
+    } catch (error) {
+      console.error("❌ Update notification read error:", error);
+      return this.response.error(res, error.message);
+    }
+  }
+
+  /**
+   * Get not read count
+   * @param {import('express').Request & {user: UserRequest}} req
+   * @param {import('express').Response} res
+   * @returns {Promise<void>}
+   */
+  async getNotReadCount(req, res) {
+    try {
+      const { nik: userId } = req.user;
+      const notReadCount = await notificationModel.getNotReadCount(userId);
+      return this.response.success(
+        res,
+        "Not read count fetched successfully",
+        notReadCount
+      );
+    } catch (error) {
+      console.error("❌ Get not read count error:", error);
+      return this.response.error(res, error.message);
+    }
+  }
 }
 
 export default new NotificationController(notificationModel, response);
