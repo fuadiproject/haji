@@ -1,122 +1,120 @@
-import { useRouter, useRoute } from "vue-router";
-import { useStorage } from "@vueuse/core";
-import { useServiceBphapi } from "@/composables/useServiceBphapi";
+import { useKeycloak } from "@/composables/useKeycloak";
 
-export const jwtToken = useStorage("t", "", undefined, {
-  initOnMounted: true,
-  listenToStorageChanges: true,
+/**
+ * User Info dari Keycloak token
+ */
+export const jwtInfo = computed(() => {
+  const keycloakComposable = useKeycloak();
+  return keycloakComposable.userInfo.value;
 });
 
 /**
- * {
-      "nama": "Test",
-      "nip": "1",
-      "iat": 1758102939,
-      "exp": 1758106539
-    }
+ * Status autentikasi dari Keycloak
  */
-export const jwtInfo = computed(() => {
-  return jwtToken.value ? JSON.parse(atob(jwtToken.value.split(".")[1])) : null;
-});
-
 export const isAuthenticated = computed(() => {
-  return Boolean(jwtToken.value);
+  const keycloakComposable = useKeycloak();
+  return keycloakComposable.isAuthenticated.value;
 });
 
-// Fungsi untuk logout
+/**
+ * Fungsi untuk logout dari Keycloak
+ */
 export const logout = async () => {
-  // Logout from OneSignal
-  jwtToken.value = "";
-  window.location.href = "/auth/login";
+  const keycloakComposable = useKeycloak();
+  await keycloakComposable.logout();
 };
 
 export const useAuth = () => {
-  const route = useRoute();
-  const toast = useToast();
-  const bphapiService = useServiceBphapi();
-  const router = useRouter();
+  const keycloakComposable = useKeycloak();
   const { setExternalUserId } = useOneSignal();
 
   // State untuk loading autentikasi
-  const isLoading = ref(true);
+  const isLoading = ref(false);
 
-  // watch 'exp' in jwtInfo and if its current time is greater than exp, logout
-  watch(jwtInfo, (newVal) => {
-    if (newVal?.exp && newVal?.exp < Date.now() / 1000) {
-      logout();
+  // Setup OneSignal external user ID saat authenticated
+  onMounted(() => {
+    if (
+      keycloakComposable.isAuthenticated.value &&
+      keycloakComposable.userInfo.value
+    ) {
+      // Set external user ID untuk OneSignal notifications
+      // Gunakan sub (user ID) atau preferred_username dari Keycloak
+      const userId =
+        keycloakComposable.userInfo.value.sub ||
+        keycloakComposable.userInfo.value.preferredUsername;
+      if (userId) {
+        setExternalUserId(userId);
+      }
     }
   });
 
-  // Set loading false setelah localStorage terbaca
-  onMounted(() => {
-    // Tunggu sebentar untuk memastikan localStorage sudah terbaca
-    setTimeout(() => {
-      checkAuth();
-    }, 100);
-  });
-
-  // Fungsi untuk login
+  // Fungsi untuk login ke Keycloak
   const login = async () => {
     try {
-      const data = await bphapiService.login({ nip: "1", password: "1" });
-      jwtToken.value = data.token;
-      await setExternalUserId(data.user.nip);
-
-      // Temporary token for testing, will removed once the implementation is complete and stable
-      // TODO: need to check how to receive the push notification
-      // jwtToken.value =
-      //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2x4MTIzNDU2Nzg5MGFiY2RlZiIsIm5payI6IjEyMzQ1Njc4OTAxMjM0NTYiLCJyb2xlIjoidXNlciIsImlhdCI6MTY5NDUxNTIwMCwiZXhwIjoxNjk0NjAxNjAwfQ.user1_signature";
-      // await setExternalUserId("000000000000000002");
-      router.push("/");
+      isLoading.value = true;
+      await keycloakComposable.login();
     } catch (error) {
-      toast.add({
-        title: "Error",
-        description:
-          error?.message ||
-          error?.data?.message ||
-          "Terjadi kesalahan, silahkan coba lagi",
-        color: "error",
-      });
+      console.error("Login error:", error);
+      throw error;
     } finally {
       isLoading.value = false;
     }
   };
 
-  // Fungsi untuk cek autentikasi dan redirect
+  // Fungsi untuk cek autentikasi
+  // Note: Dengan mode login-required, authentication sudah di-handle otomatis oleh plugin
   const checkAuth = () => {
     // Hanya jalankan di client-side
     if (import.meta.server) return isAuthenticated.value;
 
-    if (!import.meta.client || isLoading.value) return isAuthenticated.value;
-
-    // Jika tidak ada autentikasi dan bukan di halaman login, redirect ke login
-    if (!isAuthenticated.value && route.path !== "/auth/login") {
-      router.push("/auth/login");
-      return false;
-    }
-
-    // Jika sudah ada autentikasi dan di halaman login, redirect ke home
-    if (isAuthenticated.value && route.path === "/auth/login") {
-      router.push("/");
-      return true;
-    }
-
-    return isAuthenticated.value;
+    // Authentication sudah di-handle oleh Keycloak plugin (login-required mode)
+    // Fungsi ini hanya untuk keperluan check status
+    return keycloakComposable.isAuthenticated.value;
   };
 
   // Fungsi untuk cek apakah user sudah login
   const isLoggedIn = () => {
-    return isAuthenticated.value;
+    return keycloakComposable.isAuthenticated.value;
+  };
+
+  // Fungsi untuk mendapatkan token untuk API calls
+  const getToken = () => {
+    return keycloakComposable.token.value;
+  };
+
+  // Fungsi untuk cek role
+  const hasRole = (role) => {
+    return keycloakComposable.hasRole(role);
+  };
+
+  // Fungsi untuk cek apakah user memiliki salah satu role
+  const hasAnyRole = (roles) => {
+    return keycloakComposable.hasAnyRole(roles);
+  };
+
+  // Fungsi untuk cek apakah user memiliki semua role
+  const hasAllRoles = (roles) => {
+    return keycloakComposable.hasAllRoles(roles);
   };
 
   return {
-    token: jwtToken,
+    // State
+    token: keycloakComposable.token,
     userInfo: jwtInfo,
     isAuthenticated,
     isLoading,
+
+    // Methods
     login,
     logout,
     checkAuth,
     isLoggedIn,
+    getToken,
+    hasRole,
+    hasAnyRole,
+    hasAllRoles,
+
+    // Expose Keycloak composable untuk akses langsung jika diperlukan
+    keycloak: keycloakComposable,
   };
 };

@@ -23,6 +23,13 @@ export default defineNuxtConfig({
       apiBphUrl: process.env.API_BPH_URL,
       apiSuratUrl: process.env.API_SURAT_URL,
       onesignalAppId: process.env.ONESIGNAL_APP_ID,
+      keycloak: {
+        baseUrl: process.env.KEYCLOAK_BASE_URL,
+        realm: process.env.KEYCLOAK_REALM,
+        clientId: process.env.KEYCLOAK_CLIENT_ID,
+        redirectUrl: process.env.KEYCLOAK_REDIRECT_URL,
+        logoutUrl: process.env.KEYCLOAK_LOGOUT_URL,
+      },
     },
   },
   pwa: {
