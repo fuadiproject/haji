@@ -1,19 +1,21 @@
-import { logout } from "@/composables/useAuth";
-const jwtToken = {
-  value:
-    "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2x4MTIzNDU2Nzg5MGFiY2RlZiIsIm5payI6IjEyMzQ1Njc4OTAxMjM0NTYiLCJyb2xlIjoidXNlciIsImlhdCI6MTY5NDUxNTIwMCwiZXhwIjoxNjk0NjAxNjAwfQ.user1_signature",
-};
+import { useAuth } from "@/composables/useAuth";
+
+// const jwtToken = {
+//   value:
+//     "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2x4MTIzNDU2Nzg5MGFiY2RlZiIsIm5payI6IjEyMzQ1Njc4OTAxMjM0NTYiLCJyb2xlIjoidXNlciIsImlhdCI6MTY5NDUxNTIwMCwiZXhwIjoxNjk0NjAxNjAwfQ.user1_signature",
+// };
 
 export const useServiceSuratapi = () => {
   const config = useRuntimeConfig();
+  const { getToken } = useAuth();
 
   const BASE_URL = `${config.public.apiSuratUrl}/api`;
 
   const handleError = (error) => {
-    if (error?.status === 403) {
-      logout();
-      return;
-    }
+    // if (error?.status === 403) {
+    //   logout();
+    //   return;
+    // }
     throw error;
   };
 
@@ -23,7 +25,7 @@ export const useServiceSuratapi = () => {
       method: "POST",
       body: data,
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -33,7 +35,7 @@ export const useServiceSuratapi = () => {
   const getFileById = async ({ fileId }) => {
     return $fetch(`${BASE_URL}/files/${fileId}`, {
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -43,7 +45,7 @@ export const useServiceSuratapi = () => {
   const downloadFile = async ({ fileId }) => {
     return $fetch(`${BASE_URL}/files/${fileId}/download`, {
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -55,7 +57,7 @@ export const useServiceSuratapi = () => {
       method: "PUT",
       body: data,
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -68,7 +70,7 @@ export const useServiceSuratapi = () => {
       method: "POST",
       body: { file_id: fileId, nomor_surat: nomorSurat },
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -78,7 +80,7 @@ export const useServiceSuratapi = () => {
   const getAllSuratMasuk = async ({ page, limit, search }) => {
     return $fetch(`${BASE_URL}/surat-masuk`, {
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
       params: { page, limit, search },
     }).catch((error) => {
@@ -89,7 +91,7 @@ export const useServiceSuratapi = () => {
   const getSuratMasukById = async ({ id }) => {
     return $fetch(`${BASE_URL}/surat-masuk/${id}`, {
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -101,7 +103,7 @@ export const useServiceSuratapi = () => {
       method: "PUT",
       body: { file_id: fileId, nomor_surat: nomorSurat },
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -112,7 +114,7 @@ export const useServiceSuratapi = () => {
     return $fetch(`${BASE_URL}/surat-masuk/${id}`, {
       method: "DELETE",
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -122,7 +124,7 @@ export const useServiceSuratapi = () => {
   const getDisposisiSuratMasukById = async ({ id }) => {
     return $fetch(`${BASE_URL}/surat-masuk/${id}/disposisi`, {
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -134,7 +136,7 @@ export const useServiceSuratapi = () => {
       method: "POST",
       body: data,
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -151,7 +153,7 @@ export const useServiceSuratapi = () => {
         tanggal_surat: tanggalSurat,
       },
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -161,7 +163,7 @@ export const useServiceSuratapi = () => {
   const getAllSuratKeluar = async ({ page, limit, search }) => {
     return $fetch(`${BASE_URL}/surat-keluar`, {
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
       params: { page, limit, search },
     }).catch((error) => {
@@ -172,7 +174,7 @@ export const useServiceSuratapi = () => {
   const getSuratKeluarById = async ({ id }) => {
     return $fetch(`${BASE_URL}/surat-keluar/${id}`, {
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -193,7 +195,7 @@ export const useServiceSuratapi = () => {
         tanggal_surat: tanggalSurat,
       },
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -204,7 +206,7 @@ export const useServiceSuratapi = () => {
     return $fetch(`${BASE_URL}/surat-keluar/${id}`, {
       method: "DELETE",
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -214,7 +216,7 @@ export const useServiceSuratapi = () => {
   const getDisposisiSuratKeluarById = async ({ id }) => {
     return $fetch(`${BASE_URL}/surat-keluar/${id}/disposisi`, {
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -226,7 +228,7 @@ export const useServiceSuratapi = () => {
       method: "POST",
       body: data,
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -237,7 +239,7 @@ export const useServiceSuratapi = () => {
   const getAllSifat = async () => {
     return $fetch(`${BASE_URL}/master/sifat`, {
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -247,7 +249,7 @@ export const useServiceSuratapi = () => {
   const getAllUrgensi = async () => {
     return $fetch(`${BASE_URL}/master/urgensi`, {
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -257,7 +259,7 @@ export const useServiceSuratapi = () => {
   const getAllPetunjuk = async () => {
     return $fetch(`${BASE_URL}/master/petunjuk`, {
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);

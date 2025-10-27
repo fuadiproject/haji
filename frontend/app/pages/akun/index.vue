@@ -79,7 +79,7 @@ const handleBack = () => {
           </div>
 
           <h1 class="text-body-2 mt-4 text-center text-xl font-semibold">
-            {{ jwtInfo.nama }}
+            {{ jwtInfo?.name || jwtInfo?.preferredUsername || "User" }}
           </h1>
 
           <p class="text-body-3 mt-1 text-center text-base font-medium">

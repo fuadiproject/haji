@@ -5,7 +5,7 @@ import { useServiceBphapi } from "@/composables/useServiceBphapi";
 
 export const useActionPresensi = () => {
   const { requestLocationPermission } = useLocationPermission();
-  const { logout } = useAuth();
+  // const { logout } = useAuth();
   const toast = useToast();
   const bphapiService = useServiceBphapi();
 
@@ -62,10 +62,10 @@ export const useActionPresensi = () => {
       });
       handleCloseModalAbsenConfirm();
     } catch (error) {
-      if (error?.status === 403) {
-        logout();
-        return;
-      }
+      // if (error?.status === 403) {
+      //   logout();
+      //   return;
+      // }
       toast.add({
         title: TEXT.peringatan,
         description: error.message || TEXT.terjadiKesalahan,

@@ -1,15 +1,16 @@
-import { jwtToken, logout } from "@/composables/useAuth";
+import { useAuth } from "@/composables/useAuth";
 
 export const useServiceBphapi = () => {
   const config = useRuntimeConfig();
+  const { getToken } = useAuth();
 
   const BASE_URL = `${config.public.apiBphUrl}/bphapi`;
 
   const handleError = (error) => {
-    if (error?.status === 403) {
-      logout();
-      return;
-    }
+    // if (error?.status === 403) {
+    //   logout();
+    //   return;
+    // }
     throw error;
   };
 
@@ -27,7 +28,7 @@ export const useServiceBphapi = () => {
       method: "POST",
       body: { latitude, longitude },
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -39,7 +40,7 @@ export const useServiceBphapi = () => {
       method: "POST",
       body: { latitude, longitude },
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -50,7 +51,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL}/attendance/history`, {
       params: { startDate, endDate },
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -60,7 +61,7 @@ export const useServiceBphapi = () => {
   const rekapPotongan = async () => {
     return $fetch(`${BASE_URL}/attendance/rekap-potongan`, {
       headers: {
-        Authorization: `${jwtToken.value}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     }).catch((error) => {
       handleError(error);
