@@ -106,7 +106,7 @@ export default defineNuxtPlugin(async () => {
       authenticated = await keycloak.init({
         onLoad: "login-required",
         checkLoginIframe: false,
-        pkceMethod: "S256",
+        // pkceMethod: "S256",
         redirectUri: keycloakConfig.redirectUrl || window.location.origin,
       });
 
@@ -129,7 +129,7 @@ export default defineNuxtPlugin(async () => {
         authenticated = await keycloak.init({
           onLoad: "check-sso",
           checkLoginIframe: false,
-          pkceMethod: undefined,
+          // pkceMethod: undefined,
         });
 
         console.log("Keycloak checked, authenticated:", authenticated);
