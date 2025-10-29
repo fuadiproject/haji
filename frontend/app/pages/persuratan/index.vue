@@ -5,6 +5,7 @@ import ModalCreateSuratComponent from "@/components/persuratan/ModalCreateSuratC
 import ModalEditSuratComponent from "@/components/persuratan/ModalEditSuratComponent.vue";
 import ModalCreateDisposisiComponent from "@/components/persuratan/ModalCreateDisposisiComponent.vue";
 import ModalDetailSuratComponent from "@/components/persuratan/ModalDetailSuratComponent.vue";
+import ModalCreateTTEComponent from "@/components/persuratan/ModalCreateTTEComponent.vue";
 
 const route = useRoute();
 const suratapiService = useServiceSuratapi();
@@ -31,6 +32,10 @@ const modalDeleteSurat = ref({
   isOpen: false,
   suratId: "",
 });
+const modalCreateTTE = ref({
+  isOpen: false,
+  suratId: "",
+});
 
 const search = ref(route.query.search || "");
 const page = ref(route.query.page ? parseInt(route.query.page) : 1);
@@ -42,7 +47,6 @@ const {
   error: errorSurat,
   refresh: refreshSurat,
 } = await useAsyncData(
-  computed(() => `surat-${activeTab.value}`),
   async () => {
     const functionName =
       activeTab.value === "suratMasuk"
@@ -139,7 +143,7 @@ const handleDelete = async () => {
     console.error("Error deleting surat:", error);
     toast.add({
       title: "Error",
-      description: "Gagal menghapus surat",
+      description: error?.data?.error || "Gagal menghapus surat",
       color: "error",
     });
   } finally {
@@ -188,13 +192,24 @@ const handleBack = () => {
     />
 
     <div class="mt-5 flex w-full items-center justify-between">
-      <div class="flex items-center gap-4">
+      <div
+        class="flex items-center gap-4 overflow-x-auto"
+        :style="{
+          scrollbarWidth: 'none',
+          '-ms-overflow-style': 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+        }"
+      >
         <ButtonComponent
           v-for="tab in TABS"
           :key="tab"
           variant="outline"
           :class="
-            activeTab === tab ? 'border-primary-main text-primary-main' : ''
+            activeTab === tab
+              ? 'border-primary-main text-primary-main min-w-fit'
+              : 'min-w-fit'
           "
           @click="handleChangeTab(tab)"
         >
@@ -203,7 +218,13 @@ const handleBack = () => {
             class="text-body-3 h-5 w-5"
             :class="activeTab === tab ? 'text-primary-main' : ''"
           />
-          {{ tab === "suratMasuk" ? TEXT.suratMasuk : TEXT.suratKeluar }}
+          {{
+            tab === "suratMasuk"
+              ? TEXT.suratMasuk
+              : tab === "suratKeluar"
+                ? TEXT.suratKeluar
+                : ""
+          }}
         </ButtonComponent>
       </div>
       <ButtonComponent
@@ -216,131 +237,149 @@ const handleBack = () => {
       </ButtonComponent>
     </div>
 
-    <div class="mt-5">
-      <LoadingStateComponent v-if="isLoading" />
+    <div>
+      <div class="mt-5">
+        <LoadingStateComponent v-if="isLoading" />
 
-      <ErrorStateComponent
-        v-else-if="errorSurat"
-        :error="errorSurat"
+        <ErrorStateComponent
+          v-else-if="errorSurat"
+          :error="errorSurat"
+          @refresh="refreshSurat()"
+        />
+
+        <EmptyStateComponent
+          v-else-if="suratData?.data?.length === 0"
+          image-class="h-20 w-20"
+          :text="TEXT.tidakAdaDataSuratMasuk"
+        />
+
+        <div v-else>
+          <div class="min-h-[calc(100vh-390px)] space-y-4">
+            <CardSuratComponent
+              v-for="surat in suratData?.data"
+              :key="surat.id"
+              :surat-id="surat.id"
+              :type="activeTab"
+              :is-inbox="surat.type === 'inbox'"
+              :nomor-surat="surat.nomor_surat"
+              :tanggal-surat="surat.tanggal_surat"
+              :disposisi-count="surat._count?.disposisi || 0"
+              :file-id="surat.file?.id"
+              :file-name="surat.file?.filename"
+              :file-url="surat.file?.filepath"
+              :tte-logs="surat._count?.tteLogs || 0"
+              :urutan-tte="surat.urutan_tte"
+              @disposisi="
+                modalAddDisposisi.isOpen = true;
+                modalAddDisposisi.suratId = surat.id;
+              "
+              @detail="
+                modalDetailSurat.isOpen = true;
+                modalDetailSurat.suratId = surat.id;
+                modalDetailSurat.nomorSurat = surat.nomor_surat;
+              "
+              @edit="
+                modalEditSurat.isOpen = true;
+                modalEditSurat.suratId = surat.id;
+              "
+              @delete="
+                modalDeleteSurat.isOpen = true;
+                modalDeleteSurat.suratId = surat.id;
+              "
+              @create-tte="
+                modalCreateTTE.isOpen = true;
+                modalCreateTTE.suratId = surat.id;
+              "
+              @refresh="refreshSurat()"
+            />
+          </div>
+          <UPagination
+            v-if="
+              suratData?.pagination?.total_pages > 1 ||
+              suratData?.pagination?.totalPages > 1
+            "
+            :page="page"
+            class="mt-5 flex w-full justify-center"
+            variant="soft"
+            color="primary"
+            :items-per-page="limit"
+            :total="suratData?.pagination?.total || 0"
+            @update:page="handleChangePage"
+          />
+        </div>
+      </div>
+
+      <FloatingButtonComponent
+        class="md:hidden"
+        @click="isModalAddSuratOpen = true"
+      />
+
+      <ModalCreateSuratComponent
+        v-if="isModalAddSuratOpen"
+        :is-open="isModalAddSuratOpen"
+        :default-type="activeTab"
+        @close="isModalAddSuratOpen = false"
         @refresh="refreshSurat()"
       />
 
-      <EmptyStateComponent
-        v-else-if="suratData?.data?.[activeTab]?.length === 0"
-        image-class="h-20 w-20"
-        :text="TEXT.tidakAdaDataSuratMasuk"
+      <ModalEditSuratComponent
+        v-if="modalEditSurat.isOpen"
+        :is-open="modalEditSurat.isOpen"
+        :surat-id="modalEditSurat.suratId"
+        :default-type="activeTab"
+        @close="modalEditSurat.isOpen = false"
+        @refresh="handleRefreshAfterEdit"
       />
 
-      <div v-else>
-        <div class="min-h-[calc(100vh-390px)] space-y-4">
-          <CardSuratComponent
-            v-for="surat in suratData?.data?.[activeTab]"
-            :key="surat.id"
-            :surat-id="surat.id"
-            :type="activeTab"
-            :nomor-surat="surat.nomor_surat"
-            :tanggal-surat="surat.tanggal_surat"
-            :disposisi-count="surat.disposisi?.length || 0"
-            :file-id="surat.file?.id"
-            :file-name="surat.file?.filename"
-            :file-url="surat.file?.filepath"
-            @disposisi="
-              modalAddDisposisi.isOpen = true;
-              modalAddDisposisi.suratId = surat.id;
-            "
-            @detail="
-              modalDetailSurat.isOpen = true;
-              modalDetailSurat.suratId = surat.id;
-              modalDetailSurat.nomorSurat = surat.nomor_surat;
-            "
-            @edit="
-              modalEditSurat.isOpen = true;
-              modalEditSurat.suratId = surat.id;
-            "
-            @delete="
-              modalDeleteSurat.isOpen = true;
-              modalDeleteSurat.suratId = surat.id;
-            "
-          />
-        </div>
-        <UPagination
-          v-if="
-            suratData?.data?.pagination?.total_pages > 1 ||
-            suratData?.data?.pagination?.totalPages > 1
-          "
-          :page="page"
-          class="mt-5 flex w-full justify-center"
-          variant="soft"
-          color="primary"
-          :items-per-page="limit"
-          :total="suratData?.data?.pagination?.total || 0"
-          @update:page="handleChangePage"
-        />
-      </div>
+      <ModalCreateDisposisiComponent
+        v-if="modalAddDisposisi.isOpen"
+        :surat-id="modalAddDisposisi.suratId"
+        :surat-type="activeTab"
+        :is-open="modalAddDisposisi.isOpen"
+        @close="modalAddDisposisi.isOpen = false"
+        @submit="refreshSurat()"
+      />
+
+      <ModalDetailSuratComponent
+        v-if="modalDetailSurat.isOpen"
+        :type="activeTab"
+        :surat-id="modalDetailSurat.suratId"
+        :nomor-surat="modalDetailSurat.nomorSurat"
+        :is-open="modalDetailSurat.isOpen"
+        @close="modalDetailSurat.isOpen = false"
+        @disposisi="
+          modalAddDisposisi.isOpen = true;
+          modalAddDisposisi.suratId = modalDetailSurat.suratId;
+        "
+        @delete="
+          modalDeleteSurat.isOpen = true;
+          modalDeleteSurat.suratId = modalDetailSurat.suratId;
+        "
+        @edit="
+          modalEditSurat.isOpen = true;
+          modalEditSurat.suratId = modalDetailSurat.suratId;
+        "
+      />
+
+      <ModalConfirmComponent
+        :is-open="modalDeleteSurat.isOpen"
+        :title="TEXT.hapusSurat"
+        :message="TEXT.hapusSuratMessage"
+        :buttons="[
+          { variant: 'primary', text: TEXT.hapus, loading: isDeleteLoading },
+          { variant: 'secondary', text: TEXT.batal },
+        ]"
+        @close="modalDeleteSurat.isOpen = false"
+        @confirm="handleDelete"
+      />
+
+      <ModalCreateTTEComponent
+        v-if="modalCreateTTE.isOpen"
+        :is-open="modalCreateTTE.isOpen"
+        :surat-id="modalCreateTTE.suratId"
+        @close="modalCreateTTE.isOpen = false"
+        @refresh="refreshSurat()"
+      />
     </div>
-
-    <FloatingButtonComponent
-      class="md:hidden"
-      @click="isModalAddSuratOpen = true"
-    />
-
-    <ModalCreateSuratComponent
-      v-if="isModalAddSuratOpen"
-      :is-open="isModalAddSuratOpen"
-      :default-type="activeTab"
-      @close="isModalAddSuratOpen = false"
-      @refresh="refreshSurat()"
-    />
-
-    <ModalEditSuratComponent
-      v-if="modalEditSurat.isOpen"
-      :is-open="modalEditSurat.isOpen"
-      :surat-id="modalEditSurat.suratId"
-      :default-type="activeTab"
-      @close="modalEditSurat.isOpen = false"
-      @refresh="handleRefreshAfterEdit"
-    />
-
-    <ModalCreateDisposisiComponent
-      v-if="modalAddDisposisi.isOpen"
-      :surat-id="modalAddDisposisi.suratId"
-      :surat-type="activeTab"
-      :is-open="modalAddDisposisi.isOpen"
-      @close="modalAddDisposisi.isOpen = false"
-      @submit="refreshSurat()"
-    />
-
-    <ModalDetailSuratComponent
-      v-if="modalDetailSurat.isOpen"
-      :type="activeTab"
-      :surat-id="modalDetailSurat.suratId"
-      :nomor-surat="modalDetailSurat.nomorSurat"
-      :is-open="modalDetailSurat.isOpen"
-      @close="modalDetailSurat.isOpen = false"
-      @disposisi="
-        modalAddDisposisi.isOpen = true;
-        modalAddDisposisi.suratId = modalDetailSurat.suratId;
-      "
-      @delete="
-        modalDeleteSurat.isOpen = true;
-        modalDeleteSurat.suratId = modalDetailSurat.suratId;
-      "
-      @edit="
-        modalEditSurat.isOpen = true;
-        modalEditSurat.suratId = modalDetailSurat.suratId;
-      "
-    />
-
-    <ModalConfirmComponent
-      :is-open="modalDeleteSurat.isOpen"
-      :title="TEXT.hapusSurat"
-      :message="TEXT.hapusSuratMessage"
-      :buttons="[
-        { variant: 'primary', text: TEXT.hapus, loading: isDeleteLoading },
-        { variant: 'secondary', text: TEXT.batal },
-      ]"
-      @close="modalDeleteSurat.isOpen = false"
-      @confirm="handleDelete"
-    />
   </TemplateDetailComponent>
 </template>

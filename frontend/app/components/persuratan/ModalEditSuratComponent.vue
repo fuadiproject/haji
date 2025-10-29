@@ -201,7 +201,7 @@ async function onSubmit(event) {
     console.error("Error updating surat:", error);
     toast.add({
       title: "Error",
-      description: "Gagal memperbarui surat",
+      description: error?.data?.error || "Gagal memperbarui surat",
       color: "error",
     });
   } finally {
