@@ -4,6 +4,16 @@ export default defineNuxtPlugin(async () => {
   const config = useRuntimeConfig();
   const keycloakConfig = config.public.keycloak;
 
+  // Validasi konfigurasi Keycloak
+  if (
+    !keycloakConfig.baseUrl ||
+    !keycloakConfig.realm ||
+    !keycloakConfig.clientId
+  ) {
+    console.error("Keycloak configuration is incomplete:", keycloakConfig);
+    throw new Error("Keycloak configuration is missing required fields");
+  }
+
   // Inisialisasi Keycloak instance
   const keycloak = new Keycloak({
     url: keycloakConfig.baseUrl,
@@ -106,7 +116,7 @@ export default defineNuxtPlugin(async () => {
       authenticated = await keycloak.init({
         onLoad: "login-required",
         checkLoginIframe: false,
-        // pkceMethod: "S256",
+        pkceMethod: "S256",
         redirectUri: keycloakConfig.redirectUrl || window.location.origin,
       });
 
