@@ -95,7 +95,7 @@ const fetchSifat = async (search = "") => {
     console.error("Error fetching sifat:", error);
     toast.add({
       title: "Error",
-      description: "Gagal memuat data sifat",
+      description: error?.data?.error || "Gagal memuat data sifat",
       color: "error",
     });
   } finally {
@@ -125,7 +125,7 @@ const fetchUrgensi = async (search = "") => {
     console.error("Error fetching urgensi:", error);
     toast.add({
       title: "Error",
-      description: "Gagal memuat data urgensi",
+      description: error?.data?.error || "Gagal memuat data urgensi",
       color: "error",
     });
   } finally {
@@ -155,7 +155,7 @@ const fetchPetunjuk = async (search = "") => {
     console.error("Error fetching petunjuk:", error);
     toast.add({
       title: "Error",
-      description: "Gagal memuat data petunjuk",
+      description: error?.data?.error || "Gagal memuat data petunjuk",
       color: "error",
     });
   } finally {
@@ -262,7 +262,7 @@ const handleSubmit = async () => {
     console.error("Error submitting form:", error);
     toast.add({
       title: "Error",
-      description: "Gagal membuat disposisi",
+      description: error?.data?.error || "Gagal membuat disposisi",
       color: "error",
     });
   } finally {
@@ -492,10 +492,13 @@ watch(
             class="mb-2 flex gap-2"
           >
             <div class="flex-1">
-              <UInput
-                v-model="target.nik_penerima"
+              <FormSelectUserListComponent
+                :model-value="target.nik_penerima"
+                label=""
                 :placeholder="TEXT.masukkanNIKpenerima"
-                class="w-full"
+                @update:model-value="
+                  (payload) => (target.nik_penerima = payload.value)
+                "
               />
               <!-- 
                <USelectMenu

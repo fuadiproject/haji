@@ -1,10 +1,5 @@
 import { useAuth } from "@/composables/useAuth";
 
-// const jwtToken = {
-//   value:
-//     "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2x4MTIzNDU2Nzg5MGFiY2RlZiIsIm5payI6IjEyMzQ1Njc4OTAxMjM0NTYiLCJyb2xlIjoidXNlciIsImlhdCI6MTY5NDUxNTIwMCwiZXhwIjoxNjk0NjAxNjAwfQ.user1_signature",
-// };
-
 export const useServiceSuratapi = () => {
   const config = useRuntimeConfig();
   const { getToken } = useAuth();
@@ -46,10 +41,15 @@ export const useServiceSuratapi = () => {
     return $fetch(`${BASE_URL}/files/${fileId}/download`, {
       headers: {
         Authorization: `Bearer ${getToken()}`,
+        Accept: "application/pdf",
       },
-    }).catch((error) => {
-      handleError(error);
-    });
+    })
+      .then((response) => {
+        return response;
+      })
+      .catch((error) => {
+        handleError(error);
+      });
   };
 
   const updateFileById = async ({ fileId, data }) => {
@@ -266,6 +266,97 @@ export const useServiceSuratapi = () => {
     });
   };
 
+  // TTE Management
+  const getAllTTEInbox = async () => {
+    return $fetch(`${BASE_URL}/tte/inbox`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
+  const getAllTTEToutbox = async () => {
+    return $fetch(`${BASE_URL}/tte/outbox`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
+  const getTTEById = async ({ id }) => {
+    return $fetch(`${BASE_URL}/tte/${id}`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
+  /**
+   * data example:
+   * {
+      "surat_keluar_id": "cm1abc123def456",
+      "penerima": [
+        {
+          "nik_penerima": "6543210987654321",
+          "jenis": "PARAF" // PARAF | TTE
+        }
+      ]
+    }
+   */
+  const createTTE = async ({ data }) => {
+    return $fetch(`${BASE_URL}/tte`, {
+      method: "POST",
+      body: data,
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
+  const updateTTESign = async ({ id, data }) => {
+    return $fetch(`${BASE_URL}/tte/${id}/sign`, {
+      method: "PUT",
+      body: data,
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
+  const updateTTEReject = async ({ id, data }) => {
+    return $fetch(`${BASE_URL}/tte/${id}/reject`, {
+      method: "PUT",
+      body: data,
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
+  // User Management
+  const getAllUsers = async ({ search = "", limit = 20 }) => {
+    return $fetch(`${BASE_URL}/users/list`, {
+      params: { search, limit },
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
   return {
     uploadFile,
     updateFileById,
@@ -288,5 +379,12 @@ export const useServiceSuratapi = () => {
     getAllSifat,
     getAllUrgensi,
     getAllPetunjuk,
+    getAllTTEInbox,
+    getAllTTEToutbox,
+    getTTEById,
+    createTTE,
+    updateTTESign,
+    updateTTEReject,
+    getAllUsers,
   };
 };

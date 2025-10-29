@@ -44,7 +44,7 @@ const df = new DateFormatter("en-US", {
 const tanggalSurat = shallowRef(
   new CalendarDate(
     new Date().getFullYear(),
-    new Date().getMonth(),
+    new Date().getMonth() + 1,
     new Date().getDate(),
   ),
 );
@@ -125,7 +125,7 @@ async function onSubmit(event) {
     console.error("Error submitting form:", error);
     toast.add({
       title: "Error",
-      description: "Gagal membuat surat",
+      description: error?.data?.error || "Gagal membuat surat",
       color: "error",
     });
   } finally {

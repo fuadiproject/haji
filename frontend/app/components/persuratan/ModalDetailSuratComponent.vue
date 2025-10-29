@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
+// import { VPdfViewer } from "@vue-pdf-viewer/viewer";
 import { TEXT } from "@/constants/text";
 import ModalBottomComponent from "@/components/global/ModalBottomComponent.vue";
 import ButtonComponent from "@/components/global/ButtonComponent.vue";
@@ -52,11 +53,11 @@ const {
 const isLoading = computed(() => statusSurat.value === "pending");
 
 // PDF Viewer state
-const pdfViewer = ref(null);
+// const pdfViewer = ref(null);
 const showPdfFallback = ref(false);
-const pdfLoadTimeout = ref(null);
+// const pdfLoadTimeout = ref(null);
 const isMobile = ref(false);
-
+const isModalViewFileOpen = ref(false);
 // Deteksi mobile device
 const checkMobile = () => {
   isMobile.value =
@@ -67,8 +68,8 @@ const checkMobile = () => {
 
 const handleDisposisi = () => {
   emit("disposisi", {
-    suratId: suratData.value.id,
-    nomorSurat: suratData.value.nomor_surat,
+    suratId: suratData.value?.data?.id,
+    nomorSurat: suratData.value?.data?.nomor_surat,
   });
 };
 
@@ -83,21 +84,21 @@ const formatDate = (dateString) => {
 };
 
 // PDF handling methods
-const handlePdfError = () => {
-  console.log("PDF failed to load, showing fallback");
-  showPdfFallback.value = true;
-  if (pdfLoadTimeout.value) {
-    clearTimeout(pdfLoadTimeout.value);
-  }
-};
+// const handlePdfError = () => {
+//   console.log("PDF failed to load, showing fallback");
+//   showPdfFallback.value = true;
+//   if (pdfLoadTimeout.value) {
+//     clearTimeout(pdfLoadTimeout.value);
+//   }
+// };
 
-const handlePdfLoad = () => {
-  console.log("PDF loaded successfully");
-  showPdfFallback.value = false;
-  if (pdfLoadTimeout.value) {
-    clearTimeout(pdfLoadTimeout.value);
-  }
-};
+// const handlePdfLoad = () => {
+//   console.log("PDF loaded successfully");
+//   showPdfFallback.value = false;
+//   if (pdfLoadTimeout.value) {
+//     clearTimeout(pdfLoadTimeout.value);
+//   }
+// };
 
 // Watch untuk perubahan ukuran layar
 watch(
@@ -132,6 +133,12 @@ onMounted(() => {
     />
 
     <div v-else class="relative space-y-6 pb-12">
+      <div v-if="type === 'suratMasuk'" class="flex justify-end">
+        <ButtonComponent variant="primary" @click="handleDisposisi">
+          <UIcon name="ph:hand-pointing" class="h-4 w-4" />
+          {{ TEXT.disposisi }}
+        </ButtonComponent>
+      </div>
       <!-- Document Information Section -->
       <div class="space-y-4">
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -169,6 +176,108 @@ onMounted(() => {
             >
               {{ suratData?.data?.created_by }}
             </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TTE Logs Information Section (for suratKeluar) -->
+      <div
+        v-if="type === 'suratKeluar' && suratData?.data?.tteLogs?.length > 0"
+        class="space-y-4"
+      >
+        <div class="flex items-center justify-between">
+          <h3 class="text-body-11 text-lg font-semibold">Informasi TTE</h3>
+          <span
+            class="bg-primary-4 text-primary-main rounded px-2 py-1 text-xs font-medium"
+          >
+            {{ suratData?.data?.tteLogs?.length || 0 }} TTE Log
+          </span>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Semua TTE Logs -->
+          <div
+            v-for="(tteLog, tteIndex) in suratData?.data?.tteLogs"
+            :key="tteLog.id"
+            class="bg-container-main border-border-main rounded-lg border p-4"
+          >
+            <div class="mb-3 flex items-center justify-between">
+              <h4 class="text-body-11 text-sm font-medium">
+                TTE Log #{{ tteIndex + 1 }}
+              </h4>
+              <div class="flex items-center gap-2">
+                <span
+                  :class="{
+                    'bg-yellow-100 text-yellow-800':
+                      tteLog.status === 'REQUESTED',
+                    'bg-red-100 text-red-800': tteLog.status === 'REJECTED',
+                    'bg-green-100 text-green-800': tteLog.status === 'SIGNED',
+                  }"
+                  class="rounded px-2 py-1 text-xs font-medium"
+                >
+                  {{ tteLog.status }}
+                </span>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <!-- Jenis TTE -->
+              <div class="bg-body-9 rounded p-2 dark:bg-transparent">
+                <span class="text-body-5 text-xs font-medium">Jenis:</span>
+                <p class="text-body-11 text-sm">{{ tteLog.jenis }}</p>
+              </div>
+
+              <!-- Pengirim -->
+              <div class="bg-body-9 rounded p-2 dark:bg-transparent">
+                <span class="text-body-5 text-xs font-medium">Pengirim:</span>
+                <p class="text-body-11 text-sm">
+                  {{ tteLog.pengirim?.nama || "-" }}
+                  <span v-if="tteLog.pengirim?.nik" class="text-body-5">
+                    ({{ tteLog.pengirim.nik }})
+                  </span>
+                </p>
+                <p v-if="tteLog.pengirim?.nip" class="text-body-5 text-xs">
+                  NIP: {{ tteLog.pengirim.nip }}
+                </p>
+              </div>
+
+              <!-- Penerima -->
+              <div class="bg-body-9 rounded p-2 dark:bg-transparent">
+                <span class="text-body-5 text-xs font-medium">Penerima:</span>
+                <p class="text-body-11 text-sm">
+                  {{ tteLog.penerima?.nama || "-" }}
+                  <span v-if="tteLog.penerima?.nik" class="text-body-5">
+                    ({{ tteLog.penerima.nik }})
+                  </span>
+                </p>
+                <p v-if="tteLog.penerima?.nip" class="text-body-5 text-xs">
+                  NIP: {{ tteLog.penerima.nip }}
+                </p>
+              </div>
+
+              <!-- Tanggal Dibuat -->
+              <div class="bg-body-9 rounded p-2 dark:bg-transparent">
+                <span class="text-body-5 text-xs font-medium"
+                  >Tanggal Dibuat:</span
+                >
+                <p class="text-body-11 text-sm">
+                  {{ formatDate(tteLog.created_at) }}
+                </p>
+              </div>
+
+              <!-- Tanggal Ditandatangani (jika sudah SIGNED) -->
+              <div
+                v-if="tteLog.status === 'SIGNED' && tteLog.signed_at"
+                class="bg-body-9 rounded p-2 dark:bg-transparent"
+              >
+                <span class="text-body-5 text-xs font-medium"
+                  >Tanggal Ditandatangani:</span
+                >
+                <p class="text-body-11 text-sm">
+                  {{ formatDate(tteLog.signed_at) }}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -280,11 +389,15 @@ onMounted(() => {
         </div>
       </div>
 
-      <ClientOnly>
+      <!-- <ClientOnly>
+        <div :style="{ width: '1028px', height: '700px' }">
+          <VPdfViewer :src="'/files/pdf/sample.pdf#navpanes=0'" />
+        </div>
+      </ClientOnly> -->
+
+      <!-- <ClientOnly>
         <div class="md:col-span-2">
-          <!-- PDF Viewer dengan fallback yang proper -->
           <div class="relative">
-            <!-- Desktop PDF Viewer -->
             <iframe
               v-if="!isMobile"
               ref="pdfViewer"
@@ -299,7 +412,6 @@ onMounted(() => {
               @load="handlePdfLoad"
             />
 
-            <!-- Mobile/Tablet Fallback - Langsung tampilkan fallback -->
             <div
               v-if="
                 suratData?.data?.file?.filepath && (isMobile || showPdfFallback)
@@ -337,34 +449,22 @@ onMounted(() => {
                   Download PDF
                 </UButton>
               </div>
-
-              <!-- Informasi tambahan untuk mobile -->
-              <!-- <div v-if="isMobile" class="mt-4 rounded-lg bg-blue-50 p-4">
-                <div class="flex items-start">
-                  <UIcon
-                    name="ph:info"
-                    class="mt-0.5 mr-2 h-5 w-5 text-blue-500"
-                  />
-                  <div class="text-sm text-blue-700">
-                    <p class="mb-1 font-medium">Tips untuk mobile:</p>
-                    <ul class="list-inside list-disc space-y-1 text-xs">
-                      <li>Download PDF dan buka dengan aplikasi PDF reader</li>
-                      <li>Gunakan browser desktop untuk preview PDF</li>
-                      <li>Pastikan koneksi internet stabil</li>
-                    </ul>
-                  </div>
-                </div>
-              </div> -->
             </div>
           </div>
         </div>
-      </ClientOnly>
+      </ClientOnly> -->
 
       <!-- Action Buttons -->
       <div
         class="bg-container-main dark:border-border-main fixed right-0 bottom-0 left-0 flex w-full justify-between gap-2 border-t border-gray-200 p-4 pt-4 sm:flex-row"
       >
-        <div class="flex items-center gap-2">
+        <div
+          v-if="
+            suratData?.data?.type !== 'inbox' &&
+            suratData?.data?.urutan_tte === null
+          "
+          class="flex items-center gap-2"
+        >
           <UButton
             variant="outline"
             size="lg"
@@ -385,16 +485,26 @@ onMounted(() => {
             {{ TEXT.hapus }}
           </UButton>
         </div>
+        <div v-else />
 
-        <ButtonComponent
-          v-if="type === 'suratMasuk'"
-          variant="primary"
-          class="max-w-fit flex-1 sm:flex-none"
-          @click="handleDisposisi"
-        >
-          {{ TEXT.disposisi }}
-        </ButtonComponent>
+        <div class="flex items-center gap-2">
+          <ButtonComponent
+            variant="primary-outline"
+            @click="isModalViewFileOpen = true"
+          >
+            <UIcon name="ph:eye-bold" class="h-4 w-4" />
+            {{ TEXT.lihatPreview }}
+          </ButtonComponent>
+        </div>
       </div>
     </div>
   </ModalBottomComponent>
+
+  <ModalViewFileComponent
+    v-if="isModalViewFileOpen"
+    :is-open="isModalViewFileOpen"
+    :file-id="suratData?.data?.file?.id"
+    :title="`${TEXT.nomorSurat}: ${suratData?.data?.nomor_surat}`"
+    @close="isModalViewFileOpen = false"
+  />
 </template>
