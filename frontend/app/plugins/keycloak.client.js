@@ -31,7 +31,7 @@ export default defineNuxtPlugin(async () => {
       hash.includes("code=") ||
       hash.includes("session_state=")
     ) {
-      console.log("Cleaning hash fragment:", hash);
+      // console.log("Cleaning hash fragment:", hash);
       const url = new URL(window.location.href);
       const cleanPath = url.pathname + url.search;
       if (window.location.href !== cleanPath) {
@@ -69,7 +69,7 @@ export default defineNuxtPlugin(async () => {
   };
 
   window.history.replaceState = function (...args) {
-    console.log("replaceState called with:", args[2]);
+    // console.log("replaceState called with:", args[2]);
     if (
       args[2] === "/" &&
       currentPath !== "/" &&
@@ -86,12 +86,12 @@ export default defineNuxtPlugin(async () => {
   let lastHref = window.location.href;
   setInterval(() => {
     if (window.location.href !== lastHref) {
-      console.log(
-        "Location changed from:",
-        lastHref,
-        "to:",
-        window.location.href,
-      );
+      // console.log(
+      //   "Location changed from:",
+      //   lastHref,
+      //   "to:",
+      //   window.location.href,
+      // );
       if (window.location.pathname === "/" && currentPath !== "/") {
         console.warn("Redirect detected to root, preventing...");
         window.history.replaceState({}, "", currentPath);
@@ -120,7 +120,7 @@ export default defineNuxtPlugin(async () => {
         redirectUri: keycloakConfig.redirectUrl || window.location.origin,
       });
 
-      console.log("Keycloak callback processed, authenticated:", authenticated);
+      // console.log("Keycloak callback processed, authenticated:", authenticated);
 
       // Clean hash fragment setelah callback diproses
       if (authenticated) {

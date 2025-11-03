@@ -11,6 +11,10 @@ const {
   handleConfirmAbsen,
 } = useActionPresensi();
 
+const { isDark } = useTheme();
+
+const { getBanner } = useServiceSuperappApi();
+
 const currentBannerIndex = ref(0);
 const isModalOpen = ref(false);
 
@@ -65,20 +69,37 @@ const mainMenu = [
   },
 ];
 
-const bannerList = [
+const { data: bannerDataList } = await useAsyncData(
+  "banner-data-list",
+  () => getBanner(),
   {
-    id: "welcome-banner",
-    component: WelcomeBannerComponent,
+    default: () => [],
+    transform: (data) => data || [],
+    server: false,
+    lazy: true,
   },
-  {
-    id: "banner-2",
-    component: WelcomeBannerComponent,
-  },
-  {
-    id: "banner-3",
-    component: WelcomeBannerComponent,
-  },
-];
+);
+
+const bannerList = computed(() => {
+  if (!bannerDataList.value?.data || !Array.isArray(bannerDataList.value.data))
+    return [];
+
+  const newBannerList = bannerDataList?.value?.data?.map((banner) => ({
+    id: banner.id,
+    src: isDark.value ? banner.dark_image : banner.light_image,
+    description: banner.description,
+    link: banner.link,
+  }));
+
+  const defaultBannerList = [
+    {
+      id: "welcome-banner",
+      component: WelcomeBannerComponent,
+    },
+  ];
+
+  return [...defaultBannerList, ...newBannerList];
+});
 
 const goToBanner = (index) => {
   currentBannerIndex.value = index;
