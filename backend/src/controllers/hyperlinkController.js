@@ -61,10 +61,12 @@ class HyperlinkController {
             hyperlink.file.key,
             10 * 60
           );
+
           return {
+            id: hyperlink.id,
             title: hyperlink.title,
             link: hyperlink.link,
-            logo: signedUrl,
+            icon: signedUrl,
           };
         })
       );
