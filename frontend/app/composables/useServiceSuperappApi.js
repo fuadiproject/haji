@@ -30,8 +30,43 @@ export const useServiceSuperappApi = () => {
     });
   };
 
+  // Notifications
+  const getNotifications = async () => {
+    return $fetch(`${BASE_URL}/notifications`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
+  const getNotReadNotificationsCount = async () => {
+    return $fetch(`${BASE_URL}/notifications/not-read-count`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
+  const readNotification = async ({ notificationId }) => {
+    return $fetch(`${BASE_URL}/notifications/${notificationId}/read`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
   return {
     getBanner,
     getHyperlinks,
+    getNotifications,
+    getNotReadNotificationsCount,
+    readNotification,
   };
 };
