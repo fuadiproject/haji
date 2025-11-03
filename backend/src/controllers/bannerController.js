@@ -41,6 +41,7 @@ class BannerController {
           );
 
           return {
+            id: banner.id,
             title: banner.title,
             link: banner.link,
             description: banner.description,
