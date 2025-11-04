@@ -87,25 +87,28 @@ const handleBack = () => {
       <template #header>
         <div class="relative flex flex-col items-center">
           <div class="relative">
-            <div class="h-20 w-20 overflow-hidden rounded-full bg-gray-300">
-              <img
-                src="/images/default-avatar.svg"
-                alt="Profile Picture"
-                class="h-full w-full object-cover"
-              />
-            </div>
+            <!-- <div
+              class="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-gray-300"
+            >
+            <img
+            src="/images/default-avatar.svg"
+            alt="Profile Picture"
+            class="h-full w-full object-cover"
+            />
+          </div> -->
+            <UIcon name="ph:user-circle-fill" class="h-20 w-20" />
 
-            <div
+            <!-- <div
               class="bg-container-main absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border border-none shadow-md"
             >
               <UIcon
                 name="ph:pencil-simple-fill"
                 class="text-body-11 h-3.5 w-3.5"
               />
-            </div>
+            </div> -->
           </div>
 
-          <h1 class="text-body-2 mt-4 text-center text-xl font-semibold">
+          <h1 class="text-body-2 mt-2 text-center text-xl font-semibold">
             {{ profileData?.gelar_depan }} {{ profileData?.nama }}
             {{ profileData?.gelar_belakang }}
           </h1>
