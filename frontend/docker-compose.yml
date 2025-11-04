@@ -6,7 +6,7 @@ services:
       target: production
       args:
         - API_BASE_URL=${API_BASE_URL}
-        - API_BPH_URL=${API_BPH_URL}
+        - API_PRESENSI_URL=${API_PRESENSI_URL}
         - API_SURAT_URL=${API_SURAT_URL}
         - ONESIGNAL_APP_ID=${ONESIGNAL_APP_ID}
         - KEYCLOAK_BASE_URL=${KEYCLOAK_BASE_URL}
@@ -21,7 +21,7 @@ services:
     environment:
       - NODE_ENV=production
       - API_BASE_URL=${API_BASE_URL}
-      - API_BPH_URL=${API_BPH_URL}
+      - API_PRESENSI_URL=${API_PRESENSI_URL}
       - API_SURAT_URL=${API_SURAT_URL}
       - ONESIGNAL_APP_ID=${ONESIGNAL_APP_ID}
       - KEYCLOAK_BASE_URL=${KEYCLOAK_BASE_URL}

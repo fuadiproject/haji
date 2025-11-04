@@ -142,6 +142,18 @@ onMounted(() => {
       <!-- Document Information Section -->
       <div class="space-y-4">
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <!-- Nama Surat -->
+          <div>
+            <label class="text-body-4 mb-1 block text-sm font-medium">{{
+              TEXT.namaSurat
+            }}</label>
+            <p
+              class="text-body-11 dark:bg-container-main rounded bg-gray-50 p-2 text-sm"
+            >
+              {{ suratData?.data?.nama }}
+            </p>
+          </div>
+
           <!-- Nomor Surat -->
           <div>
             <label class="text-body-4 mb-1 block text-sm font-medium">{{
@@ -492,7 +504,7 @@ onMounted(() => {
             variant="primary-outline"
             @click="isModalViewFileOpen = true"
           >
-            <UIcon name="ph:eye-bold" class="h-4 w-4" />
+            <UIcon name="ph:file-pdf" class="h-4 w-4" />
             {{ TEXT.lihatPreview }}
           </ButtonComponent>
         </div>

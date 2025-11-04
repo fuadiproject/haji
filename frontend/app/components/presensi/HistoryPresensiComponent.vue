@@ -2,7 +2,7 @@
 import { ref, computed } from "vue";
 import { TEXT } from "@/constants/text";
 
-const bphapiService = useServiceBphapi();
+const presensiapiService = useServicePresensiapi();
 
 const selectedMonth = ref(new Date().getMonth());
 const selectedYear = ref(new Date().getFullYear());
@@ -24,16 +24,6 @@ const monthNames = [
 
 const selectedMonthName = computed(() => monthNames[selectedMonth.value]);
 
-const getDateRange = () => {
-  const startDate = new Date(selectedYear.value, selectedMonth.value, 1);
-  const endDate = new Date(selectedYear.value, selectedMonth.value + 1, 0);
-
-  return {
-    startDate: startDate.toISOString().split("T")[0], // Format YYYY-MM-DD
-    endDate: endDate.toISOString().split("T")[0], // Format YYYY-MM-DD
-  };
-};
-
 const {
   data: historyData,
   status,
@@ -44,14 +34,16 @@ const {
     () => `history-presensi-${selectedYear.value}-${selectedMonth.value}`,
   ),
   async () => {
-    const { startDate, endDate } = getDateRange();
-    const response = await bphapiService.history({ startDate, endDate });
-    return response || [];
+    const response = await presensiapiService.rekapKehadiran({
+      bulan: selectedMonth.value + 1,
+      tahun: selectedYear.value,
+    });
+    return response?.data || {};
   },
   {
     watch: [selectedMonth, selectedYear],
-    default: () => [],
-    transform: (data) => data || [],
+    default: () => ({}),
+    transform: (data) => data || {},
     server: false,
     lazy: true,
   },
@@ -60,9 +52,15 @@ const {
 const isLoading = computed(() => status.value === "pending");
 
 const sortedHistoryData = computed(() => {
-  if (!historyData.value || !Array.isArray(historyData.value)) return [];
-  return historyData.value;
+  const list = historyData.value?.rekap_harian;
+  if (!Array.isArray(list)) return [];
+  return list;
 });
+
+const infoPegawai = computed(() => historyData.value?.info_pegawai || null);
+const summaryBulanan = computed(
+  () => historyData.value?.summary_bulanan || null,
+);
 
 const changeMonth = (direction) => {
   if (direction === "prev") {
@@ -80,12 +78,24 @@ const changeMonth = (direction) => {
       selectedMonth.value++;
     }
   }
-  // Data akan otomatis refresh karena watch options
 };
 
 const formatTime = (timeString) => {
   if (!timeString) return "-";
   return timeString;
+};
+
+const formatCurrency = (amount) => {
+  if (amount == null) return "-";
+  try {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      maximumFractionDigits: 0,
+    }).format(amount);
+  } catch {
+    return `${amount}`;
+  }
 };
 
 const formatDate = (dateString) => {
@@ -99,11 +109,11 @@ const formatDate = (dateString) => {
 };
 
 const getAttendanceStatus = (item) => {
-  if (item.jam_datang && item.jam_pulang) {
+  if (item.checkin && item.checkout) {
     return "hadir_lengkap";
-  } else if (item.jam_datang) {
+  } else if (item.checkin || item.checkout) {
     return "hadir_sebagian";
-  } else if (item.status === "Libur Sabtu" || item.status === "Libur Minggu") {
+  } else if (item.status_kehadiran === "Akhir Pekan") {
     return "libur";
   } else {
     return "tidak_hadir";
@@ -133,11 +143,11 @@ const getStatusText = (item) => {
     case "hadir_sebagian":
       return "Hadir Sebagian";
     case "libur":
-      return item.status; // "Libur Sabtu" atau "Libur Minggu"
+      return item.status_kehadiran;
     case "tidak_hadir":
-      return item.status || "Tidak Hadir";
+      return item.status_kehadiran || "Tidak Hadir";
     default:
-      return item.status || "Tidak Hadir";
+      return item.status_kehadiran || "Tidak Hadir";
   }
 };
 
@@ -198,6 +208,52 @@ const getPemotonganColor = (pemotongan) => {
 
       <!-- History List -->
       <div v-else class="flex flex-col gap-3">
+        <!-- Info Pegawai & Ringkasan Bulanan -->
+        <CardComponent v-if="infoPegawai || summaryBulanan">
+          <div class="flex flex-col gap-2">
+            <div v-if="infoPegawai" class="flex items-center justify-between">
+              <div class="flex flex-col">
+                <span class="text-body-3 text-xs">Nama</span>
+                <span class="text-body-2 text-sm font-medium">
+                  {{ infoPegawai.nama }}
+                </span>
+              </div>
+              <div class="flex flex-col text-right">
+                <span class="text-body-3 text-xs">NIP</span>
+                <span class="text-body-2 text-sm font-medium">
+                  {{ infoPegawai.nip }}
+                </span>
+              </div>
+            </div>
+            <div v-if="infoPegawai" class="flex items-center justify-between">
+              <span class="text-body-3 text-xs">Tunjangan Kinerja Awal</span>
+              <span class="text-body-2 text-sm font-semibold">
+                {{ formatCurrency(infoPegawai.tunkin_awal) }}
+              </span>
+            </div>
+            <div v-if="summaryBulanan" class="mt-2 grid grid-cols-3 gap-2">
+              <div class="flex flex-col">
+                <span class="text-body-3 text-[10px]">Total Potongan</span>
+                <span class="text-body-2 text-xs font-semibold">
+                  {{ formatCurrency(summaryBulanan.total_potongan_bulan_ini) }}
+                </span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-body-3 text-[10px]">Persentase</span>
+                <span class="text-body-2 text-xs font-semibold">
+                  {{ summaryBulanan.persentase_potongan }}%
+                </span>
+              </div>
+              <div class="flex flex-col text-right">
+                <span class="text-body-3 text-[10px]">Tunkin Diterima</span>
+                <span class="text-body-2 text-xs font-semibold">
+                  {{ formatCurrency(summaryBulanan.tunkin_diterima) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </CardComponent>
+
         <CardComponent v-for="item in sortedHistoryData" :key="item.tanggal">
           <!-- Header Hari -->
           <div class="mb-3 flex items-center justify-between">
@@ -231,7 +287,7 @@ const getPemotonganColor = (pemotongan) => {
               <div class="flex items-center gap-2">
                 <UIcon name="ph:clock-bold" class="text-body-3 h-4 w-4" />
                 <span class="text-body-2 text-xs font-medium">
-                  {{ formatTime(item.jam_datang) }}
+                  {{ formatTime(item.checkin) }}
                 </span>
               </div>
             </div>
@@ -249,7 +305,7 @@ const getPemotonganColor = (pemotongan) => {
               <div class="flex items-center gap-2">
                 <UIcon name="ph:clock-bold" class="text-body-3 h-4 w-4" />
                 <span class="text-body-2 text-xs font-medium">
-                  {{ formatTime(item.jam_pulang) }}
+                  {{ formatTime(item.checkout) }}
                 </span>
               </div>
             </div>
@@ -262,10 +318,10 @@ const getPemotonganColor = (pemotongan) => {
               </div>
               <div class="flex items-center gap-2">
                 <span
-                  :class="getPemotonganColor(item.pemotongan)"
+                  :class="getPemotonganColor(item.persentase_potongan_harian)"
                   class="text-xs font-medium"
                 >
-                  {{ item.pemotongan }}%
+                  {{ item.persentase_potongan_harian }}%
                 </span>
               </div>
             </div>

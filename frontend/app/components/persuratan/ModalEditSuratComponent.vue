@@ -39,6 +39,7 @@ const suratTypeOptions = ref([
 ]);
 const schema = z.object({
   type: z.string("Type is required"),
+  nama: z.string("Nama surat is required"),
   nomorSurat: z.string("Nomor surat is required"),
   fileSurat: z.instanceof(File).optional(),
 });
@@ -58,6 +59,7 @@ const isSubmitLoading = ref(false);
 
 const state = reactive({
   type: props.defaultType,
+  nama: undefined,
   nomorSurat: undefined,
   fileSurat: undefined,
 });
@@ -118,6 +120,7 @@ watch(
     if (!isOpen) {
       // Reset form state when modal closes
       state.nomorSurat = "";
+      state.nama = "";
       state.fileSurat = undefined;
       isFileChanged.value = false;
       originalData.value = null;
@@ -128,9 +131,9 @@ const isLoading = computed(() => statusSurat.value === "pending");
 
 const isValidForm = computed(() => {
   if (state.type === "suratKeluar") {
-    return Boolean(state.nomorSurat && modelValue.value);
+    return Boolean(state.nomorSurat && modelValue.value && state.nama);
   }
-  return Boolean(state.nomorSurat);
+  return Boolean(state.nomorSurat && state.nama);
 });
 
 // Watch for file changes
@@ -146,6 +149,14 @@ async function onSubmit(event) {
     toast.add({
       title: "Error",
       description: "Nomor surat harus diisi",
+      color: "error",
+    });
+    return;
+  }
+  if (!event.data.nama) {
+    toast.add({
+      title: "Error",
+      description: "Nama surat harus diisi",
       color: "error",
     });
     return;
@@ -181,6 +192,7 @@ async function onSubmit(event) {
       id: props.suratId,
       fileId,
       nomorSurat: event.data.nomorSurat,
+      nama: event.data.nama,
     };
 
     if (state.type === "suratKeluar") {
@@ -236,6 +248,17 @@ const handleDateChange = (newDate) => {
           v-model="state.nomorSurat"
           size="lg"
           :placeholder="TEXT.nomorSurat"
+          class="w-full"
+          :loading="isLoading"
+          :readonly="isLoading"
+          :disabled="isLoading"
+        />
+      </UFormField>
+      <UFormField name="nama" :label="TEXT.namaSurat">
+        <UInput
+          v-model="state.nama"
+          size="lg"
+          :placeholder="TEXT.namaSurat"
           class="w-full"
           :loading="isLoading"
           :readonly="isLoading"

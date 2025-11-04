@@ -2,8 +2,10 @@
 import { ref } from "vue";
 import { TEXT } from "@/constants/text";
 import HistoryPresensiComponent from "@/components/presensi/HistoryPresensiComponent.vue";
+import HistoryIzinComponent from "@/components/presensi/HistoryIzinComponent.vue";
+import ModalCreateIzinComponent from "@/components/presensi/ModalCreateIzinComponent.vue";
 
-const bphapiService = useServiceBphapi();
+const presensiapiService = useServicePresensiapi();
 
 const {
   isModalAbsenConfirm,
@@ -18,31 +20,72 @@ const { currentTime, currentDate } = useRealtimeClock();
 const isEmpty = ref(false);
 const maxJamDatangHariIni = ref("08:00");
 const maxJamPulangHariIni = ref("17:00");
-const jamDatangHariIni = ref("08:30");
-const jamPulangHariIni = ref("17:00");
 const isModalHistoryPresensiOpen = ref(false);
+const isModalCreateIzinOpen = ref(false);
+const isModalHistoryIzinOpen = ref(false);
+const refreshIzinKey = ref(0);
 
-const { data: rekapPotonganData } = await useAsyncData(
-  computed(() => `rekap-potongan`),
+const { data: historyData } = await useAsyncData(
+  computed(
+    () =>
+      `history-presensi-${new Date().getFullYear()}-${new Date().getMonth() + 1}`,
+  ),
   async () => {
-    const response = await bphapiService.rekapPotongan();
-    return response || null;
+    const response = await presensiapiService.rekapKehadiran({
+      bulan: new Date().getMonth() + 1,
+      tahun: new Date().getFullYear(),
+    });
+    return response?.data || {};
   },
   {
-    default: () => null,
-    transform: (data) => data || null,
+    default: () => ({}),
+    transform: (data) => data || {},
     server: false,
     lazy: true,
   },
 );
 
+const { data: historyTodayData, refresh: refreshHistoryToday } =
+  await useAsyncData(
+    computed(() => `history-today`),
+    async () => {
+      const response = await presensiapiService.historyToday();
+      return response?.data || [];
+    },
+    {
+      default: () => ({}),
+      transform: (data) => data || {},
+      server: false,
+      lazy: true,
+    },
+  );
+
+const jamDatangHariIni = computed(() => {
+  const items = historyTodayData.value || [];
+  const checkin = Array.isArray(items)
+    ? items.find((item) => item?.tipe === "checkin")
+    : null;
+  return checkin?.local_time || "--:--";
+});
+const jamPulangHariIni = computed(() => {
+  const items = historyTodayData.value || [];
+  const checkout = Array.isArray(items)
+    ? items.find((item) => item?.tipe === "checkout")
+    : null;
+  return checkout?.local_time || "--:--";
+});
+
 const persenPemotongan = computed(() => {
-  if (!rekapPotonganData.value) return "0";
-  return rekapPotonganData.value?.data?.[0]?.persen_pemotongan ?? "0";
+  if (!historyData.value) return "0";
+  return historyData.value?.summary_bulanan?.persentase_potongan || "0";
 });
 
 const handleBack = () => {
   navigateTo("/");
+};
+
+const handleRefreshIzin = () => {
+  refreshIzinKey.value++;
 };
 </script>
 
@@ -74,7 +117,7 @@ const handleBack = () => {
           {{ TEXT.jadwalKerja }}:
         </p>
         <p class="text-body-2 text-base font-semibold">
-          {{ TEXT.stafKhusus }}: {{ TEXT.stafKhususDescription }}
+          {{ TEXT.stafKhususDescription }}
         </p>
       </div>
 
@@ -125,7 +168,9 @@ const handleBack = () => {
       </div>
     </div>
 
-    <div class="mt-6 flex flex-col gap-2.5">
+    <div
+      class="mt-6 flex flex-col gap-2.5 rounded-lg border border-dashed border-neutral-300 p-4"
+    >
       <div class="flex items-center justify-between gap-2 p-2">
         <div class="flex items-center gap-2">
           <UIcon
@@ -255,7 +300,70 @@ const handleBack = () => {
             isModalAbsenConfirmType === 'absenMasuk' ? TEXT.batal : TEXT.batal,
         },
       ]"
-      @confirm="handleConfirmAbsen(isModalAbsenConfirmType)"
+      @confirm="
+        handleConfirmAbsen(isModalAbsenConfirmType, () => {
+          refreshHistoryToday();
+        })
+      "
+      @cancel="handleCloseModalAbsenConfirm"
+      @close="handleCloseModalAbsenConfirm"
+    >
+      <div>{{ TEXT.apakahAndaYakinInginMelakukanAbsen }}</div>
+    </ModalConfirmComponent>
+
+    <!-- Section Izin -->
+    <div
+      class="mt-6 flex flex-col gap-2.5 rounded-lg border border-dashed border-neutral-300 p-4"
+    >
+      <div class="flex items-center justify-between gap-2 p-2">
+        <div class="flex items-center gap-2">
+          <UIcon name="ph:calendar-check-bold" class="text-body-2 h-5 w-5" />
+          <p class="text-body-2 text-base leading-4 font-semibold">
+            {{ TEXT.izin }}
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            class="text-primary-main text-sm font-semibold"
+            @click="isModalHistoryIzinOpen = true"
+          >
+            {{ TEXT.lihatSemua }}
+          </button>
+        </div>
+      </div>
+
+      <ButtonComponent class="w-full" @click="isModalCreateIzinOpen = true">
+        {{ TEXT.buatIzin }}
+      </ButtonComponent>
+    </div>
+
+    <ModalConfirmComponent
+      :is-open="isModalAbsenConfirm"
+      :title="
+        isModalAbsenConfirmType === 'absenMasuk'
+          ? TEXT.konfirmasiAbsenMasuk
+          : TEXT.konfirmasiAbsenKeluar
+      "
+      :buttons="[
+        {
+          variant: 'primary',
+          text:
+            isModalAbsenConfirmType === 'absenMasuk'
+              ? TEXT.yaAbsenMasuk
+              : TEXT.yaAbsenKeluar,
+        },
+        {
+          variant: 'secondary',
+          text:
+            isModalAbsenConfirmType === 'absenMasuk' ? TEXT.batal : TEXT.batal,
+        },
+      ]"
+      @confirm="
+        handleConfirmAbsen(isModalAbsenConfirmType, () => {
+          refreshHistoryToday();
+        })
+      "
       @cancel="handleCloseModalAbsenConfirm"
       @close="handleCloseModalAbsenConfirm"
     >
@@ -269,6 +377,21 @@ const handleBack = () => {
       @close="isModalHistoryPresensiOpen = false"
     >
       <HistoryPresensiComponent />
+    </ModalBottomComponent>
+
+    <ModalCreateIzinComponent
+      :is-open="isModalCreateIzinOpen"
+      @close="isModalCreateIzinOpen = false"
+      @refresh="handleRefreshIzin"
+    />
+
+    <ModalBottomComponent
+      :is-open="isModalHistoryIzinOpen"
+      :title="TEXT.riwayatIzin"
+      :is-full-height="true"
+      @close="isModalHistoryIzinOpen = false"
+    >
+      <HistoryIzinComponent :key="refreshIzinKey" />
     </ModalBottomComponent>
   </TemplateDetailComponent>
 </template>

@@ -1,27 +1,10 @@
 <script setup>
 import { TEXT } from "@/constants/text";
-import { jwtInfo, logout } from "@/composables/useAuth";
+import { logout } from "@/composables/useAuth";
 import { useTheme } from "@/composables/useTheme";
 
 const { isDark, toggleTheme } = useTheme();
-
-const infoAkunMenu = [
-  {
-    id: "info-personal",
-    name: TEXT.infoPersonal,
-    icon: "ph:user-circle",
-  },
-  {
-    id: "info-kepegawaian",
-    name: TEXT.infoKepegawaian,
-    icon: "ph:briefcase",
-  },
-  {
-    id: "info-lainnya",
-    name: TEXT.infoLainnya,
-    icon: "ph:info",
-  },
-];
+const presensiapiService = useServicePresensiapi();
 
 const pengaturanMenu = computed(() => [
   {
@@ -29,16 +12,16 @@ const pengaturanMenu = computed(() => [
     name: TEXT.ubahKataSandi,
     icon: "ph:lock",
   },
-  {
-    id: "pengingat-presensi",
-    name: TEXT.pengingatPresensi,
-    icon: "ph:bell",
-  },
-  {
-    id: "bahasa",
-    name: TEXT.bahasa,
-    icon: "ph:globe",
-  },
+  // {
+  //   id: "pengingat-presensi",
+  //   name: TEXT.pengingatPresensi,
+  //   icon: "ph:bell",
+  // },
+  // {
+  //   id: "bahasa",
+  //   name: TEXT.bahasa,
+  //   icon: "ph:globe",
+  // },
   {
     id: "tema",
     name: "Tema",
@@ -48,6 +31,50 @@ const pengaturanMenu = computed(() => [
 ]);
 
 const isModalLogoutOpen = ref(false);
+
+const { data: profileData } = await useAsyncData(
+  computed(() => "profile"),
+  async () => {
+    const response = await presensiapiService.getProfile();
+    return response?.data || {};
+  },
+  {
+    default: () => ({}),
+    transform: (data) => data || {},
+    server: false,
+    lazy: true,
+  },
+);
+
+const infoAkunMenu = computed(() => [
+  {
+    id: "golongan",
+    name: "Golongan",
+    value: profileData.value?.golongan,
+  },
+  {
+    id: "nama_kantor",
+    name: "Nama Kantor",
+    value: profileData.value?.kantor?.nama,
+  },
+  {
+    id: "timezone",
+    name: "Timezone",
+    value: profileData.value?.kantor?.timezone,
+  },
+  {
+    id: "kelas_jabatan",
+    name: "Kelas Jabatan",
+    value: profileData.value?.kelasJabatan?.kelas_jabatan,
+  },
+  {
+    id: "tunkin",
+    name: "Tunjangan Kinerja",
+    value: profileData.value?.kelasJabatan?.tunkin
+      ? `Rp. ${new Intl.NumberFormat("id-ID").format(profileData.value?.kelasJabatan?.tunkin)}`
+      : "-",
+  },
+]);
 
 const handleBack = () => {
   navigateTo("/");
@@ -60,30 +87,34 @@ const handleBack = () => {
       <template #header>
         <div class="relative flex flex-col items-center">
           <div class="relative">
-            <div class="h-20 w-20 overflow-hidden rounded-full bg-gray-300">
-              <img
-                src="/images/default-avatar.svg"
-                alt="Profile Picture"
-                class="h-full w-full object-cover"
-              />
-            </div>
+            <!-- <div
+              class="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-gray-300"
+            >
+            <img
+            src="/images/default-avatar.svg"
+            alt="Profile Picture"
+            class="h-full w-full object-cover"
+            />
+          </div> -->
+            <UIcon name="ph:user-circle-fill" class="h-20 w-20" />
 
-            <div
+            <!-- <div
               class="bg-container-main absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border border-none shadow-md"
             >
               <UIcon
                 name="ph:pencil-simple-fill"
                 class="text-body-11 h-3.5 w-3.5"
               />
-            </div>
+            </div> -->
           </div>
 
-          <h1 class="text-body-2 mt-4 text-center text-xl font-semibold">
-            {{ jwtInfo?.name || jwtInfo?.preferredUsername || "User" }}
+          <h1 class="text-body-2 mt-2 text-center text-xl font-semibold">
+            {{ profileData?.gelar_depan }} {{ profileData?.nama }}
+            {{ profileData?.gelar_belakang }}
           </h1>
 
           <p class="text-body-3 mt-1 text-center text-base font-medium">
-            Staff Kepegawaian
+            {{ profileData?.nip }}
           </p>
         </div>
       </template>
@@ -92,23 +123,19 @@ const handleBack = () => {
         <div class="flex flex-col gap-4">
           <div class="flex items-center justify-between gap-2.5">
             <CardComponent class="max-w-1/2 flex-1">
-              <p class="text-body-3 text-sm leading-4">
-                {{ TEXT.atasanLangsung }}
-              </p>
+              <p class="text-body-3 text-sm leading-4">Pangkat</p>
               <p
                 class="text-body-2 mt-2 truncate overflow-hidden text-base font-semibold text-wrap text-ellipsis whitespace-nowrap"
               >
-                Ahmad Hidayat
+                {{ profileData?.pangkat }}
               </p>
             </CardComponent>
             <CardComponent class="max-w-1/2 flex-1">
-              <p class="text-body-3 text-sm leading-4">
-                {{ TEXT.divisi }}
-              </p>
+              <p class="text-body-3 text-sm leading-4">Jabatan</p>
               <p
                 class="text-body-2 mt-2 truncate overflow-hidden text-base font-semibold text-wrap text-ellipsis whitespace-nowrap"
               >
-                Kepegawaian
+                {{ profileData?.jabatan }}
               </p>
             </CardComponent>
           </div>
@@ -128,16 +155,22 @@ const handleBack = () => {
                 }"
               >
                 <div class="flex items-center gap-2">
-                  <div
+                  <p class="text-body-2 min-w-35 text-sm leading-4">
+                    {{ menu.name }}
+                  </p>
+                  <p class="text-body-2 text-sm leading-4">
+                    : {{ menu.value }}
+                  </p>
+                  <!-- <div
                     class="bg-body-9 dark:bg-container-main flex h-10 w-10 items-center justify-center rounded-full"
                   >
                     <UIcon :name="menu.icon" class="h-6 w-6" />
                   </div>
                   <p class="text-body-2 text-sm leading-4">
                     {{ menu.name }}
-                  </p>
+                  </p> -->
                 </div>
-                <UIcon name="ph:caret-right" class="text-body-2 h-5 w-5" />
+                <!-- <UIcon name="ph:caret-right" class="text-body-2 h-5 w-5" /> -->
               </div>
             </div>
           </CardComponent>

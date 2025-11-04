@@ -1,13 +1,12 @@
 import { ref } from "vue";
 import { TEXT } from "@/constants/text";
 import { useLocationPermission } from "@/composables/useLocationPermission";
-import { useServiceBphapi } from "@/composables/useServiceBphapi";
+import { useServicePresensiapi } from "@/composables/useServicePresensiapi";
 
 export const useActionPresensi = () => {
   const { requestLocationPermission } = useLocationPermission();
-  // const { logout } = useAuth();
   const toast = useToast();
-  const bphapiService = useServiceBphapi();
+  const presensiapiService = useServicePresensiapi();
 
   const isModalAbsenConfirm = ref(false);
   const isModalAbsenConfirmType = ref("absenMasuk");
@@ -44,11 +43,11 @@ export const useActionPresensi = () => {
     isModalAbsenConfirmType.value = "";
   };
 
-  const handleConfirmAbsen = async (type) => {
+  const handleConfirmAbsen = async (type, cb = () => null) => {
     isLoading.value = true;
     try {
       const funcName = type === "absenMasuk" ? "checkIn" : "checkOut";
-      const response = await bphapiService[funcName]({
+      const response = await presensiapiService[funcName]({
         latitude: latitude.value,
         longitude: longitude.value,
       });
@@ -61,6 +60,7 @@ export const useActionPresensi = () => {
         color: "success",
       });
       handleCloseModalAbsenConfirm();
+      cb();
     } catch (error) {
       // if (error?.status === 403) {
       //   logout();
@@ -68,7 +68,7 @@ export const useActionPresensi = () => {
       // }
       toast.add({
         title: TEXT.peringatan,
-        description: error.message || TEXT.terjadiKesalahan,
+        description: error?.response?._data?.message || TEXT.terjadiKesalahan,
         color: "error",
       });
     } finally {

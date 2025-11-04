@@ -52,6 +52,26 @@ export const useServiceSuratapi = () => {
       });
   };
 
+  const verifyFile = async ({ fileId }) => {
+    // Menggunakan fetch API langsung untuk mendapatkan blob response
+    const response = await fetch(`${BASE_URL}/verify/${fileId}`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        Accept: "application/pdf",
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: `HTTP error! status: ${response.status}`,
+      }));
+      throw error;
+    }
+
+    // Mengembalikan blob
+    return await response.blob();
+  };
+
   const updateFileById = async ({ fileId, data }) => {
     return $fetch(`${BASE_URL}/files/upload/${fileId}`, {
       method: "PUT",
@@ -65,10 +85,10 @@ export const useServiceSuratapi = () => {
   };
 
   // Surat Masuk
-  const createSuratMasuk = async ({ fileId, nomorSurat }) => {
+  const createSuratMasuk = async ({ fileId, nomorSurat, nama }) => {
     return $fetch(`${BASE_URL}/surat-masuk`, {
       method: "POST",
-      body: { file_id: fileId, nomor_surat: nomorSurat },
+      body: { file_id: fileId, nomor_surat: nomorSurat, nama: nama },
       headers: {
         Authorization: `Bearer ${getToken()}`,
       },
@@ -98,10 +118,10 @@ export const useServiceSuratapi = () => {
     });
   };
 
-  const updateSuratMasuk = async ({ id, fileId, nomorSurat }) => {
+  const updateSuratMasuk = async ({ id, fileId, nomorSurat, nama }) => {
     return $fetch(`${BASE_URL}/surat-masuk/${id}`, {
       method: "PUT",
-      body: { file_id: fileId, nomor_surat: nomorSurat },
+      body: { file_id: fileId, nomor_surat: nomorSurat, nama: nama },
       headers: {
         Authorization: `Bearer ${getToken()}`,
       },
@@ -144,13 +164,19 @@ export const useServiceSuratapi = () => {
   };
 
   // Surat Keluar
-  const createSuratKeluar = async ({ fileId, nomorSurat, tanggalSurat }) => {
+  const createSuratKeluar = async ({
+    fileId,
+    nomorSurat,
+    tanggalSurat,
+    nama,
+  }) => {
     return $fetch(`${BASE_URL}/surat-keluar`, {
       method: "POST",
       body: {
         file_id: fileId,
         nomor_surat: nomorSurat,
         tanggal_surat: tanggalSurat,
+        nama: nama,
       },
       headers: {
         Authorization: `Bearer ${getToken()}`,
@@ -186,6 +212,7 @@ export const useServiceSuratapi = () => {
     fileId,
     nomorSurat,
     tanggalSurat,
+    nama,
   }) => {
     return $fetch(`${BASE_URL}/surat-keluar/${id}`, {
       method: "PUT",
@@ -193,6 +220,7 @@ export const useServiceSuratapi = () => {
         file_id: fileId,
         nomor_surat: nomorSurat,
         tanggal_surat: tanggalSurat,
+        nama: nama,
       },
       headers: {
         Authorization: `Bearer ${getToken()}`,
@@ -362,6 +390,7 @@ export const useServiceSuratapi = () => {
     updateFileById,
     getFileById,
     downloadFile,
+    verifyFile,
     createSuratMasuk,
     getAllSuratMasuk,
     getSuratMasukById,

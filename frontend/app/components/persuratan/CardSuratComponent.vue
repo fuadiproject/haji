@@ -12,6 +12,10 @@ defineProps({
     type: String,
     required: true,
   },
+  nama: {
+    type: String,
+    required: true,
+  },
   nomorSurat: {
     type: String,
     required: true,
@@ -73,7 +77,7 @@ const isModalRejectOpen = ref(false);
 </script>
 
 <template>
-  <CardComponent :class="{ 'border-l-4 border-green-500': isInbox }">
+  <CardComponent :class="{ 'border! border-green-600!': isInbox }">
     <div class="relative space-y-3">
       <div
         v-if="type === 'suratKeluar' && (isInbox || tteLogs > 0)"
@@ -150,6 +154,12 @@ const isModalRejectOpen = ref(false);
         </div>
       </div>
 
+      <div class="flex items-center gap-2">
+        <span class="text-body-2 text-sm font-semibold">
+          {{ TEXT.namaSurat }} : {{ nama }}
+        </span>
+      </div>
+
       <div v-if="tanggalSurat" class="flex items-center gap-2">
         <NuxtTime
           class="text-body-3 text-xs"
@@ -204,8 +214,7 @@ const isModalRejectOpen = ref(false);
                 variant="primary-outline"
                 @click="isModalViewFileOpen = true"
               >
-                <UIcon name="ph:eye-bold" class="h-4 w-4" />
-                <span>{{ TEXT.lihatPreview }}</span>
+                <UIcon name="ph:file-pdf" class="h-4 w-4" />
               </ButtonComponent>
             </div>
 
