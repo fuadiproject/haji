@@ -35,6 +35,7 @@ const suratTypeOptions = ref([
 ]);
 const schema = z.object({
   type: z.string("Type is required"),
+  nama: z.string("Nama surat is required"),
   nomorSurat: z.string("Nomor surat is required"),
   fileSurat: z.instanceof(File, { message: "File surat is required" }),
 });
@@ -54,13 +55,16 @@ const isSubmitLoading = ref(false);
 
 const state = reactive({
   type: props.defaultType,
+  nama: undefined,
   nomorSurat: undefined,
   fileSurat: undefined,
 });
 
 const isValidForm = computed(() => {
   if (state.type === "suratKeluar") {
-    return Boolean(state.fileSurat && state.nomorSurat && modelValue.value);
+    return Boolean(
+      state.fileSurat && state.nomorSurat && modelValue.value && state.nama,
+    );
   }
   return Boolean(state.fileSurat && state.nomorSurat);
 });
@@ -78,6 +82,14 @@ async function onSubmit(event) {
     toast.add({
       title: "Error",
       description: "Nomor surat harus diisi",
+      color: "error",
+    });
+    return;
+  }
+  if (!event.data.nama) {
+    toast.add({
+      title: "Error",
+      description: "Nama surat harus diisi",
       color: "error",
     });
     return;
@@ -106,6 +118,7 @@ async function onSubmit(event) {
     const submitData = {
       fileId,
       nomorSurat: event.data.nomorSurat,
+      nama: event.data.nama,
     };
     if (state.type === "suratKeluar") {
       submitData.tanggalSurat = new Date(
@@ -159,6 +172,14 @@ const handleDateChange = (newDate) => {
           v-model="state.nomorSurat"
           size="lg"
           :placeholder="TEXT.nomorSurat"
+          class="w-full"
+        />
+      </UFormField>
+      <UFormField name="nama" :label="TEXT.namaSurat" required>
+        <UInput
+          v-model="state.nama"
+          size="lg"
+          :placeholder="TEXT.namaSurat"
           class="w-full"
         />
       </UFormField>

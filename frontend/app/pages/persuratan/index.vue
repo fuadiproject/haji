@@ -262,6 +262,7 @@ const handleBack = () => {
               :type="activeTab"
               :is-inbox="surat.type === 'inbox'"
               :nomor-surat="surat.nomor_surat"
+              :nama="surat.nama"
               :tanggal-surat="surat.tanggal_surat"
               :disposisi-count="surat._count?.disposisi || 0"
               :file-id="surat.file?.id"
