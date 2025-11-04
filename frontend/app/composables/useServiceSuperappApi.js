@@ -31,8 +31,12 @@ export const useServiceSuperappApi = () => {
   };
 
   // Notifications
-  const getNotifications = async () => {
+  const getNotifications = async (page = 1, limit = 10) => {
     return $fetch(`${BASE_URL}/notifications`, {
+      params: {
+        page,
+        limit,
+      },
       headers: {
         Authorization: `Bearer ${getToken()}`,
       },
@@ -62,11 +66,23 @@ export const useServiceSuperappApi = () => {
     });
   };
 
+  const markAllNotificationsRead = async () => {
+    return $fetch(`${BASE_URL}/notifications/read-all`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
   return {
     getBanner,
     getHyperlinks,
     getNotifications,
     getNotReadNotificationsCount,
     readNotification,
+    markAllNotificationsRead,
   };
 };
