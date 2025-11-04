@@ -163,10 +163,10 @@ const handleOpenLampiran = (lampiran) => {
             </div>
             <div class="flex items-center gap-2">
               <span
-                :class="getStatusChipClass(item.status)"
+                :class="getStatusChipClass(item.status_persetujuan)"
                 class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium"
               >
-                {{ getStatusText(item.status) }}
+                {{ getStatusText(item.status_persetujuan) }}
               </span>
             </div>
           </div>
@@ -203,10 +203,7 @@ const handleOpenLampiran = (lampiran) => {
             </div>
 
             <!-- Lampiran -->
-            <div
-              v-if="item.lampiran || item.nama_lampiran"
-              class="flex items-center justify-between"
-            >
+            <div v-if="item.lampiran" class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <UIcon name="ph:paperclip-bold" class="text-body-3 h-4 w-4" />
                 <span class="text-body-3 text-sm">{{ TEXT.lampiran }}</span>
