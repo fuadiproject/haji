@@ -73,7 +73,7 @@ const isModalRejectOpen = ref(false);
 </script>
 
 <template>
-  <CardComponent :class="{ 'border-l-4 border-green-500': isInbox }">
+  <CardComponent :class="{ 'border! border-green-600!': isInbox }">
     <div class="relative space-y-3">
       <div
         v-if="type === 'suratKeluar' && (isInbox || tteLogs > 0)"
