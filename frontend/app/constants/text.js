@@ -63,7 +63,7 @@ export const TEXT = {
   nomor: "Nomor",
   download: "Download",
   disposisi: "Disposisi",
-  lihatDetail: "Lihat Detail",
+  lihatDetail: "Detail",
   buatSurat: "Buat Surat",
   type: "Type",
   nomorSurat: "Nomor Surat",
@@ -145,4 +145,5 @@ export const TEXT = {
   izinTidakMasuk: "Izin Tidak Masuk",
   status: "Status",
   tanggal: "Tanggal",
+  namaSurat: "Nama Surat",
 };
