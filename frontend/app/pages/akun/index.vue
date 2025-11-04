@@ -33,7 +33,7 @@ const pengaturanMenu = computed(() => [
 const isModalLogoutOpen = ref(false);
 
 const { data: profileData } = await useAsyncData(
-  computed(() => `history-today`),
+  computed(() => "profile"),
   async () => {
     const response = await presensiapiService.getProfile();
     return response?.data || {};

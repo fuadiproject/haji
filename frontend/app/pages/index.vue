@@ -11,6 +11,8 @@ const {
   handleConfirmAbsen,
 } = useActionPresensi();
 
+const presensiapiService = useServicePresensiapi();
+
 const currentBannerIndex = ref(0);
 const isModalOpen = ref(false);
 
@@ -83,6 +85,20 @@ const bannerList = [
 const goToBanner = (index) => {
   currentBannerIndex.value = index;
 };
+
+const { data: profileData } = await useAsyncData(
+  computed(() => "profile"),
+  async () => {
+    const response = await presensiapiService.getProfile();
+    return response?.data || {};
+  },
+  {
+    default: () => ({}),
+    transform: (data) => data || {},
+    server: false,
+    lazy: true,
+  },
+);
 </script>
 
 <template>
@@ -132,7 +148,7 @@ const goToBanner = (index) => {
             class="absolute -top-4 right-1 h-[75px] w-[78px]"
           />
           <p class="text-body-2 text-base leading-4 font-medium">
-            Halo, Abdurrahman!
+            Halo, {{ profileData?.nama ? profileData?.nama : "..." }}!
           </p>
           <p class="text-body-4 mt-2.5 text-sm leading-4">
             {{ TEXT.reminderDescription }}
