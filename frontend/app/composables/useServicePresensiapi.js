@@ -95,15 +95,18 @@ export const useServicePresensiapi = () => {
     });
   };
 
-  /**
-   * 
-   * @returns {
-        "status": "success",
-        "data": []
-    }
-   */
   const getAllIzin = async () => {
     return $fetch(`${BASE_URL}/pengguna/my-izin`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
+  const getProfile = async () => {
+    return $fetch(`${BASE_URL}/pengguna/profil`, {
       headers: {
         Authorization: `Bearer ${getToken()}`,
       },
@@ -119,5 +122,6 @@ export const useServicePresensiapi = () => {
     historyToday,
     createIzin,
     getAllIzin,
+    getProfile,
   };
 };

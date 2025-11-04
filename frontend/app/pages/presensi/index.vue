@@ -117,7 +117,7 @@ const handleRefreshIzin = () => {
           {{ TEXT.jadwalKerja }}:
         </p>
         <p class="text-body-2 text-base font-semibold">
-          {{ TEXT.stafKhusus }}: {{ TEXT.stafKhususDescription }}
+          {{ TEXT.stafKhususDescription }}
         </p>
       </div>
 
