@@ -10,7 +10,7 @@ cp .env.example .env
 
 # 2. Edit file .env sesuai kebutuhan
 # API_BASE_URL=http://localhost:8000/api
-# API_BPH_URL=http://localhost:8000/bph
+# API_PRESENSI_URL=http://localhost:8000/bph
 # API_SURAT_URL=http://localhost:8000/surat
 
 # 3. Build dan jalankan aplikasi

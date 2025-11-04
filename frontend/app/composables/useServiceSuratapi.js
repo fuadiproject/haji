@@ -52,6 +52,26 @@ export const useServiceSuratapi = () => {
       });
   };
 
+  const verifyFile = async ({ fileId }) => {
+    // Menggunakan fetch API langsung untuk mendapatkan blob response
+    const response = await fetch(`${BASE_URL}/verify/${fileId}`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        Accept: "application/pdf",
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: `HTTP error! status: ${response.status}`,
+      }));
+      throw error;
+    }
+
+    // Mengembalikan blob
+    return await response.blob();
+  };
+
   const updateFileById = async ({ fileId, data }) => {
     return $fetch(`${BASE_URL}/files/upload/${fileId}`, {
       method: "PUT",
@@ -362,6 +382,7 @@ export const useServiceSuratapi = () => {
     updateFileById,
     getFileById,
     downloadFile,
+    verifyFile,
     createSuratMasuk,
     getAllSuratMasuk,
     getSuratMasukById,

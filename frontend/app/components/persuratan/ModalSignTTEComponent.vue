@@ -38,6 +38,14 @@ const form = reactive({
   passphrase: "",
 });
 
+// Cleanup object URL untuk menghindari memory leak
+const cleanupObjectUrl = () => {
+  if (fileUrl.value && fileUrl.value.startsWith("blob:")) {
+    URL.revokeObjectURL(fileUrl.value);
+    fileUrl.value = null;
+  }
+};
+
 const { data: suratData, status: statusSurat } = await useAsyncData(
   computed(() => `surat-${props.type}-${props.suratId}`),
   async () => {
@@ -79,19 +87,19 @@ const loadFile = async () => {
     hasError.value = false;
     errorMessage.value = "";
 
+    // Cleanup object URL sebelumnya jika ada
+    cleanupObjectUrl();
+
     if (!props.fileId) {
       throw new Error("File ID tidak ditemukan");
     }
 
-    const response = await suratApiService.downloadFile({
+    const blob = await suratApiService.verifyFile({
       fileId: props.fileId,
     });
 
-    // if (!response?.data?.downloadUrl) {
-    //   throw new Error("URL file tidak ditemukan");
-    // }
-
-    fileUrl.value = response.data.downloadUrl;
+    // Konversi blob menjadi object URL
+    fileUrl.value = URL.createObjectURL(blob);
   } catch (error) {
     console.error("Error loading file:", error);
     hasError.value = true;
@@ -186,9 +194,17 @@ watch(
   (isOpen) => {
     if (isOpen && props.fileId) {
       loadFile();
+    } else if (!isOpen) {
+      // Cleanup object URL saat modal ditutup
+      cleanupObjectUrl();
     }
   },
 );
+
+// Cleanup saat component di-unmount
+onUnmounted(() => {
+  cleanupObjectUrl();
+});
 </script>
 
 <template>
