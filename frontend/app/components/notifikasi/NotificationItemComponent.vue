@@ -37,7 +37,7 @@ const getAvatarColor = (name) => {
 <template>
   <div
     class="border-border-main hover:bg-body-11 flex cursor-pointer items-center gap-3 border-b px-4 py-4 transition-colors"
-    :class="{ 'bg-body-10': !notification.read }"
+    :class="{ 'bg-body-10 dark:bg-neutral-800': !notification.read }"
     @click="emit('click', notification)"
   >
     <!-- Avatar -->
