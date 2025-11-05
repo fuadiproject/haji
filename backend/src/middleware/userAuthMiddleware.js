@@ -31,9 +31,9 @@ export const decodeJWT = (req, res, next) => {
     }
 
     // Extract user info from JWT payload
-    const { sub, exp } = decoded;
+    const { nik, exp } = decoded;
 
-    if (!sub || !exp) {
+    if (!nik || !exp) {
       return res.status(401).json({
         success: false,
         error: "Invalid token payload",
@@ -42,7 +42,7 @@ export const decodeJWT = (req, res, next) => {
 
     // Attach user info to request
     req.user = {
-      nik: sub,
+      nik,
     };
 
     // // Check if token is expired
