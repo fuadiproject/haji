@@ -11,12 +11,26 @@ const {
   handleConfirmAbsen,
 } = useActionPresensi();
 
+const { isDark } = useTheme();
+
+const { getBanner, getHyperlinks } = useServiceSuperappApi();
 const presensiapiService = useServicePresensiapi();
 
 const currentBannerIndex = ref(0);
 const isModalOpen = ref(false);
 
-const mainMenu = [
+const { data: hyperlinksData } = await useAsyncData(
+  "hyperlinks-data",
+  () => getHyperlinks(),
+  {
+    default: () => [],
+    transform: (data) => data || [],
+    server: false,
+    lazy: true,
+  },
+);
+
+const defaultMainMenu = [
   {
     id: "Kepegawaian",
     name: TEXT.kepegawaian,
@@ -47,40 +61,53 @@ const mainMenu = [
     icon: "ChartBar",
     to: "https://www.google.com",
   },
-  {
-    id: "Laporan",
-    name: "Laporan",
-    icon: "ChartBar",
-    to: "https://www.google.com",
-  },
-  {
-    id: "Laporan",
-    name: "Laporan",
-    icon: "ChartBar",
-    to: "https://www.google.com",
-  },
-  {
-    id: "Laporan",
-    name: "Laporan",
-    icon: "ChartBar",
-    to: "https://www.google.com",
-  },
 ];
 
-const bannerList = [
+const mainMenu = computed(() => {
+  if (!hyperlinksData.value?.data || !Array.isArray(hyperlinksData.value.data))
+    return defaultMainMenu;
+
+  const newMainMenu = hyperlinksData.value.data.map((hyperlink) => ({
+    id: hyperlink.id,
+    name: hyperlink.title,
+    src: hyperlink.icon,
+    to: hyperlink.link,
+  }));
+
+  return [...defaultMainMenu, ...newMainMenu];
+});
+
+const { data: bannerDataList } = await useAsyncData(
+  "banner-data-list",
+  () => getBanner(),
   {
-    id: "welcome-banner",
-    component: WelcomeBannerComponent,
+    default: () => [],
+    transform: (data) => data || [],
+    server: false,
+    lazy: true,
   },
-  {
-    id: "banner-2",
-    component: WelcomeBannerComponent,
-  },
-  {
-    id: "banner-3",
-    component: WelcomeBannerComponent,
-  },
-];
+);
+
+const bannerList = computed(() => {
+  const defaultBannerList = [
+    {
+      id: "welcome-banner",
+      component: WelcomeBannerComponent,
+    },
+  ];
+
+  if (!bannerDataList.value?.data || !Array.isArray(bannerDataList.value.data))
+    return defaultBannerList;
+
+  const newBannerList = bannerDataList?.value?.data?.map((banner) => ({
+    id: banner.id,
+    src: isDark.value ? banner.dark_image : banner.light_image,
+    description: banner.description,
+    link: banner.link,
+  }));
+
+  return [...defaultBannerList, ...newBannerList];
+});
 
 const goToBanner = (index) => {
   currentBannerIndex.value = index;
@@ -256,10 +283,13 @@ const { data: profileData } = await useAsyncData(
             :to="menu.to"
           >
             <NuxtImg
+              v-if="menu.icon"
               :src="`/images/icons/${menu.icon}.svg`"
               alt="Menu Icon"
               class="h-7 w-7"
             />
+
+            <NuxtImg v-else :src="menu.src" alt="Menu Icon" class="h-7 w-7" />
             <span class="text-body-4 text-center text-xs">{{ menu.name }}</span>
           </NuxtLink>
         </div>
