@@ -4,44 +4,53 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   // Hanya jalankan di client-side
   if (import.meta.server) return;
 
-  // Jangan redirect jika dari path / ke /
-  if (from.path === "/" && to.path === "/") {
-    return;
-  }
+  // Halaman yang bisa diakses tanpa autentikasi
+  const publicPages = ["/auth/login"];
+  const isPublicPage = publicPages.includes(to.path);
 
-  // Gunakan composable useAuth
-  const { isAuthenticated, login } = useAuth();
+  // Jika halaman public, skip pengecekan autentikasi
+  if (isPublicPage) {
+    console.log(`Public page accessed: ${to.path}, skipping auth check`);
 
-  // Jangan redirect jika masih di halaman login
-  if (to.path === "/auth/login") {
     // Tunggu sedikit untuk Keycloak finish check session
     await new Promise((resolve) => setTimeout(resolve, 200));
 
+    // Gunakan composable useAuth
+    const { isAuthenticated } = useAuth();
+
     // Jika sudah authenticated dan di halaman login, redirect ke home
-    if (isAuthenticated.value) {
+    if (to.path === "/auth/login" && isAuthenticated.value) {
+      console.log("Already authenticated, redirecting to home");
       return navigateTo("/");
     }
+
+    // Biarkan akses ke halaman public
     return;
   }
 
-  console.log(`Middleware check: from=${from.path}, to=${to.path}`);
+  // Untuk halaman yang memerlukan autentikasi
+  console.log(`Protected page: from=${from.path}, to=${to.path}`);
+
+  // Gunakan composable useAuth
+  const { isAuthenticated } = useAuth();
 
   // Tunggu Keycloak selesai initialize
   await new Promise((resolve) => setTimeout(resolve, 300));
 
   console.log(
-    `Middleware result: path=${to.path}, authenticated=${isAuthenticated.value}`,
+    `Auth check result: path=${to.path}, authenticated=${isAuthenticated.value}`,
   );
 
-  // Cek ulang autentikasi
+  // Cek autentikasi
   if (!isAuthenticated.value) {
     console.log(
-      "User not authenticated, redirecting to Keycloak login from path:",
+      "User not authenticated, redirecting to login page from:",
       to.path,
     );
-    await login();
+    // Redirect ke halaman login lokal, bukan langsung ke SSO
+    return navigateTo("/auth/login");
   }
 
-  // IMPORTANT: Force stay di current path
-  console.log(`Middleware finished for path: ${to.path}`);
+  // User authenticated, lanjutkan ke halaman yang dituju
+  console.log(`User authenticated, proceeding to: ${to.path}`);
 });
