@@ -42,10 +42,12 @@ const emit = defineEmits(["back"]);
             <div class="flex items-center gap-3">
               <UIcon
                 name="ph:arrow-left-bold"
-                class="h-4 w-4"
+                class="h-4 min-h-4 w-4 min-w-4"
                 @click="emit('back')"
               />
-              <h1 class="text-body-1 text-xl font-semibold">{{ title }}</h1>
+              <h1 class="text-body-1 line-clamp-1 text-xl font-semibold">
+                {{ title }}
+              </h1>
             </div>
           </div>
         </div>

@@ -21,6 +21,7 @@ export default defineNuxtConfig({
       environment: process.env.NODE_ENV,
       apiBaseUrl: process.env.API_BASE_URL,
       apiPresensiUrl: process.env.API_PRESENSI_URL,
+      apiBeritaUrl: process.env.API_BERITA_URL,
       apiSuratUrl: process.env.API_SURAT_URL,
       apiSuperAppUrl: process.env.API_SUPER_APP_URL,
       onesignalAppId: process.env.ONESIGNAL_APP_ID,
