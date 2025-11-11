@@ -107,7 +107,7 @@ onUnmounted(() => {
       title="Berita"
       @back="handleBack"
     >
-      <div class="space-y-6 p-4 pb-16">
+      <div class="space-y-6 pb-16">
         <UInput
           size="xl"
           icon="ph:magnifying-glass"
@@ -211,9 +211,7 @@ onUnmounted(() => {
                 </span>
               </div>
               <NuxtLink
-                :to="`/berita/${newsItem._id}?referenceUrl=${encodeURIComponent(
-                  newsItem.referenceUrl,
-                )}&title=${encodeURIComponent(newsItem.title)}`"
+                :to="newsItem.referenceUrl"
                 class="mt-auto text-sm font-semibold text-yellow-600 hover:underline dark:text-yellow-400"
               >
                 Baca Selengkapnya →

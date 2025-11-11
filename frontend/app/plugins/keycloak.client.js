@@ -16,7 +16,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     pkceMethod: "S256",
     redirectUri:
       (keycloakConfig.redirectUrl || window.location.origin) +
-      window.location.pathname,
+      window.location.pathname +
+      window.location.search,
   });
 
   nuxtApp.provide("keycloak", keycloak);
