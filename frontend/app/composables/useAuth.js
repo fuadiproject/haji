@@ -1,4 +1,5 @@
 import { useKeycloak } from "@/composables/useKeycloak";
+import { useOneSignal } from "@/composables/useOneSignal";
 
 /**
  * User Info dari Keycloak token
@@ -17,44 +18,73 @@ export const isAuthenticated = computed(() => {
 });
 
 /**
- * Fungsi untuk logout dari Keycloak
+ * Fungsi untuk logout dari Keycloak dan OneSignal
  */
 export const logout = async () => {
   const keycloakComposable = useKeycloak();
+  const { logoutUser } = useOneSignal();
+  // Logout from OneSignal first
+  await logoutUser();
+  // Then logout from Keycloak
   await keycloakComposable.logout();
 };
 
 export const useAuth = () => {
   const keycloakComposable = useKeycloak();
-  const { setExternalUserId } = useOneSignal();
+  const { setExternalUserId, logoutUser } = useOneSignal();
 
   // State untuk loading autentikasi
   const isLoading = ref(false);
 
   // Setup OneSignal external user ID saat authenticated
-  onMounted(() => {
-    if (
-      keycloakComposable.isAuthenticated.value &&
-      keycloakComposable.userInfo.value
-    ) {
-      // Set external user ID untuk OneSignal notifications
-      // Gunakan sub (user ID) atau preferred_username dari Keycloak
-      const userId =
-        keycloakComposable.userInfo.value.sub ||
-        keycloakComposable.userInfo.value.preferredUsername;
-      if (userId) {
-        setExternalUserId(userId);
+  // Use watcher to handle both initial mount and login after mount
+  watch(
+    () => [
+      keycloakComposable.isAuthenticated.value,
+      keycloakComposable.userInfo.value,
+    ],
+    async ([isAuth, userInfo]) => {
+      if (isAuth && userInfo) {
+        // Set external user ID untuk OneSignal notifications
+        // Gunakan sub (user ID) atau preferred_username dari Keycloak
+        const userId = userInfo.sub || userInfo.preferredUsername;
+        if (userId) {
+          // Wait for Vue to update and give OneSignal time to initialize
+          await nextTick();
+          // Add a small delay to ensure OneSignal SDK is fully loaded
+          // The setExternalUserId function will also wait for OneSignal to be ready
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          setExternalUserId(userId);
+        }
       }
-    }
-  });
+    },
+    { immediate: true },
+  );
 
   // Fungsi untuk login ke Keycloak
   const login = async () => {
     try {
       isLoading.value = true;
       await keycloakComposable.login();
+      // OneSignal user ID will be set automatically by the watcher
     } catch (error) {
       console.error("Login error:", error);
+      throw error;
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  // Fungsi untuk logout dari Keycloak dan OneSignal
+  const logout = async () => {
+    try {
+      isLoading.value = true;
+      // Logout from OneSignal first
+      await logoutUser();
+      // Then logout from Keycloak
+      await keycloakComposable.logout();
+    } catch (error) {
+      console.error("Logout error:", error);
       throw error;
     } finally {
       isLoading.value = false;

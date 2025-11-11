@@ -1,6 +1,8 @@
 <script setup>
 import { formatDate } from "@/utils/date";
 
+const { isDark } = useTheme();
+
 defineProps({
   notification: {
     type: Object,
@@ -36,8 +38,11 @@ const getAvatarColor = (name) => {
 
 <template>
   <div
-    class="border-border-main hover:bg-body-11 flex cursor-pointer items-center gap-3 border-b px-4 py-4 transition-colors"
-    :class="{ 'bg-body-10 dark:bg-neutral-800': !notification.read }"
+    class="border-border-main hover:bg-body-11 mt-2 flex cursor-pointer items-center gap-3 rounded-xl border-b px-4 py-4 transition-colors"
+    :class="{
+      'bg-primary-5': isDark && !notification.read,
+      'bg-primary-2': !isDark && !notification.read,
+    }"
     @click="emit('click', notification)"
   >
     <!-- Avatar -->
@@ -54,21 +59,43 @@ const getAvatarColor = (name) => {
     <div class="flex flex-1 flex-col gap-1">
       <div class="flex items-center justify-between align-middle">
         <h3
-          class="text-body-2 max-w-[180px] truncate text-base leading-tight font-semibold"
+          class="max-w-[180px] truncate text-base leading-tight font-semibold"
           :title="notification.title"
+          :class="{
+            'text-body-6': notification.read,
+            'text-body-1': !notification.read,
+          }"
         >
           {{ notification.title }}
         </h3>
 
-        <p class="text-body-6 mt-1 text-xs">
+        <p
+          class="mt-1 text-xs"
+          :class="{
+            'text-body-6': notification.read,
+            'text-amber-50': !notification.read,
+          }"
+        >
           {{ formatDate(notification.created_at) }}
         </p>
       </div>
 
-      <p class="text-body-4 line-clamp-2 text-sm leading-tight">
+      <p
+        class="line-clamp-2 text-sm leading-tight"
+        :class="{
+          'text-body-4': notification.read,
+          'text-amber-50': !notification.read,
+        }"
+      >
         {{ notification.message }}
       </p>
-      <p class="text-body-6 mt-1 text-sm capitalize">
+      <p
+        class="mt-1 text-sm capitalize"
+        :class="{
+          'text-body-6': notification.read,
+          'text-body-1': !notification.read,
+        }"
+      >
         {{ notification.origin || "Notification" }}
       </p>
     </div>

@@ -11,38 +11,33 @@ export const useNotificationPermission = () => {
       return false;
     }
 
-    await initializeOneSignal();
     // Check permission
     const permission = await Notification.requestPermission();
     notificationPermission.value = permission;
 
-    // Check OneSignal subscription
-    const subscribed = await isSubscribed();
+    if (notificationPermission.value === "granted") {
+      // Check OneSignal subscription
+      const subscribed = await isSubscribed();
+      if (!subscribed) {
+        // Prompt push
+        await initializeOneSignal();
+      }
+    }
+
     if (config.public.environment === "development") {
-      console.debug("OneSignal subscribed:", subscribed);
+      console.debug("OneSignal subscribed:", isSubscribed.value);
     }
   };
 
   onMounted(() => {
     checkNotificationPermission();
 
+    // Set initial permission state
     if (Notification.permission === "granted") {
       notificationPermission.value = true;
-    }
-
-    if (Notification.permission === "denied") {
+    } else if (Notification.permission === "denied") {
       notificationPermission.value = false;
-    }
-
-    if (Notification.permission === "default") {
-      notificationPermission.value = false;
-    }
-
-    if (Notification.permission === "denied") {
-      notificationPermission.value = false;
-    }
-
-    if (Notification.permission === "default") {
+    } else if (Notification.permission === "default") {
       notificationPermission.value = false;
     }
   });

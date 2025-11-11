@@ -1,4 +1,9 @@
 // index.js (updated)
+// CRITICAL: Set DNS resolution BEFORE any network imports
+// This ensures Node.js uses /etc/hosts and prefers IPv4
+import dns from "dns";
+dns.setDefaultResultOrder("ipv4first");
+
 import { runApi } from "./src/modes/api.js";
 import { runConsumer } from "./src/modes/consumer.js";
 
