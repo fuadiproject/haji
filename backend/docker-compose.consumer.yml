@@ -13,3 +13,6 @@ services:
       retries: 3
       start_period: 40s
 
+networks:
+  shared-network:
+    external: true
