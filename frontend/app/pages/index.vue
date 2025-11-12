@@ -50,17 +50,23 @@ const defaultMainMenu = [
     to: "/persuratan",
   },
   {
-    id: "SOP",
-    name: TEXT.sop,
+    id: "Regulasi",
+    name: TEXT.regulasi,
     icon: "Files",
-    to: "/sop",
+    to: "/regulasi",
   },
-  {
-    id: "Laporan",
-    name: "Laporan",
-    icon: "ChartBar",
-    to: "https://www.google.com",
-  },
+  // {
+  //   id: "SOP",
+  //   name: TEXT.sop,
+  //   icon: "Files",
+  //   to: "/sop",
+  // },
+  // {
+  //   id: "Laporan",
+  //   name: "Laporan",
+  //   icon: "ChartBar",
+  //   to: "https://www.google.com",
+  // },
 ];
 
 const mainMenu = computed(() => {

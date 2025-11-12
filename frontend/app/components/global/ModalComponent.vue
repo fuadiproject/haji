@@ -23,6 +23,10 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  titleClassName: {
+    type: String,
+    default: "",
+  },
 });
 
 const emit = defineEmits(["close", "update:isOpen"]);
@@ -117,7 +121,11 @@ const sizeClasses = {
           <div
             class="dark:border-border-main flex items-center justify-between border-b border-gray-200 px-4 py-3"
           >
-            <h3 v-if="title" class="text-body-11 text-lg font-semibold">
+            <h3
+              v-if="title"
+              class="text-body-11 text-lg font-semibold"
+              :class="titleClassName"
+            >
               {{ title }}
             </h3>
             <div v-else class="flex-1"></div>
