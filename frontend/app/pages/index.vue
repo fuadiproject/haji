@@ -224,10 +224,12 @@ const { data: profileData } = await useAsyncData(
             :to="menu.to"
           >
             <NuxtImg
+              v-if="menu.icon"
               :src="`/images/icons/${menu.icon}.svg`"
               alt="Menu Icon"
               class="h-7 w-7"
             />
+            <NuxtImg v-else :src="menu.src" alt="Menu Icon" class="h-7 w-7" />
             <span class="text-body-4 text-center text-xs">{{ menu.name }}</span>
           </NuxtLink>
           <div
