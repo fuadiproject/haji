@@ -13,7 +13,15 @@ const props = defineProps({
   size: {
     type: String,
     default: "md", // sm, md, lg, xl
-    validator: (value) => ["sm", "md", "lg", "xl"].includes(value),
+    validator: (value) => ["sm", "md", "lg", "xl", "2xl"].includes(value),
+  },
+  contentClassName: {
+    type: String,
+    default: "",
+  },
+  containerClassName: {
+    type: String,
+    default: "",
   },
 });
 
@@ -66,6 +74,7 @@ const sizeClasses = {
   md: "max-w-md",
   lg: "max-w-lg",
   xl: "max-w-xl",
+  "2xl": "max-w-2xl",
 };
 </script>
 
@@ -82,7 +91,7 @@ const sizeClasses = {
   >
     <div
       v-if="isOpen"
-      class="bg-opacity-30 fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
+      class="bg-opacity-30 fixed inset-0 z-50 m-0 flex items-center justify-center bg-black/30 p-4"
       @click="closeModal"
     >
       <Transition
@@ -96,10 +105,11 @@ const sizeClasses = {
         <div
           v-if="isOpen"
           ref="modalRef"
-          class="bg-container-main relative max-h-[90vh] w-full transform overflow-hidden rounded-lg shadow-xl dark:outline-1"
+          class="bg-container-main relative max-h-[calc(100vh-24px)] w-full transform overflow-hidden rounded-lg shadow-xl dark:outline-1"
           :class="[
             sizeClasses[props.size],
             { 'scale-95 opacity-0': isClosing },
+            containerClassName,
           ]"
           @click.stop
         >
@@ -136,8 +146,10 @@ const sizeClasses = {
 
           <!-- Content area -->
           <div
-            class="max-h-[calc(90vh-100px)] overflow-y-auto p-4"
-            :class="$slots.footer ? 'pb-16' : ''"
+            class="max-h-[calc(100vh-24px)] overflow-y-auto p-4"
+            :class="
+              $slots.footer ? `pb-16 ${contentClassName}` : contentClassName
+            "
           >
             <slot></slot>
           </div>
