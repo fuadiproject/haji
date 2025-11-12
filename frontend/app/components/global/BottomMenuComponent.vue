@@ -24,7 +24,7 @@ const bottomMenu = [
     id: "Call Center",
     name: "Call Center",
     icon: "ph:headset",
-    to: "https://wa.me/999999999999999",
+    to: "https://wa.me/6281110018999",
   },
   {
     id: "Berita",
