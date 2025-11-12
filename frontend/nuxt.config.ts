@@ -32,6 +32,21 @@ export default defineNuxtConfig({
         redirectUrl: process.env.KEYCLOAK_REDIRECT_URL,
         logoutUrl: process.env.KEYCLOAK_LOGOUT_URL,
       },
+      vpvLicenseKey: process.env.NUXT_VPV_LICENSE_KEY || "",
+    },
+    vpvLicenseKey: process.env.NUXT_VPV_LICENSE_KEY || "",
+  },
+  build: {
+    transpile: [
+      (ctx) => (ctx.isServer ? "pdfjs-dist" : false),
+      (ctx) => (ctx.isServer ? "@vue-pdf-viewer/viewer" : false),
+      (ctx) => (ctx.isServer ? "@vue-pdf-viewer/annotation" : false),
+    ],
+  },
+  vite: {
+    optimizeDeps: {
+      include: ["pdfjs-dist"],
+      exclude: ["@vue-pdf-viewer/viewer", "@vue-pdf-viewer/annotation"],
     },
   },
   pwa: {

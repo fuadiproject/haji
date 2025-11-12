@@ -112,11 +112,6 @@ const loadFile = async () => {
   }
 };
 
-const handleObjectError = () => {
-  hasError.value = true;
-  errorMessage.value = "File tidak dapat dibuka atau format tidak didukung";
-};
-
 const retryLoad = () => {
   loadFile();
 };
@@ -209,6 +204,7 @@ onUnmounted(() => {
 
 <template>
   <ModalComponent
+    content-class-name="h-[calc(100vh)]"
     :is-open="isOpen"
     :title="title"
     size="xl"
@@ -243,32 +239,9 @@ onUnmounted(() => {
 
     <!-- Success State - File Display -->
     <div v-else-if="fileUrl" class="relative">
-      <object
-        class="h-[calc(100vh-340px)] w-full flex-grow object-contain"
-        :data="fileUrl"
-        type="application/pdf"
-        @error="handleObjectError"
-      >
-        <!-- Fallback content jika object tidak bisa dimuat -->
-        <div class="flex h-80 flex-col items-center justify-center gap-4">
-          <div class="text-center">
-            <div class="text-body-5 mb-4 text-6xl">📄</div>
-            <h3 class="text-body-10 mb-2 text-lg font-semibold">
-              File Tidak Dapat Ditampilkan
-            </h3>
-            <p class="mb-4 text-sm text-gray-600">
-              Browser tidak mendukung preview file ini.
-              <a
-                :href="fileUrl"
-                target="_blank"
-                class="text-blue-600 underline hover:text-blue-800"
-              >
-                Klik di sini untuk membuka file
-              </a>
-            </p>
-          </div>
-        </div>
-      </object>
+      <div class="h-full max-h-[calc(100vh-250px)] w-full overflow-auto">
+        <PdfViewerComponent :src="fileUrl" />
+      </div>
 
       <!-- Passphrase Input -->
       <div class="mt-4 space-y-4">

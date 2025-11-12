@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
-// import { VPdfViewer } from "@vue-pdf-viewer/viewer";
 import { TEXT } from "@/constants/text";
 import ModalBottomComponent from "@/components/global/ModalBottomComponent.vue";
 import ButtonComponent from "@/components/global/ButtonComponent.vue";
@@ -82,23 +81,6 @@ const formatDate = (dateString) => {
     day: "numeric",
   });
 };
-
-// PDF handling methods
-// const handlePdfError = () => {
-//   console.log("PDF failed to load, showing fallback");
-//   showPdfFallback.value = true;
-//   if (pdfLoadTimeout.value) {
-//     clearTimeout(pdfLoadTimeout.value);
-//   }
-// };
-
-// const handlePdfLoad = () => {
-//   console.log("PDF loaded successfully");
-//   showPdfFallback.value = false;
-//   if (pdfLoadTimeout.value) {
-//     clearTimeout(pdfLoadTimeout.value);
-//   }
-// };
 
 // Watch untuk perubahan ukuran layar
 watch(
@@ -400,71 +382,6 @@ onMounted(() => {
           </div>
         </div>
       </div>
-
-      <!-- <ClientOnly>
-        <div :style="{ width: '1028px', height: '700px' }">
-          <VPdfViewer :src="'/files/pdf/sample.pdf#navpanes=0'" />
-        </div>
-      </ClientOnly> -->
-
-      <!-- <ClientOnly>
-        <div class="md:col-span-2">
-          <div class="relative">
-            <iframe
-              v-if="!isMobile"
-              ref="pdfViewer"
-              :src="
-                '/files/pdf/sample.pdf#navpanes=0' ||
-                suratData?.data?.file?.filepath
-              "
-              width="100%"
-              height="700px"
-              class="rounded-lg border border-gray-300"
-              @error="handlePdfError"
-              @load="handlePdfLoad"
-            />
-
-            <div
-              v-if="
-                suratData?.data?.file?.filepath && (isMobile || showPdfFallback)
-              "
-              class="dark:bg-container-main flex flex-col items-center justify-center rounded-lg border border-gray-300 bg-gray-50 p-8"
-              :style="{ minHeight: isMobile ? '400px' : '700px' }"
-            >
-              <UIcon name="ph:file-pdf" class="mb-4 h-16 w-16 text-red-500" />
-              <h3 class="text-body-11 mb-2 text-center text-lg font-semibold">
-                {{
-                  isMobile
-                    ? "Preview PDF tidak tersedia di mobile"
-                    : "Tidak dapat memuat PDF"
-                }}
-              </h3>
-              <p class="text-body-5 mb-4 text-center text-sm">
-                {{
-                  isMobile
-                    ? "Untuk melihat dokumen PDF, silakan download dan buka dengan aplikasi PDF reader."
-                    : "Browser Anda tidak mendukung preview PDF atau file tidak tersedia."
-                }}
-              </p>
-              <div class="flex flex-col gap-2 sm:flex-row">
-                <UButton
-                  variant="outline"
-                  class="w-full sm:w-auto"
-                  @click="
-                    downloadPdf(
-                      suratData?.data?.file?.filepath,
-                      suratData?.data?.nomor_surat,
-                    )
-                  "
-                >
-                  <UIcon name="ph:download" class="mr-2 h-4 w-4" />
-                  Download PDF
-                </UButton>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ClientOnly> -->
 
       <!-- Action Buttons -->
       <div

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "nuxt dev --host 0.0.0.0",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
@@ -17,10 +17,13 @@
     "@nuxt/ui": "^3.3.2",
     "@onesignal/onesignal-vue3": "^2.3.0",
     "@vite-pwa/nuxt": "^1.0.4",
+    "@vue-pdf-viewer/annotation": "latest",
+    "@vue-pdf-viewer/viewer": "latest",
     "@vueuse/nuxt": "^13.7.0",
     "eslint": "^9.34.0",
     "keycloak-js": "^26.2.1",
     "nuxt": "^4.0.3",
+    "pdfjs-dist": "4.10.38",
     "typescript": "^5.9.2",
     "vue": "^3.5.18",
     "vue-router": "^4.5.1"
@@ -30,5 +33,10 @@
     "prettier-plugin-tailwindcss": "^0.6.14",
     "sass": "^1.92.1",
     "sass-loader": "^16.0.5"
+  },
+  "pnpm": {
+    "overrides": {
+      "pdfjs-dist": "4.10.38"
+    }
   }
 }

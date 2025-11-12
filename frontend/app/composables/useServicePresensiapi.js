@@ -4,7 +4,7 @@ export const useServicePresensiapi = () => {
   const config = useRuntimeConfig();
   const { getToken } = useAuth();
 
-  const BASE_URL = `${config.public.apiPresensiUrl}/api/v1`;
+  const BASE_URL = `${config.public.apiPresensiUrl}/v1`;
 
   const handleError = (error) => {
     // if (error?.status === 403) {

@@ -4,7 +4,7 @@ export const useServiceSuratapi = () => {
   const config = useRuntimeConfig();
   const { getToken } = useAuth();
 
-  const BASE_URL = `${config.public.apiSuratUrl}/api`;
+  const BASE_URL = `${config.public.apiSuratUrl}`;
 
   const handleError = (error) => {
     // if (error?.status === 403) {
