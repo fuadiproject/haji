@@ -10,6 +10,7 @@ export const TEXT = {
   kepegawaian: "Kepegawaian",
   persuratan: "Persuratan",
   sop: "SOP",
+  regulasi: "Regulasi",
   laporan: "Laporan",
   semuaMenu: "Menu",
   laporanKehadiran: "Laporan Kehadiran",

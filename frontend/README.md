@@ -11,7 +11,7 @@ cp .env.example .env
 # 2. Edit file .env sesuai kebutuhan
 # API_BASE_URL=http://localhost:8000/api
 # API_PRESENSI_URL=http://localhost:8000/bph
-# API_BERITA_URL=
+# API_HAJI_URL=
 # API_SUPER_APP_URL=http://localhost:8000
 # API_SURAT_URL=http://localhost:8000/surat
 

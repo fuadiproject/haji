@@ -1,8 +1,8 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from "vue";
-import { useServiceBeritaApi } from "@/composables/useServiceBeritaApi";
+import { useServiceHajiApi } from "@/composables/useServiceHajiApi";
 
-const { getNews } = useServiceBeritaApi();
+const { getNews } = useServiceHajiApi();
 
 const newsList = ref([]);
 const page = ref(1);
