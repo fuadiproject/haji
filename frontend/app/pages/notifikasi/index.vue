@@ -12,7 +12,8 @@ const selectedNotification = ref({
 
 const isModalDetailOpen = ref(false);
 
-const { getNotifications, readNotification } = useServiceSuperappApi();
+const { getNotifications, readNotification, markAllNotificationsRead } =
+  useServiceSuperappApi();
 
 // Pagination state
 const currentPage = ref(1);
@@ -96,8 +97,11 @@ const handleBack = () => {
   navigateTo("/");
 };
 
-const handleMarkAllRead = () => {
-  console.log("mark all read");
+const handleMarkAllRead = async () => {
+  await markAllNotificationsRead();
+  await loadNotifications(1, false);
+  // Refresh the unread notification count in BottomMenuComponent
+  refreshNuxtData("unread-notification-count");
 };
 
 onMounted(() => {
