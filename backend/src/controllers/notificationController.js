@@ -283,6 +283,29 @@ class NotificationController {
       return this.response.error(res, error.message);
     }
   }
+
+  /**
+   * Read all notifications
+   * @param {import('express').Request & {user: UserRequest}} req
+   * @param {import('express').Response} res
+   * @returns {Promise<void>}
+   */
+  async readAllNotifications(req, res) {
+    try {
+      const { nik: userId } = req.user;
+      const readAllNotifications = await notificationModel.readAllNotifications(
+        userId
+      );
+      return this.response.success(
+        res,
+        "All notifications read successfully",
+        readAllNotifications
+      );
+    } catch (error) {
+      console.error("❌ Read all notifications error:", error);
+      return this.response.error(res, error.message);
+    }
+  }
 }
 
 export default new NotificationController(notificationModel, response);

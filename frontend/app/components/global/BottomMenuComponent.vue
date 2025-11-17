@@ -78,8 +78,9 @@ const isActive = (id) => {
       <span
         :class="isActive(menu.to) ? 'text-primary-main' : 'text-body-4'"
         class="text-xs"
-        >{{ menu.name }}</span
       >
+        {{ menu.name }}
+      </span>
     </NuxtLink>
   </div>
 </template>
