@@ -35,4 +35,10 @@ router.put(
   notificationController.updateNotificationRead.bind(notificationController)
 );
 
+// Read all notifications
+router.put(
+  "/notifications/read-all",
+  notificationController.readAllNotifications.bind(notificationController)
+);
+
 export default router;

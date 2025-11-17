@@ -136,6 +136,15 @@ class NotificationModel extends BaseModel {
   async getNotReadCount(userId) {
     return await this.count({ where: { userId, read: false } });
   }
+
+  /**
+   * Read all notifications
+   * @param {string} userId
+   * @returns {Promise<number>}
+   */
+  async readAllNotifications(userId) {
+    return await this.updateMany({ where: { userId }, data: { read: true } });
+  }
 }
 
 export default new NotificationModel(prisma);
