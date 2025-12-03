@@ -5,10 +5,10 @@ const { login } = useAuth();
 
 <template>
   <div
-    class="fixed inset-0 left-1/2 z-50 flex h-full w-full max-w-5xl -translate-x-1/2 flex-col items-center justify-center gap-8 bg-linear-to-br from-white via-[#eafffb] to-[#BCFBFF] dark:from-black dark:via-[#0E0E14] dark:to-[#0E0E14]"
+    class="fixed inset-0 left-1/2 z-50 flex h-full w-full max-w-5xl -translate-x-1/2 flex-col items-center justify-center gap-8 bg-linear-to-br from-white via-[#fff5de] to-[#71510b] dark:from-black dark:via-[#0E0E14] dark:to-[#0E0E14]"
   >
     <div class="flex flex-col items-center justify-center">
-      <NuxtImg src="/images/logo.svg" alt="Logo" class="h-30 w-30" />
+      <NuxtImg src="/images/logo.png" alt="Logo" class="mb-3 h-30 w-30" />
       <p class="text-body-4 text-center text-xl font-medium">
         {{ TEXT.title }}
       </p>
