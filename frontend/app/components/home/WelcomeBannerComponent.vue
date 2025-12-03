@@ -24,7 +24,7 @@ import { TEXT } from "@/constants/text";
       alt="Bg People Right"
       class="absolute -right-4 -bottom-1 w-2/6"
     />
-    <NuxtImg src="/images/logo.svg" alt="Logo" class="mt-10 h-10 w-12" />
+    <NuxtImg src="/images/logo.png" alt="Logo" class="mt-10 h-12 w-12" />
     <div>
       <h1 class="text-body-4 text-center text-2xl font-semibold">
         {{ TEXT.welcome }}
