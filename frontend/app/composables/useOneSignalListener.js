@@ -28,10 +28,6 @@ export const useOneSignalListener = () => {
       }
 
       const subscriptionId = await $OneSignal.User.PushSubscription.id;
-      console.log("OneSignal subscription status:", {
-        subscriptionId,
-        timestamp: new Date().toISOString(),
-      });
       return subscriptionId;
     } catch (error) {
       console.error("Error checking subscription status:", error);
@@ -81,26 +77,48 @@ export const useOneSignalListener = () => {
         // You can navigate to a specific page, show a modal, etc.
       });
 
-      // Example: Listen for permission changes
-      $OneSignal.Notifications.addEventListener("permissionChange", (event) => {
-        console.log("OneSignal permission changed:", event);
-        // Handle permission change here
-      });
+      // Listen for permission changes and set external user ID when granted
+      // $OneSignal.Notifications.addEventListener(
+      //   "permissionChange",
+      //   async (permission) => {
+      //     console.log("OneSignal permission changed:", permission);
+
+      //     // If permission granted and user is authenticated, set external user ID
+      //     if (permission && isAuthenticated.value) {
+      //       const userId = jwtInfo.value?.sub;
+      //       if (userId) {
+      //         await loginOneSignal(userId);
+      //         console.log(
+      //           "External User ID set after permission grant:",
+      //           userId,
+      //         );
+      //       }
+      //     }
+      //   },
+      // );
 
       // Check and log initial subscription status
       await checkAndLogSubscriptionStatus();
 
-      // Example: Listen for subscription changes
-      $OneSignal.User.PushSubscription.addEventListener(
-        "change",
-        async (event) => {
-          console.log("OneSignal subscription changed:", event);
-          // Check and log the new subscription status
-          const isSubscribed = await checkAndLogSubscriptionStatus();
-          console.log("User subscription status after change:", isSubscribed);
-          // Handle subscription change here
-        },
-      );
+      // Listen for subscription changes and set external user ID
+      // $OneSignal.User.PushSubscription.addEventListener(
+      //   "change",
+      //   async (event) => {
+      //     console.log("OneSignal subscription changed:", event);
+      //     // Check and log the new subscription status
+      //     const subscriptionId = await checkAndLogSubscriptionStatus();
+      //     console.log("User subscription status after change:", subscriptionId);
+
+      //     // If user is subscribed and authenticated, set external user ID
+      //     if (subscriptionId && isAuthenticated.value) {
+      //       const userId = jwtInfo.value?.sub;
+      //       if (userId) {
+      //         await loginOneSignal(userId);
+      //         console.log("External User ID set after subscription:", userId);
+      //       }
+      //     }
+      //   },
+      // );
 
       isListenerSetup.value = true;
       console.log("OneSignal listeners set up successfully");
@@ -120,8 +138,6 @@ export const useOneSignalListener = () => {
         // Only setup if OneSignal is available
         if (isOneSignalAvailable()) {
           await setupOneSignalListeners();
-          // Also check subscription status on route change
-          await checkAndLogSubscriptionStatus();
         }
       },
       { immediate: false },
