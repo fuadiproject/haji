@@ -17,6 +17,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     await nuxtApp.vueApp.use(OneSignalVuePlugin, {
       appId: config.public.onesignalAppId,
       allowLocalhostAsSecureOrigin: true,
+      // Use the PWA's service worker which includes OneSignal SDK via importScripts
+      serviceWorkerParam: { scope: "/" },
+      serviceWorkerPath: "/sw.js",
     });
     console.log("OneSignal initialized successfully");
   } catch (error) {
