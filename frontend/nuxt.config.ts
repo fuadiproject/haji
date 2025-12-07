@@ -50,9 +50,11 @@ export default defineNuxtConfig({
     },
   },
   pwa: {
+    strategies: "injectManifest",
+    srcDir: "public",
+    filename: "sw.js",
     registerType: "autoUpdate",
-    workbox: {
-      navigateFallback: "/",
+    injectManifest: {
       globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
       globIgnores: ["**/OneSignalSDKWorker.js"],
       maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
