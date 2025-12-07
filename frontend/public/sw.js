@@ -134,75 +134,75 @@ const urlsToCache = ["/", "/offline", "/testing-sw"];
 // });
 
 // Push notification
-self.addEventListener("push", (event) => {
-  console.log("Service Worker: Push event received", event);
+// self.addEventListener("push", (event) => {
+//   console.log("Service Worker: Push event received", event);
 
-  let data = {};
-  if (event.data) {
-    try {
-      data = event.data.json();
-    } catch (e) {
-      data = { title: "Push Notification", body: event.data.text() };
-    }
-  } else {
-    data = { title: "Push Notification", body: "You have a new notification" };
-  }
+//   let data = {};
+//   if (event.data) {
+//     try {
+//       data = event.data.json();
+//     } catch (e) {
+//       data = { title: "Push Notification", body: event.data.text() };
+//     }
+//   } else {
+//     data = { title: "Push Notification", body: "You have a new notification" };
+//   }
 
-  const options = {
-    body: data.body || "You have a new notification",
-    icon: data.icon || "/icons/icon-192x192.svg",
-    badge: data.badge || "/icons/icon-72x72.svg",
-    vibrate: data.vibrate || [100, 50, 100],
-    data: {
-      dateOfArrival: Date.now(),
-      primaryKey: data.primaryKey || 1,
-      url: data.url || "/",
-      ...data.data,
-    },
-    actions: data.actions || [
-      {
-        action: "open",
-        title: "Buka",
-        icon: "/icons/icon-72x72.svg",
-      },
-      {
-        action: "close",
-        title: "Tutup",
-      },
-    ],
-  };
+//   const options = {
+//     body: data.body || "You have a new notification",
+//     icon: data.icon || "/icons/icon-192x192.svg",
+//     badge: data.badge || "/icons/icon-72x72.svg",
+//     vibrate: data.vibrate || [100, 50, 100],
+//     data: {
+//       dateOfArrival: Date.now(),
+//       primaryKey: data.primaryKey || 1,
+//       url: data.url || "/",
+//       ...data.data,
+//     },
+//     actions: data.actions || [
+//       {
+//         action: "open",
+//         title: "Buka",
+//         icon: "/icons/icon-72x72.svg",
+//       },
+//       {
+//         action: "close",
+//         title: "Tutup",
+//       },
+//     ],
+//   };
 
-  console.log("Service Worker: Showing notification", data.title, options);
-  event.waitUntil(
-    self.registration.showNotification(data.title || "Notification", options),
-  );
-});
+//   console.log("Service Worker: Showing notification", data.title, options);
+//   event.waitUntil(
+//     self.registration.showNotification(data.title || "Notification", options),
+//   );
+// });
 
-// Notification click handler
-self.addEventListener("notificationclick", (event) => {
-  console.log("Service Worker: Notification clicked", event);
+// // Notification click handler
+// self.addEventListener("notificationclick", (event) => {
+//   console.log("Service Worker: Notification clicked", event);
 
-  event.notification.close();
+//   event.notification.close();
 
-  const urlToOpen = event.notification.data?.url || "/";
+//   const urlToOpen = event.notification.data?.url || "/";
 
-  event.waitUntil(
-    clients.matchAll({ type: "window" }).then((clientList) => {
-      // Check if there's already a window/tab open with the target URL
-      for (let i = 0; i < clientList.length; i++) {
-        const client = clientList[i];
-        if (client.url === urlToOpen && "focus" in client) {
-          return client.focus();
-        }
-      }
+//   event.waitUntil(
+//     clients.matchAll({ type: "window" }).then((clientList) => {
+//       // Check if there's already a window/tab open with the target URL
+//       for (let i = 0; i < clientList.length; i++) {
+//         const client = clientList[i];
+//         if (client.url === urlToOpen && "focus" in client) {
+//           return client.focus();
+//         }
+//       }
 
-      // If no existing window, open a new one
-      if (clients.openWindow) {
-        return clients.openWindow(urlToOpen);
-      }
-    }),
-  );
-});
+//       // If no existing window, open a new one
+//       if (clients.openWindow) {
+//         return clients.openWindow(urlToOpen);
+//       }
+//     }),
+//   );
+// });
 
 // // Message handler for communication with main thread
 // self.addEventListener("message", (event) => {
