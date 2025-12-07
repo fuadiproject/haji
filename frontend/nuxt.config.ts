@@ -54,7 +54,7 @@ export default defineNuxtConfig({
     workbox: {
       navigateFallback: "/",
       globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
-      globIgnores: ["**/OneSignalSDKWorker.js"],
+      globIgnores: ["**/push/onesignal/**"],
       maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
     },
     client: {
