@@ -1,8 +1,47 @@
 <script setup>
 import { useTheme } from "@/composables/useTheme";
+import { isAuthenticated, jwtInfo } from "@/composables/useAuth";
+import { useOneSignalListener } from "@/composables/useOneSignalListener";
 
-// const { initializeOneSignal } = useOneSignal();
 const toaster = { duration: 3000, position: "top-right" };
+
+const { isOneSignalReady, loginOneSignal, subscribe } = useOneSignal();
+
+// Initialize OneSignal listeners (sets up subscription & permission change handlers)
+// This will automatically call loginOneSignal when user accepts notification prompt
+useOneSignalListener();
+
+watch(
+  () => isAuthenticated.value,
+  async (isLoggedIn) => {
+    if (!isOneSignalReady()) return;
+
+    if (isLoggedIn) {
+      const userId = jwtInfo.value?.sub;
+      // FOR NOW WE WILL ALWAYS LOGIN THE USER AND SUBSCRIBE TO THE NOTIFICATIONS
+      if (userId) {
+        await loginOneSignal(userId);
+        await subscribe();
+      }
+
+      // USE THIS IF YOU WANT TO ASK PERMISSION
+      // const isExternalId = await isUserHaveExternalId();
+      // console.log("is user have external id", isExternalId);
+      // if (!isExternalId) {
+      //   console.log("promptPush");
+      //   await promptPush();
+      // } else {
+
+      //   const userId = jwtInfo.value?.sub;
+      //   if (userId) {
+      //     await loginOneSignal(userId);
+      //     await subscribe();
+      //   }
+      // }
+    }
+  },
+  { immediate: true },
+);
 
 // PWA Meta Tags
 useHead({
@@ -46,9 +85,6 @@ useHead({
     { rel: "manifest", href: "/manifest.json" },
   ],
 });
-
-// Notification Permission
-useNotificationPermission();
 
 // Theme
 useTheme();

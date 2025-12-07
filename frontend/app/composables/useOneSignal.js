@@ -1,185 +1,108 @@
-/**
- * @typedef {import('@onesignal/onesignal-vue3').IOneSignalOneSignal} OneSignalInstance
- */
-
 export const useOneSignal = () => {
   const nuxtApp = useNuxtApp();
-  // const config = useRuntimeConfig();
-
-  /** @type {OneSignalInstance} */
   const $OneSignal = nuxtApp.$OneSignal;
 
-  // Helper function to check if OneSignal is available
-  const isOneSignalAvailable = () => {
-    return $OneSignal && typeof $OneSignal === "object";
+  const isOneSignalReady = () => {
+    return $OneSignal && $OneSignal.User && $OneSignal.Notifications;
   };
 
-  // Helper function to wait for OneSignal to be fully ready
-  const waitForOneSignalReady = async (maxWaitTime = 5000) => {
-    if (!isOneSignalAvailable()) {
-      return false;
-    }
+  // Alias for isOneSignalReady - checks if OneSignal is available
+  const isOneSignalAvailable = () => {
+    return $OneSignal && $OneSignal.User && $OneSignal.Notifications;
+  };
 
-    const startTime = Date.now();
-    const checkInterval = 100; // Check every 100ms
-
+  // Wait for OneSignal to be fully ready with retry mechanism
+  const waitForOneSignalReady = (maxAttempts = 10, interval = 500) => {
     return new Promise((resolve) => {
-      const checkReady = () => {
-        try {
-          // Check if OneSignal has essential properties/methods that indicate it's ready
-          // Also verify that the login method exists and is callable
-          if (
-            $OneSignal &&
-            $OneSignal.User &&
-            $OneSignal.User.PushSubscription &&
-            typeof $OneSignal.login === "function" &&
-            // Additional check: verify OneSignal's internal state is initialized
-            // by checking if we can access the Notifications property
-            $OneSignal.Notifications
-          ) {
-            // Try to verify the login method is actually ready by checking
-            // if it's bound properly (not just a property that exists)
-            try {
-              // This will throw if OneSignal isn't fully initialized
-              const loginFunc = $OneSignal.login;
-              if (typeof loginFunc === "function") {
-                resolve(true);
-                return;
-              }
-            } catch {
-              // If we can't access login, it's not ready yet
-            }
-          }
+      let attempts = 0;
 
-          // Check if we've exceeded max wait time
-          if (Date.now() - startTime >= maxWaitTime) {
-            console.warn(
-              "OneSignal did not become ready within the timeout period",
-            );
-            resolve(false);
-            return;
-          }
-
-          // Check again after interval
-          setTimeout(checkReady, checkInterval);
-        } catch (error) {
-          console.warn("Error checking OneSignal readiness:", error);
-          resolve(false);
+      const check = () => {
+        if (isOneSignalAvailable()) {
+          resolve(true);
+          return;
         }
+
+        attempts++;
+        if (attempts >= maxAttempts) {
+          resolve(false);
+          return;
+        }
+
+        setTimeout(check, interval);
       };
 
-      checkReady();
+      check();
     });
   };
 
-  const initializeOneSignal = async () => {
-    if (!isOneSignalAvailable()) {
-      console.warn("OneSignal is not available yet");
+  const subscribe = async () => {
+    if (!isOneSignalReady()) return false;
+
+    try {
+      // await $OneSignal.Slidedown.promptPush();
+      await $OneSignal.User.PushSubscription.optIn();
+      console.log("User subscribed to OneSignal");
+      return true;
+    } catch (error) {
+      console.error("Failed to subscribe:", error);
       return false;
     }
+  };
+
+  const promptPush = async () => {
+    if (!isOneSignalReady()) return;
 
     try {
       await $OneSignal.Slidedown.promptPush();
-      await $OneSignal.User.PushSubscription.optIn();
-
-      return true;
     } catch (error) {
-      console.error("OneSignal initialization failed", error);
-      return false;
+      console.error("OneSignal prompt push failed:", error);
     }
   };
 
-  const isSubscribed = async () => {
-    if (!isOneSignalAvailable()) {
-      console.warn("OneSignal is not available yet");
-      return false;
-    }
-
-    try {
-      const isSubscribed = await $OneSignal.User.PushSubscription.optedIn;
-      return isSubscribed;
-    } catch (error) {
-      console.error("Error checking subscription status", error);
-      return false;
-    }
-  };
-
-  // Set user ID (for identifying users)
-  const setExternalUserId = async (userId) => {
-    if (!isOneSignalAvailable()) {
-      console.warn("OneSignal is not available yet, skipping user ID setting");
-      return;
-    }
-
-    // Add this check to ensure userId is a valid string
-    if (typeof userId !== "string" || userId.trim() === "") {
-      console.warn(
-        "Invalid userId provided to OneSignal.login(). userId must be a non-empty string.",
-      );
-      return;
-    }
-
-    // Wait for OneSignal to be fully ready before calling login
-    const isReady = await waitForOneSignalReady();
-    if (!isReady) {
-      console.warn(
-        "OneSignal is not ready yet, retrying user ID setting in a moment...",
-      );
-      // Retry after a short delay
-      setTimeout(() => {
-        setExternalUserId(userId);
-      }, 1000);
-      return;
-    }
+  const loginOneSignal = async (userId) => {
+    if (!isOneSignalReady()) return;
+    if (!userId) return;
 
     try {
       await $OneSignal.login(userId);
+      console.log("OneSignal login with userId:", userId);
     } catch (error) {
-      console.error("Error setting user ID:", error);
-      // If error occurs, it might be because OneSignal wasn't ready
-      // Retry once after a delay
-      setTimeout(async () => {
-        try {
-          const retryReady = await waitForOneSignalReady(3000);
-          if (retryReady) {
-            await $OneSignal.login(userId);
-          }
-        } catch (retryError) {
-          console.error("Error setting user ID on retry:", retryError);
-        }
-      }, 2000);
+      console.error("OneSignal login failed:", error);
     }
   };
 
-  const logoutUser = async () => {
-    if (!isOneSignalAvailable()) {
-      console.warn("OneSignal is not available yet, skipping logout");
-      return;
-    }
+  const logoutOneSignal = async () => {
+    if (!isOneSignalReady()) return;
 
     try {
+      await $OneSignal.User.PushSubscription.optOut();
       await $OneSignal.logout();
-      console.log("User logged out from OneSignal");
+      console.log("OneSignal logout");
     } catch (error) {
-      console.error("Error logging out from OneSignal:", error);
+      console.error("OneSignal logout failed:", error);
     }
   };
 
-  // Listen for permission changes
-  const onPermissionChange = (callback) => {
-    if (!isOneSignalAvailable()) {
-      console.warn("OneSignal is not available yet, cannot add event listener");
-      return;
-    }
+  const isUserHaveExternalId = async () => {
+    if (!isOneSignalReady()) return false;
 
-    $OneSignal.Notifications.addEventListener("permissionChange", callback);
+    try {
+      const externalId = await $OneSignal.User.externalId;
+      return externalId ? true : false;
+    } catch (error) {
+      console.error("Error checking if user has external ID:", error);
+      return false;
+    }
   };
 
   return {
-    initializeOneSignal,
-    isSubscribed,
-    setExternalUserId,
-    onPermissionChange,
-    logoutUser,
+    isOneSignalReady,
+    isOneSignalAvailable,
+    waitForOneSignalReady,
+    subscribe,
+    loginOneSignal,
+    logoutOneSignal,
+    promptPush,
+    isUserHaveExternalId,
   };
 };

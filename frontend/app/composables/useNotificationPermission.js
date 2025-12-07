@@ -1,9 +1,7 @@
-import { useOneSignal } from "@/composables/useOneSignal";
-
 export const useNotificationPermission = () => {
   const notificationPermission = ref(false);
-  const { isSubscribed, initializeOneSignal } = useOneSignal();
-  const config = useRuntimeConfig();
+  // const { isSubscribed, initializeOneSignal } = useOneSignal();
+  // const config = useRuntimeConfig();
 
   const checkNotificationPermission = async () => {
     if (!("Notification" in window)) {
@@ -15,18 +13,7 @@ export const useNotificationPermission = () => {
     const permission = await Notification.requestPermission();
     notificationPermission.value = permission;
 
-    if (notificationPermission.value === "granted") {
-      // Check OneSignal subscription
-      const subscribed = await isSubscribed();
-      if (!subscribed) {
-        // Prompt push
-        await initializeOneSignal();
-      }
-    }
-
-    if (config.public.environment === "development") {
-      console.debug("OneSignal subscribed:", isSubscribed.value);
-    }
+    console.debug("Notification permission:", notificationPermission.value);
   };
 
   onMounted(() => {

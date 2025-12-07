@@ -22,16 +22,16 @@ export const isAuthenticated = computed(() => {
  */
 export const logout = async () => {
   const keycloakComposable = useKeycloak();
-  const { logoutUser } = useOneSignal();
+  const { logoutOneSignal } = useOneSignal();
   // Logout from OneSignal first
-  await logoutUser();
+  await logoutOneSignal();
   // Then logout from Keycloak
   await keycloakComposable.logout();
 };
 
 export const useAuth = () => {
   const keycloakComposable = useKeycloak();
-  const { setExternalUserId, logoutUser } = useOneSignal();
+  const { logoutOneSignal } = useOneSignal();
 
   // State untuk loading autentikasi
   const isLoading = ref(false);
@@ -49,12 +49,7 @@ export const useAuth = () => {
         // Gunakan sub (user ID) atau preferred_username dari Keycloak
         const userId = userInfo.sub || userInfo.preferredUsername;
         if (userId) {
-          // Wait for Vue to update and give OneSignal time to initialize
-          await nextTick();
-          // Add a small delay to ensure OneSignal SDK is fully loaded
-          // The setExternalUserId function will also wait for OneSignal to be ready
-          await new Promise((resolve) => setTimeout(resolve, 500));
-          setExternalUserId(userId);
+          // setExternalUserId(userId);
         }
       }
     },
@@ -80,7 +75,7 @@ export const useAuth = () => {
     try {
       isLoading.value = true;
       // Logout from OneSignal first
-      await logoutUser();
+      await logoutOneSignal();
       // Then logout from Keycloak
       await keycloakComposable.logout();
     } catch (error) {
