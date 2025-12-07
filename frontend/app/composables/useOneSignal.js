@@ -41,7 +41,7 @@ export const useOneSignal = () => {
     try {
       // await $OneSignal.Slidedown.promptPush();
       await $OneSignal.User.PushSubscription.optIn();
-      console.log("User subscribed to OneSignal");
+      console.log("User subscribed to Push Notification");
       return true;
     } catch (error) {
       console.error("Failed to subscribe:", error);
@@ -65,7 +65,6 @@ export const useOneSignal = () => {
 
     try {
       await $OneSignal.login(userId);
-      console.log("OneSignal login with userId:", userId);
     } catch (error) {
       console.error("OneSignal login failed:", error);
     }
@@ -75,7 +74,7 @@ export const useOneSignal = () => {
     if (!isOneSignalReady()) return;
 
     try {
-      await $OneSignal.User.PushSubscription.optOut();
+      // await $OneSignal.User.PushSubscription.optOut();
       await $OneSignal.logout();
       console.log("OneSignal logout");
     } catch (error) {
