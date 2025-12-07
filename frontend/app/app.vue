@@ -1,8 +1,26 @@
 <script setup>
 import { useTheme } from "@/composables/useTheme";
+import { isAuthenticated, jwtInfo } from "@/composables/useAuth";
 
-// const { initializeOneSignal } = useOneSignal();
 const toaster = { duration: 3000, position: "top-right" };
+
+const { isOneSignalReady, subscribe, loginOneSignal } = useOneSignal();
+
+watch(
+  () => isAuthenticated.value,
+  async (isLoggedIn) => {
+    if (!isOneSignalReady()) return;
+
+    if (isLoggedIn) {
+      const userId = jwtInfo.value?.sub;
+      if (userId) {
+        await loginOneSignal(userId);
+        await subscribe();
+      }
+    }
+  },
+  { immediate: true },
+);
 
 // PWA Meta Tags
 useHead({
@@ -46,9 +64,6 @@ useHead({
     { rel: "manifest", href: "/manifest.json" },
   ],
 });
-
-// Notification Permission
-useNotificationPermission();
 
 // Theme
 useTheme();
