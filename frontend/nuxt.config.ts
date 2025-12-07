@@ -50,13 +50,11 @@ export default defineNuxtConfig({
     },
   },
   pwa: {
-    // Disable PWA's service worker - let OneSignal handle its own
-    selfDestroying: true,
     registerType: "autoUpdate",
     workbox: {
       navigateFallback: "/",
       globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
-      globIgnores: ["**/OneSignalSDKWorker.js", "**/sw.js"],
+      globIgnores: ["**/OneSignalSDKWorker.js"],
       maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
     },
     client: {
