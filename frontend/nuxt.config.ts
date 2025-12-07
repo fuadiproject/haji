@@ -50,14 +50,16 @@ export default defineNuxtConfig({
     },
   },
   pwa: {
-    strategies: "injectManifest",
-    srcDir: "public",
-    filename: "sw.js",
     registerType: "autoUpdate",
-    injectManifest: {
+    workbox: {
+      navigateFallback: "/",
       globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
-      globIgnores: ["**/OneSignalSDKWorker.js"],
+      globIgnores: ["**/OneSignalSDKWorker.js", "**/sw.js"],
       maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
+      // Import OneSignal SDK into the generated service worker
+      importScripts: [
+        "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js",
+      ],
     },
     client: {
       installPrompt: true,
