@@ -39,7 +39,6 @@ export const useOneSignal = () => {
     if (!isOneSignalReady()) return false;
 
     try {
-      // await $OneSignal.Slidedown.promptPush();
       await $OneSignal.User.PushSubscription.optIn();
       console.log("User subscribed to Push Notification");
       return true;
@@ -62,6 +61,8 @@ export const useOneSignal = () => {
   const loginOneSignal = async (userId) => {
     if (!isOneSignalReady()) return;
     if (!userId) return;
+
+    console.log("Logging in OneSignal", userId);
 
     try {
       await $OneSignal.login(userId);
