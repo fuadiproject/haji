@@ -93,7 +93,7 @@ useTheme();
 <template>
   <UApp :toaster="toaster">
     <AuthLoaderComponent />
-    <ServiceWorkerStatusComponent />
+    <!-- <ServiceWorkerStatusComponent /> -->
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
