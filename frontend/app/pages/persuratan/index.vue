@@ -6,14 +6,19 @@ import ModalEditSuratComponent from "@/components/persuratan/ModalEditSuratCompo
 import ModalCreateDisposisiComponent from "@/components/persuratan/ModalCreateDisposisiComponent.vue";
 import ModalDetailSuratComponent from "@/components/persuratan/ModalDetailSuratComponent.vue";
 import ModalCreateTTEComponent from "@/components/persuratan/ModalCreateTTEComponent.vue";
+import ModalAjukanNomorSurat from "@/components/persuratan/ModalAjukanNomorSurat.vue";
+import ModalTemplateFiles from "@/components/persuratan/ModalTemplateFiles.vue";
+import CardBookingPenomoranComponent from "@/components/persuratan/CardBookingPenomoranComponent.vue";
 
 const route = useRoute();
 const suratapiService = useServiceSuratapi();
 const toast = useToast();
 
 const activeTab = ref(route.query.tab || "suratMasuk");
-const TABS = ref(["suratMasuk", "suratKeluar"]);
+const TABS = ref(["suratMasuk", "suratKeluar", "bookingPenomoran"]);
 const isModalAddSuratOpen = ref(false);
+const isModalAjukanNomorOpen = ref(false);
+const isModalTemplateFilesOpen = ref(false);
 const modalEditSurat = ref({
   isOpen: false,
   suratId: "",
@@ -48,21 +53,31 @@ const {
   refresh: refreshSurat,
 } = await useAsyncData(
   async () => {
-    const functionName =
-      activeTab.value === "suratMasuk"
-        ? "getAllSuratMasuk"
-        : "getAllSuratKeluar";
-    const response = await suratapiService[functionName]({
-      page: page.value,
-      limit: limit.value,
-      search: search.value,
-    });
-    return response;
+    if (activeTab.value === "bookingPenomoran") {
+      const response = await suratapiService.getMyBookPenomoran({
+        page: page.value,
+        limit: limit.value,
+        status: undefined,
+      });
+      return response;
+    } else {
+      const functionName =
+        activeTab.value === "suratMasuk"
+          ? "getAllSuratMasuk"
+          : "getAllSuratKeluar";
+      const response = await suratapiService[functionName]({
+        page: page.value,
+        limit: limit.value,
+        search: search.value,
+      });
+      return response;
+    }
   },
   {
     server: false,
     lazy: false,
     immediate: true,
+    watch: [activeTab, page, limit, search],
   },
 );
 
@@ -167,6 +182,10 @@ const handleRefreshAfterEdit = () => {
 const handleBack = () => {
   navigateTo("/");
 };
+
+const handleOpenTemplateFiles = () => {
+  isModalTemplateFilesOpen.value = true;
+};
 </script>
 
 <template>
@@ -180,6 +199,7 @@ const handleBack = () => {
       {{ TEXT.listDisposisi }}
     </h1>
     <UInput
+      v-if="activeTab !== 'bookingPenomoran'"
       size="lg"
       icon="ph:magnifying-glass"
       placeholder="Cari surat..."
@@ -214,7 +234,11 @@ const handleBack = () => {
           @click="handleChangeTab(tab)"
         >
           <UIcon
-            name="ph:tray-arrow-down-bold"
+            :name="
+              tab === 'bookingPenomoran'
+                ? 'ph:bookmark-bold'
+                : 'ph:tray-arrow-down-bold'
+            "
             class="text-body-3 h-5 w-5"
             :class="activeTab === tab ? 'text-primary-main' : ''"
           />
@@ -223,11 +247,14 @@ const handleBack = () => {
               ? TEXT.suratMasuk
               : tab === "suratKeluar"
                 ? TEXT.suratKeluar
-                : ""
+                : tab === "bookingPenomoran"
+                  ? "Booking Penomoran"
+                  : ""
           }}
         </ButtonComponent>
       </div>
       <ButtonComponent
+        v-if="activeTab !== 'bookingPenomoran'"
         class="hidden md:flex"
         variant="primary"
         @click="isModalAddSuratOpen = true"
@@ -250,49 +277,84 @@ const handleBack = () => {
         <EmptyStateComponent
           v-else-if="suratData?.data?.length === 0"
           image-class="h-20 w-20"
-          :text="TEXT.tidakAdaDataSuratMasuk"
+          :text="
+            activeTab === 'bookingPenomoran'
+              ? 'Tidak ada booking penomoran'
+              : TEXT.tidakAdaDataSuratMasuk
+          "
         />
 
         <div v-else>
+          <div
+            v-if="activeTab === 'bookingPenomoran'"
+            class="mb-4 flex justify-start"
+          >
+            <UButton
+              type="button"
+              variant="subtle"
+              size="sm"
+              icon="i-heroicons-document-text"
+              @click="handleOpenTemplateFiles"
+            >
+              Lihat Template Files
+            </UButton>
+          </div>
           <div class="min-h-[calc(100vh-390px)] space-y-4">
-            <CardSuratComponent
-              v-for="surat in suratData?.data"
-              :key="surat.id"
-              :surat-id="surat.id"
-              :type="activeTab"
-              :is-inbox="surat.type === 'inbox'"
-              :nomor-surat="surat.nomor_surat"
-              :nama="surat.nama"
-              :tanggal-surat="surat.tanggal_surat"
-              :disposisi-count="surat._count?.disposisi || 0"
-              :file-id="surat.file?.id"
-              :file-name="surat.file?.filename"
-              :file-url="surat.file?.filepath"
-              :tte-logs="surat._count?.tteLogs || 0"
-              :urutan-tte="surat.urutan_tte"
-              @disposisi="
-                modalAddDisposisi.isOpen = true;
-                modalAddDisposisi.suratId = surat.id;
-              "
-              @detail="
-                modalDetailSurat.isOpen = true;
-                modalDetailSurat.suratId = surat.id;
-                modalDetailSurat.nomorSurat = surat.nomor_surat;
-              "
-              @edit="
-                modalEditSurat.isOpen = true;
-                modalEditSurat.suratId = surat.id;
-              "
-              @delete="
-                modalDeleteSurat.isOpen = true;
-                modalDeleteSurat.suratId = surat.id;
-              "
-              @create-tte="
-                modalCreateTTE.isOpen = true;
-                modalCreateTTE.suratId = surat.id;
-              "
-              @refresh="refreshSurat()"
-            />
+            <!-- Booking Penomoran Cards -->
+            <template v-if="activeTab === 'bookingPenomoran'">
+              <CardBookingPenomoranComponent
+                v-for="booking in suratData?.data"
+                :key="booking.id"
+                :booking-id="booking.id"
+                :generated-number="booking.generated_number"
+                :status="booking.status"
+                :keterangan="booking.keterangan"
+                :template="booking.penomoran?.template"
+                :created-at="booking.created_at"
+              />
+            </template>
+
+            <!-- Surat Cards -->
+            <template v-else>
+              <CardSuratComponent
+                v-for="surat in suratData?.data"
+                :key="surat.id"
+                :surat-id="surat.id"
+                :type="activeTab"
+                :is-inbox="surat.type === 'inbox'"
+                :nomor-surat="surat.nomor_surat"
+                :nama="surat.nama"
+                :tanggal-surat="surat.tanggal_surat"
+                :disposisi-count="surat._count?.disposisi || 0"
+                :file-id="surat.file?.id"
+                :file-name="surat.file?.filename"
+                :file-url="surat.file?.filepath"
+                :tte-logs="surat._count?.tteLogs || 0"
+                :urutan-tte="surat.urutan_tte"
+                @disposisi="
+                  modalAddDisposisi.isOpen = true;
+                  modalAddDisposisi.suratId = surat.id;
+                "
+                @detail="
+                  modalDetailSurat.isOpen = true;
+                  modalDetailSurat.suratId = surat.id;
+                  modalDetailSurat.nomorSurat = surat.nomor_surat;
+                "
+                @edit="
+                  modalEditSurat.isOpen = true;
+                  modalEditSurat.suratId = surat.id;
+                "
+                @delete="
+                  modalDeleteSurat.isOpen = true;
+                  modalDeleteSurat.suratId = surat.id;
+                "
+                @create-tte="
+                  modalCreateTTE.isOpen = true;
+                  modalCreateTTE.suratId = surat.id;
+                "
+                @refresh="refreshSurat()"
+              />
+            </template>
           </div>
           <UPagination
             v-if="
@@ -311,8 +373,14 @@ const handleBack = () => {
       </div>
 
       <FloatingButtonComponent
+        v-if="activeTab !== 'bookingPenomoran'"
         class="md:hidden"
         @click="isModalAddSuratOpen = true"
+      />
+      <FloatingButtonComponent
+        v-else
+        class="md:hidden"
+        @click="isModalAjukanNomorOpen = true"
       />
 
       <ModalCreateSuratComponent
@@ -380,6 +448,20 @@ const handleBack = () => {
         :surat-id="modalCreateTTE.suratId"
         @close="modalCreateTTE.isOpen = false"
         @refresh="refreshSurat()"
+      />
+
+      <ModalAjukanNomorSurat
+        v-if="isModalAjukanNomorOpen"
+        :is-open="isModalAjukanNomorOpen"
+        @close="isModalAjukanNomorOpen = false"
+        @update:is-open="isModalAjukanNomorOpen = $event"
+        @success="refreshSurat()"
+      />
+
+      <ModalTemplateFiles
+        :is-open="isModalTemplateFilesOpen"
+        @close="isModalTemplateFilesOpen = false"
+        @update:is-open="isModalTemplateFilesOpen = $event"
       />
     </div>
   </TemplateDetailComponent>

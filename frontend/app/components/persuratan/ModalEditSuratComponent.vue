@@ -62,7 +62,11 @@ const state = reactive({
   nama: undefined,
   nomorSurat: undefined,
   fileSurat: undefined,
+  urgensi: undefined,
 });
+
+const urgensiOptions = ref([]);
+const isLoadingUrgensi = ref(false);
 
 // Track original data for comparison
 const originalData = ref(null);
@@ -98,6 +102,7 @@ watch(
     if (newData?.data) {
       originalData.value = { ...newData.data };
       state.nomorSurat = newData.data.nomor_surat || "";
+      state.nama = newData.data.nama || "";
 
       // Set tanggal for surat keluar
       if (state.type === "suratKeluar" && newData.data.tanggal_surat) {
@@ -107,6 +112,11 @@ watch(
           date.getMonth() + 1,
           date.getDate(),
         );
+      }
+
+      // Set urgensi for surat keluar
+      if (state.type === "suratKeluar" && newData.data.urgensi_id) {
+        state.urgensi = newData.data.urgensi_id;
       }
     }
   },
@@ -122,8 +132,12 @@ watch(
       state.nomorSurat = "";
       state.nama = "";
       state.fileSurat = undefined;
+      state.urgensi = undefined;
       isFileChanged.value = false;
       originalData.value = null;
+    } else if (isOpen && state.type === "suratKeluar") {
+      // Load urgensi options when modal opens for surat keluar
+      fetchUrgensi();
     }
   },
 );
@@ -131,7 +145,9 @@ const isLoading = computed(() => statusSurat.value === "pending");
 
 const isValidForm = computed(() => {
   if (state.type === "suratKeluar") {
-    return Boolean(state.nomorSurat && modelValue.value && state.nama);
+    return Boolean(
+      state.nomorSurat && modelValue.value && state.nama && state.urgensi,
+    );
   }
   return Boolean(state.nomorSurat && state.nama);
 });
@@ -170,6 +186,14 @@ async function onSubmit(event) {
       });
       return;
     }
+    if (!event.data.urgensi) {
+      toast.add({
+        title: "Error",
+        description: "Urgensi harus diisi",
+        color: "error",
+      });
+      return;
+    }
   }
 
   try {
@@ -199,6 +223,9 @@ async function onSubmit(event) {
       submitData.tanggalSurat = new Date(
         modelValue.value.toDate(getLocalTimeZone()),
       ).toISOString();
+      if (event.data.urgensi) {
+        submitData.urgensiId = event.data.urgensi;
+      }
     }
 
     await suratApiService[functionName](submitData);
@@ -225,6 +252,37 @@ const handleDateChange = (newDate) => {
   modelValue.value = newDate;
   isPopoverOpen.value = false;
 };
+
+const fetchUrgensi = async () => {
+  try {
+    isLoadingUrgensi.value = true;
+    const response = await suratApiService.getAllUrgensi();
+    const data = response?.data || [];
+    urgensiOptions.value = data.map((item) => ({
+      id: item.id,
+      label: item.urgensi,
+    }));
+  } catch (error) {
+    console.error("Error fetching urgensi:", error);
+    toast.add({
+      title: "Error",
+      description: error?.data?.error || "Gagal memuat data urgensi",
+      color: "error",
+    });
+  } finally {
+    isLoadingUrgensi.value = false;
+  }
+};
+
+watch(
+  () => state.type,
+  (newType) => {
+    if (newType === "suratKeluar" && urgensiOptions.value.length === 0) {
+      fetchUrgensi();
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -251,7 +309,7 @@ const handleDateChange = (newDate) => {
           class="w-full"
           :loading="isLoading"
           :readonly="isLoading"
-          :disabled="isLoading"
+          :disabled="isLoading || state.type === 'suratKeluar'"
         />
       </UFormField>
       <UFormField name="nama" :label="TEXT.namaSurat">
@@ -294,6 +352,22 @@ const handleDateChange = (newDate) => {
             />
           </template>
         </UPopover>
+      </UFormField>
+      <UFormField
+        v-if="state.type === 'suratKeluar'"
+        name="urgensi"
+        label="Urgensi"
+        :required="state.type === 'suratKeluar'"
+      >
+        <USelectMenu
+          v-model="state.urgensi"
+          :items="urgensiOptions"
+          value-key="id"
+          :placeholder="'Pilih urgensi'"
+          :loading="isLoadingUrgensi || isLoading"
+          :disabled="isLoadingUrgensi || isLoading"
+          class="min-h-8 w-full"
+        />
       </UFormField>
       <UFileUpload
         v-model="state.fileSurat"

@@ -154,7 +154,7 @@ const sizeClasses = {
 
           <!-- Content area -->
           <div
-            class="max-h-[calc(100vh-24px)] overflow-y-auto p-4"
+            class="max-h-[calc(100vh-80px)] overflow-y-auto p-4"
             :class="
               $slots.footer ? `pb-16 ${contentClassName}` : contentClassName
             "
