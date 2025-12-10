@@ -17,14 +17,6 @@ export const authenticateToken = (req, res, next) => {
 
     const token = authHeader.replace("Bearer ", "");
 
-    // Check if token is expired
-    if (isTokenExpired(token)) {
-      return res.status(401).json({
-        success: false,
-        error: "Token has expired",
-      });
-    }
-
     // Verify JWT token
     const decoded = verifyToken(token);
 
@@ -35,13 +27,36 @@ export const authenticateToken = (req, res, next) => {
       });
     }
 
-    // Extract user info from JWT payload
-    const { id, email, role } = decoded;
+    // Check if token is expired
+    // if (isTokenExpired(token)) {
+    //   return res.status(401).json({
+    //     success: false,
+    //     error: "Token has expired",
+    //   });
+    // }
 
-    if (!id || !email || !role) {
+    // Extract user info from JWT payload
+    const { nip: id, email, resource_access } = decoded;
+
+    if (!id || !email || !resource_access) {
       return res.status(401).json({
         success: false,
         error: "Invalid token payload",
+      });
+    }
+
+    const role = resource_access.superapps.roles;
+    if (!role) {
+      return res.status(401).json({
+        success: false,
+        error: "Invalid token payload",
+      });
+    }
+
+    if (!role.includes("admin-superapp")) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized",
       });
     }
 
