@@ -1,7 +1,8 @@
-import { jwtToken, logout } from "@/composables/useAuth";
+import { logout } from "@/composables/useAuth";
 
 export const useServiceBphapi = () => {
   const config = useRuntimeConfig();
+  const { token } = useAuth();
 
   const BASE_URL_MASTER = `${config.public.apiMasterDataUrl}/master`;
   const BASE_URL = `${config.public.apiBphUrl}/bphapi`;
@@ -30,7 +31,7 @@ export const useServiceBphapi = () => {
   const getPetunjuk = async () => {
     return $fetch(`${BASE_URL_MASTER}/petunjuk`, {
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -41,7 +42,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_MASTER}/petunjuk`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
       body: {
         petunjuk: data,
@@ -55,7 +56,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_MASTER}/petunjuk/${id}`, {
       method: "PUT",
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
       body: data,
     }).catch((error) => {
@@ -67,7 +68,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_MASTER}/petunjuk/${id}`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -78,7 +79,7 @@ export const useServiceBphapi = () => {
   const getSifatSurat = async () => {
     return $fetch(`${BASE_URL_MASTER}/sifat`, {
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -89,7 +90,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_MASTER}/sifat`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
       body: data,
     }).catch((error) => {
@@ -101,7 +102,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_MASTER}/sifat/${id}`, {
       method: "PUT",
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
       body: data,
     }).catch((error) => {
@@ -113,7 +114,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_MASTER}/sifat/${id}`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -124,7 +125,7 @@ export const useServiceBphapi = () => {
   const getUrgensiSurat = async () => {
     return $fetch(`${BASE_URL_MASTER}/urgensi`, {
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -135,7 +136,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_MASTER}/urgensi`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
       body: data,
     }).catch((error) => {
@@ -147,7 +148,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_MASTER}/urgensi/${id}`, {
       method: "PUT",
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
       body: data,
     }).catch((error) => {
@@ -159,7 +160,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_MASTER}/urgensi/${id}`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -171,7 +172,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_SUPER_APP_FILES}/upload`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
       body: data,
     }).catch((error) => {
@@ -184,7 +185,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_SUPER_APP_FILE_BANNER}`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
       body: data,
     }).catch((error) => {
@@ -195,7 +196,7 @@ export const useServiceBphapi = () => {
   const getBanner = async () => {
     return $fetch(`${BASE_URL_SUPER_APP_FILE_BANNER}`, {
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -206,7 +207,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_SUPER_APP_FILE_BANNER}/${id}`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -217,7 +218,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_SUPER_APP_FILE_BANNER}/${id}`, {
       method: "PUT",
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
       body: data,
     }).catch((error) => {
@@ -230,7 +231,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_SUPER_APP_FILE_HYPERLINKS}`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
       body: data,
     }).catch((error) => {
@@ -241,7 +242,7 @@ export const useServiceBphapi = () => {
   const getHyperlink = async () => {
     return $fetch(`${BASE_URL_SUPER_APP_FILE_HYPERLINKS}`, {
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -252,7 +253,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_SUPER_APP_FILE_HYPERLINKS}/${id}`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
     }).catch((error) => {
       handleError(error);
@@ -263,7 +264,7 @@ export const useServiceBphapi = () => {
     return $fetch(`${BASE_URL_SUPER_APP_FILE_HYPERLINKS}/${id}`, {
       method: "PUT",
       headers: {
-        Authorization: `Bearer ${jwtToken.value}`,
+        Authorization: `Bearer ${token.value}`,
       },
       body: data,
     }).catch((error) => {
