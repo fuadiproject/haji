@@ -1,6 +1,5 @@
 <script setup>
 import ModalComponent from "@/components/global/ModalComponent.vue";
-import ButtonComponent from "@/components/global/ButtonComponent.vue";
 
 const props = defineProps({
   isOpen: {
