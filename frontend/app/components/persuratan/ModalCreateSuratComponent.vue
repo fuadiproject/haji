@@ -6,6 +6,8 @@ import {
   DateFormatter,
   getLocalTimeZone,
 } from "@internationalized/date";
+import ModalAjukanNomorSurat from "./ModalAjukanNomorSurat.vue";
+import ModalTemplateFiles from "./ModalTemplateFiles.vue";
 
 const props = defineProps({
   isOpen: {
@@ -58,12 +60,25 @@ const state = reactive({
   nama: undefined,
   nomorSurat: undefined,
   fileSurat: undefined,
+  urgensi: undefined,
+  bookingId: undefined,
 });
+
+const urgensiOptions = ref([]);
+const isLoadingUrgensi = ref(false);
+const nomorSuratOptions = ref([]);
+const isLoadingNomorSurat = ref(false);
+const isModalAjukanNomorOpen = ref(false);
+const isModalTemplateFilesOpen = ref(false);
 
 const isValidForm = computed(() => {
   if (state.type === "suratKeluar") {
     return Boolean(
-      state.fileSurat && state.nomorSurat && modelValue.value && state.nama,
+      state.fileSurat &&
+        state.nomorSurat &&
+        modelValue.value &&
+        state.nama &&
+        state.urgensi,
     );
   }
   return Boolean(state.fileSurat && state.nomorSurat);
@@ -103,6 +118,14 @@ async function onSubmit(event) {
       });
       return;
     }
+    if (!event.data.urgensi) {
+      toast.add({
+        title: "Error",
+        description: "Urgensi harus diisi",
+        color: "error",
+      });
+      return;
+    }
   }
 
   try {
@@ -124,14 +147,40 @@ async function onSubmit(event) {
       submitData.tanggalSurat = new Date(
         modelValue.value.toDate(getLocalTimeZone()),
       ).toISOString();
+      if (event.data.urgensi) {
+        submitData.urgensiId = event.data.urgensi;
+      }
     }
 
-    await suratApiService[functionName](submitData);
+    const response = await suratApiService[functionName](submitData);
+
+    // Jika surat keluar dan ada bookingId, update status booking menjadi USED
+    if (state.type === "suratKeluar" && state.bookingId && response?.data?.id) {
+      try {
+        await suratApiService.putUsePenomoran({
+          bookingId: state.bookingId,
+          data: {
+            surat_keluar_id: response.data.id,
+          },
+        });
+      } catch (error) {
+        console.error("Error updating booking status:", error);
+        // Tidak perlu throw error, karena surat sudah berhasil dibuat
+      }
+    }
+
     toast.add({
       title: "Success",
       description: `Surat ${state.type === "suratMasuk" ? "masuk" : "keluar"} berhasil dibuat`,
       color: "success",
     });
+    // Reset form
+    state.nama = undefined;
+    state.nomorSurat = undefined;
+    state.fileSurat = undefined;
+    state.urgensi = undefined;
+    state.bookingId = undefined;
+    modelValue.value = tanggalSurat.value;
     emit("refresh");
     emit("close");
   } catch (error) {
@@ -150,6 +199,139 @@ const handleDateChange = (newDate) => {
   modelValue.value = newDate;
   isPopoverOpen.value = false;
 };
+
+const fetchUrgensi = async () => {
+  try {
+    isLoadingUrgensi.value = true;
+    const response = await suratApiService.getAllUrgensi();
+    const data = response?.data || [];
+    urgensiOptions.value = data.map((item) => ({
+      id: item.id,
+      label: item.urgensi,
+    }));
+  } catch (error) {
+    console.error("Error fetching urgensi:", error);
+    toast.add({
+      title: "Error",
+      description: error?.data?.error || "Gagal memuat data urgensi",
+      color: "error",
+    });
+  } finally {
+    isLoadingUrgensi.value = false;
+  }
+};
+
+const fetchNomorSuratBookings = async () => {
+  try {
+    isLoadingNomorSurat.value = true;
+    const response = await suratApiService.getMyBookPenomoran({
+      status: "BOOKED",
+      limit: 100,
+    });
+    if (response.success && response.data) {
+      nomorSuratOptions.value = response.data.map((booking) => ({
+        id: booking.id,
+        label: booking.generated_number,
+        value: booking.generated_number,
+        bookingId: booking.id,
+        generated_number: booking.generated_number,
+      }));
+
+      // Set default value ke item pertama jika ada dan belum ada nilai yang dipilih
+      if (nomorSuratOptions.value.length > 0 && !state.nomorSurat) {
+        const firstOption = nomorSuratOptions.value[0];
+        state.nomorSurat = firstOption.value;
+        state.bookingId = firstOption.bookingId;
+      } else if (state.nomorSurat) {
+        // Jika sudah ada nilai, pastikan bookingId sesuai
+        const selected = nomorSuratOptions.value.find(
+          (item) => item.value === state.nomorSurat,
+        );
+        if (selected) {
+          state.bookingId = selected.bookingId;
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching nomor surat bookings:", error);
+    toast.add({
+      title: "Error",
+      description: error?.data?.error || "Gagal memuat data nomor surat",
+      color: "error",
+    });
+  } finally {
+    isLoadingNomorSurat.value = false;
+  }
+};
+
+watch(
+  () => state.type,
+  (newType) => {
+    if (newType === "suratKeluar") {
+      if (urgensiOptions.value.length === 0) {
+        fetchUrgensi();
+      }
+      fetchNomorSuratBookings();
+    } else {
+      // Reset nomor surat saat type bukan suratKeluar
+      state.nomorSurat = undefined;
+      state.bookingId = undefined;
+    }
+  },
+  { immediate: true },
+);
+
+const handleBookingSuccess = async (bookingData) => {
+  // Set nomor surat dari response booking
+  if (bookingData?.generated_number) {
+    const newGeneratedNumber = bookingData.generated_number;
+    const newBookingId = bookingData.id;
+
+    // Refresh list nomor surat
+    await fetchNomorSuratBookings();
+
+    // Set nomor surat setelah refresh selesai
+    state.nomorSurat = newGeneratedNumber;
+    state.bookingId = newBookingId;
+  }
+};
+
+watch(
+  () => state.nomorSurat,
+  (newValue) => {
+    // Update bookingId saat nomor surat berubah
+    const selected = nomorSuratOptions.value.find(
+      (item) => item.value === newValue,
+    );
+    if (selected) {
+      state.bookingId = selected.bookingId;
+    }
+  },
+);
+
+watch(
+  () => props.isOpen,
+  (isOpen) => {
+    if (isOpen && state.type === "suratKeluar") {
+      fetchNomorSuratBookings();
+    }
+  },
+);
+
+onMounted(() => {
+  if (state.type === "suratKeluar") {
+    fetchUrgensi();
+    fetchNomorSuratBookings();
+  }
+});
+
+const handleAjukanNomorSurat = () => {
+  isModalAjukanNomorOpen.value = true;
+};
+
+const handleOpenTemplateFiles = () => {
+  isModalTemplateFilesOpen.value = true;
+};
 </script>
 
 <template>
@@ -167,7 +349,40 @@ const handleDateChange = (newDate) => {
           class="w-full"
         />
       </UFormField>
-      <UFormField name="nomorSurat" :label="TEXT.nomorSurat" required>
+      <UFormField
+        v-if="state.type === 'suratKeluar'"
+        name="nomorSurat"
+        :label="TEXT.nomorSurat"
+        required
+      >
+        <div class="space-y-2">
+          <div class="flex gap-2">
+            <USelectMenu
+              v-model="state.nomorSurat"
+              :items="nomorSuratOptions"
+              value-key="value"
+              :placeholder="'Pilih nomor surat'"
+              :loading="isLoadingNomorSurat"
+              :disabled="isLoadingNomorSurat || nomorSuratOptions.length === 0"
+              class="min-h-8 flex-1"
+            />
+            <UButton type="button" size="sm" @click="handleAjukanNomorSurat">
+              Ajukan No. Surat
+            </UButton>
+          </div>
+          <UButton
+            type="button"
+            variant="subtle"
+            size="sm"
+            icon="i-heroicons-document-text"
+            class="w-full text-center"
+            @click="handleOpenTemplateFiles"
+          >
+            Lihat Template Files
+          </UButton>
+        </div>
+      </UFormField>
+      <UFormField v-else name="nomorSurat" :label="TEXT.nomorSurat" required>
         <UInput
           v-model="state.nomorSurat"
           size="lg"
@@ -207,6 +422,22 @@ const handleDateChange = (newDate) => {
           </template>
         </UPopover>
       </UFormField>
+      <UFormField
+        v-if="state.type === 'suratKeluar'"
+        name="urgensi"
+        label="Urgensi"
+        :required="state.type === 'suratKeluar'"
+      >
+        <USelectMenu
+          v-model="state.urgensi"
+          :items="urgensiOptions"
+          value-key="id"
+          :placeholder="'Pilih urgensi'"
+          :loading="isLoadingUrgensi"
+          :disabled="isLoadingUrgensi"
+          class="min-h-8 w-full"
+        />
+      </UFormField>
       <UFormField name="fileSurat" :label="TEXT.fileSurat" required>
         <UFileUpload
           v-model="state.fileSurat"
@@ -227,5 +458,16 @@ const handleDateChange = (newDate) => {
         >
       </div>
     </UForm>
+    <ModalAjukanNomorSurat
+      :is-open="isModalAjukanNomorOpen"
+      @close="isModalAjukanNomorOpen = false"
+      @update:is-open="isModalAjukanNomorOpen = $event"
+      @success="handleBookingSuccess"
+    />
+    <ModalTemplateFiles
+      :is-open="isModalTemplateFilesOpen"
+      @close="isModalTemplateFilesOpen = false"
+      @update:is-open="isModalTemplateFilesOpen = $event"
+    />
   </ModalComponent>
 </template>
