@@ -1,14 +1,9 @@
 <script setup>
-// import { useLicense } from "@vue-pdf-viewer/viewer";
-const props = defineProps({
-  licenseKey: {
-    type: String,
-    default: "",
-  },
-});
+import { useLicense } from "@vue-pdf-viewer/viewer";
+const config = useRuntimeConfig();
 onBeforeMount(() => {
-  if (props.licenseKey) {
-    // useLicense(props.licenseKey);
+  if (config.public.vpvLicenseKey) {
+    useLicense(config.public.vpvLicenseKey);
   }
 });
 </script>
