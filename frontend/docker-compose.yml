@@ -16,6 +16,7 @@ services:
         - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
         - KEYCLOAK_REDIRECT_URL=${KEYCLOAK_REDIRECT_URL}
         - KEYCLOAK_LOGOUT_URL=${KEYCLOAK_LOGOUT_URL}
+        - NUXT_VPV_LICENSE_KEY=${NUXT_VPV_LICENSE_KEY}
     ports:
       - "8080:3000"
     env_file:
@@ -33,6 +34,7 @@ services:
       - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
       - KEYCLOAK_REDIRECT_URL=${KEYCLOAK_REDIRECT_URL}
       - KEYCLOAK_LOGOUT_URL=${KEYCLOAK_LOGOUT_URL}
+      - NUXT_VPV_LICENSE_KEY=${NUXT_VPV_LICENSE_KEY}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "--version"]
