@@ -155,7 +155,7 @@ watch(isCollapsed, (newValue) => {
         <img
           src="/images/logo.png"
           alt="Logo"
-          class="h-10 w-10 flex-shrink-0"
+          :class="[isCollapsed ? 'h-8 w-16' : 'h-10 w-12']"
         />
         <div v-show="!isCollapsed" class="transition-opacity duration-300">
           <h1 class="text-gray-title text-lg font-semibold">

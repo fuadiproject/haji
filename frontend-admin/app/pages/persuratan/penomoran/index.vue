@@ -17,7 +17,9 @@ const isEditMode = ref(false);
 
 // Form data
 const formData = ref({
-  penomoran: "",
+  kode: "",
+  nama: "",
+  format: "",
 });
 
 // Form validation errors
@@ -26,7 +28,7 @@ const formErrors = ref({});
 // Computed properties
 const deleteModalMessage = computed(() => {
   return itemToDelete.value
-    ? `Apakah Anda yakin ingin menghapus penomoran "${itemToDelete.value.penomoran}"?`
+    ? `Apakah Anda yakin ingin menghapus penomoran "${itemToDelete.value.nama}"?`
     : "Apakah Anda yakin ingin menghapus penomoran ini?";
 });
 
@@ -113,8 +115,16 @@ const formatDate = (date) => {
 const validateForm = () => {
   const errors = {};
 
-  if (!formData.value.penomoran.trim()) {
-    errors.penomoran = "Nama penomoran wajib diisi";
+  if (!formData.value.kode.trim()) {
+    errors.kode = "Kode wajib diisi";
+  }
+
+  if (!formData.value.nama.trim()) {
+    errors.nama = "Nama wajib diisi";
+  }
+
+  if (!formData.value.format.trim()) {
+    errors.format = "Format wajib diisi";
   }
 
   formErrors.value = errors;
@@ -124,69 +134,89 @@ const validateForm = () => {
 // Reset form
 const resetForm = () => {
   formData.value = {
-    penomoran: "",
+    kode: "",
+    nama: "",
+    format: "",
   };
   formErrors.value = {};
 };
 
 // Action handlers
-const handleAddUrgensiSurat = () => {
+const handleAddPenomoran = () => {
   isEditMode.value = false;
   resetForm();
   isModalOpen.value = true;
 };
 
-const handleEditUrgensiSurat = (item) => {
+const handleEditPenomoran = (item) => {
   isEditMode.value = true;
   itemToEdit.value = item;
   formData.value = {
-    penomoran: item.penomoran,
+    kode: item.kode || "",
+    nama: item.nama || "",
+    format: item.format || "",
   };
   formErrors.value = {};
   isModalOpen.value = true;
 };
 
-const handleSaveUrgensiSurat = async () => {
+const handleSavePenomoran = async () => {
   if (!validateForm()) {
     return;
   }
 
-  if (isEditMode.value) {
-    if (itemToEdit.value) {
-      const updatedData = {
-        urgensi: formData.value.urgensi.trim(),
-      };
+  try {
+    if (isEditMode.value) {
+      if (itemToEdit.value) {
+        const updatedData = {
+          kode: formData.value.kode.trim(),
+          nama: formData.value.nama.trim(),
+          format: formData.value.format.trim(),
+        };
 
-      await bphapiService.updateUrgensiSurat(itemToEdit.value.id, updatedData);
+        await persuratanApi.updateTemplatePenomoran(
+          itemToEdit.value.id,
+          updatedData,
+        );
+
+        await refreshTemplatePenomoran();
+
+        toast.add({
+          title: "Berhasil",
+          description: "Penomoran berhasil diubah",
+          color: "success",
+        });
+      }
+    } else {
+      await persuratanApi.createTemplatePenomoran({
+        kode: formData.value.kode.trim(),
+        nama: formData.value.nama.trim(),
+        format: formData.value.format.trim(),
+      });
 
       await refreshTemplatePenomoran();
 
       toast.add({
         title: "Berhasil",
-        description: "Urgensi surat berhasil diubah",
+        description: "Penomoran berhasil ditambahkan",
         color: "success",
       });
     }
-  } else {
-    await bphapiService.createUrgensiSurat({
-      urgensi: formData.value.urgensi.trim(),
-    });
 
-    await refreshTemplatePenomoran();
+    isModalOpen.value = false;
+    resetForm();
+    itemToEdit.value = null;
+    isEditMode.value = false;
 
+    triggerRef(allTemplatePenomoranData);
+  } catch (error) {
     toast.add({
-      title: "Berhasil",
-      description: "Urgensi surat berhasil ditambahkan",
-      color: "success",
+      title: "Error",
+      description:
+        error?.data?.message || "Terjadi kesalahan saat menyimpan data",
+      color: "error",
     });
   }
-
-  isModalOpen.value = false;
-  resetForm();
-  itemToEdit.value = null;
-  isEditMode.value = false;
-
-  triggerRef(allTemplatePenomoranData);
 };
 
 const handleCancelModal = () => {
@@ -196,20 +226,29 @@ const handleCancelModal = () => {
   isEditMode.value = false;
 };
 
-const handleDeleteUrgensiSurat = (item) => {
+const handleDeletePenomoran = (item) => {
   itemToDelete.value = item;
   isDeleteModalOpen.value = true;
 };
 
 const handleConfirmDelete = async () => {
   if (itemToDelete.value) {
-    const index = allUrgensiSuratData.value.findIndex(
-      (p) => p.id === itemToDelete.value.id,
-    );
-    if (index > -1) {
-      await bphapiService.deleteUrgensiSurat(itemToDelete.value.id);
-      await refreshUrgensi();
-      console.log("Urgensi surat deleted:", itemToDelete.value);
+    try {
+      await persuratanApi.deleteTemplatePenomoran(itemToDelete.value.id);
+      await refreshTemplatePenomoran();
+
+      toast.add({
+        title: "Berhasil",
+        description: "Penomoran berhasil dihapus",
+        color: "success",
+      });
+    } catch (error) {
+      toast.add({
+        title: "Error",
+        description:
+          error?.data?.message || "Terjadi kesalahan saat menghapus data",
+        color: "error",
+      });
     }
   }
   handleCancelDelete();
@@ -237,13 +276,15 @@ const handleRowClick = ({ row, index }) => {
     <div class="border-neutral-9 rounded-lg border bg-white p-6 shadow-sm">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-gray-title text-2xl font-bold">Daftar Penomoran</h1>
+          <h1 class="text-gray-title text-2xl font-bold">
+            List Format Penomoran
+          </h1>
         </div>
         <UButton
           icon="ph:plus"
           size="lg"
           class="bg-primary-main"
-          @click="handleAddUrgensiSurat"
+          @click="handleAddPenomoran"
         >
           Tambah Penomoran
         </UButton>
@@ -257,27 +298,16 @@ const handleRowClick = ({ row, index }) => {
       @update:pagination="handlePaginationUpdate"
       @row-click="handleRowClick"
     >
-      <!-- Custom slot for urgensi column -->
-      <template #urgensi-data="{ row }">
-        <div class="flex items-center gap-3">
-          <div
-            class="bg-primary-50 flex h-8 w-8 items-center justify-center rounded-lg"
-          >
-            <UIcon name="ph:clock" class="text-primary-600 h-4 w-4" />
-          </div>
-          <span class="font-medium text-gray-900"> {{ row.urgensi }} </span>
-        </div>
-      </template>
       <!-- Custom slot for createdAt column -->
       <template #createdAt-data="{ row }">
         <span class="text-sm text-gray-600">
-          {{ formatDate(row.created_at) }}
+          {{ formatDate(row.createdAt || row.created_at) }}
         </span>
       </template>
       <!-- Custom slot for updatedAt column -->
       <template #updatedAt-data="{ row }">
         <span class="text-sm text-gray-600">
-          {{ formatDate(row.updated_at) }}
+          {{ formatDate(row.updatedAt || row.updated_at) }}
         </span>
       </template>
       <!-- Custom slot for createdBy column -->
@@ -303,7 +333,7 @@ const handleRowClick = ({ row, index }) => {
             color="blue"
             variant="soft"
             :ui="{ rounded: 'rounded-full' }"
-            @click="handleEditUrgensiSurat(row)"
+            @click="handleEditPenomoran(row)"
           />
           <UButton
             icon="ph:trash"
@@ -311,38 +341,83 @@ const handleRowClick = ({ row, index }) => {
             color="red"
             variant="soft"
             :ui="{ rounded: 'rounded-full' }"
-            @click="handleDeleteUrgensiSurat(row)"
+            @click="handleDeletePenomoran(row)"
           />
         </div>
       </template>
     </DataTableComponent>
-    <!-- Urgensi Surat Modal (Create/Edit) -->
+    <!-- Penomoran Modal (Create/Edit) -->
     <ModalComponent
       v-model:is-open="isModalOpen"
-      :title="isEditMode ? 'Edit Urgensi Surat' : 'Tambah Urgensi Surat Baru'"
+      :title="isEditMode ? 'Edit Penomoran' : 'Tambah Penomoran Baru'"
       size="lg"
       @close="handleCancelModal"
     >
-      <form class="space-y-6" @submit.prevent="handleSaveUrgensiSurat">
-        <!-- Nama Urgensi Surat Field -->
+      <form class="space-y-6" @submit.prevent="handleSavePenomoran">
+        <!-- Kode Field -->
         <div>
           <label
-            for="urgensi"
+            for="kode"
             class="mb-2 block text-sm font-medium text-gray-700"
           >
-            Nama Urgensi Surat <span class="text-red-500">*</span>
+            Kode <span class="text-red-500">*</span>
           </label>
           <UInput
-            id="urgensi"
-            v-model="formData.urgensi"
+            id="kode"
+            v-model="formData.kode"
             type="text"
-            placeholder="Masukkan nama urgensi surat..."
+            placeholder="Masukkan kode penomoran (contoh: SK)..."
             size="lg"
-            :color="formErrors.urgensi ? 'red' : 'primary'"
+            :color="formErrors.kode ? 'red' : 'primary'"
             class="w-full"
           />
-          <p v-if="formErrors.urgensi" class="mt-1 text-sm text-red-600">
-            {{ formErrors.urgensi }}
+          <p v-if="formErrors.kode" class="mt-1 text-sm text-red-600">
+            {{ formErrors.kode }}
+          </p>
+        </div>
+        <!-- Nama Field -->
+        <div>
+          <label
+            for="nama"
+            class="mb-2 block text-sm font-medium text-gray-700"
+          >
+            Nama <span class="text-red-500">*</span>
+          </label>
+          <UInput
+            id="nama"
+            v-model="formData.nama"
+            type="text"
+            placeholder="Masukkan nama penomoran (contoh: Surat Keputusan)..."
+            size="lg"
+            :color="formErrors.nama ? 'red' : 'primary'"
+            class="w-full"
+          />
+          <p v-if="formErrors.nama" class="mt-1 text-sm text-red-600">
+            {{ formErrors.nama }}
+          </p>
+        </div>
+        <!-- Format Field -->
+        <div>
+          <label
+            for="format"
+            class="mb-2 block text-sm font-medium text-gray-700"
+          >
+            Format <span class="text-red-500">*</span>
+          </label>
+          <UInput
+            id="format"
+            v-model="formData.format"
+            type="text"
+            placeholder="Masukkan format penomoran (contoh: {NO}/SK/{SATKER}/{YEAR})..."
+            size="lg"
+            :color="formErrors.format ? 'red' : 'primary'"
+            class="w-full"
+          />
+          <p v-if="formErrors.format" class="mt-1 text-sm text-red-600">
+            {{ formErrors.format }}
+          </p>
+          <p class="mt-1 text-xs text-gray-500">
+            Gunakan placeholder seperti {NO}, {SATKER}, {YEAR}, dll.
           </p>
         </div>
       </form>
@@ -362,9 +437,9 @@ const handleRowClick = ({ row, index }) => {
             type="button"
             color="primary"
             size="lg"
-            @click="handleSaveUrgensiSurat"
+            @click="handleSavePenomoran"
           >
-            {{ isEditMode ? "Simpan Perubahan" : "Simpan Urgensi Surat" }}
+            {{ isEditMode ? "Simpan Perubahan" : "Simpan Penomoran" }}
           </UButton>
         </div>
       </template>
