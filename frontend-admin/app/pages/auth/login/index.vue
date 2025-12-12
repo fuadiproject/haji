@@ -11,8 +11,10 @@ definePageMeta({
   <div class="mx-auto w-full max-w-md">
     <div class="rounded-2xl bg-white p-8 shadow-lg">
       <div class="mb-8 flex flex-col items-center justify-center">
-        <NuxtImg src="/images/logo.svg" alt="Logo" class="mb-4 h-20 w-20" />
-        <h1 class="text-gray-title mb-2 text-2xl font-bold">Admin Dashboard</h1>
+        <img src="/images/logo.png" alt="Logo" class="mb-4 h-20 w-20" />
+        <h1 class="text-gray-title mb-2 text-2xl font-bold">
+          SuperApp Admin Dashboard
+        </h1>
 
         <p class="text-gray-4 text-center text-lg font-medium">
           {{ TEXT.title }}

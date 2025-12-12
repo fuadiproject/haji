@@ -232,8 +232,6 @@ const handleSaveBanner = async () => {
     let lightImageId = null;
     let darkImageId = null;
 
-    console.log("formData", formData.value);
-
     // Upload light image if a new one is selected
     if (formData.value.lightImage.files != null) {
       const form = new FormData();

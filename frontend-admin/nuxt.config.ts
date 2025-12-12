@@ -19,6 +19,7 @@ export default defineNuxtConfig({
       apiBphUrl: process.env.API_BPH_URL,
       apiMasterDataUrl: process.env.API_MASTER_DATA_URL,
       apiSuperAppUrl: process.env.API_SUPER_APP_URL,
+      apiPersuratanUrl: process.env.API_PERSURATAN_URL,
       keycloak: {
         baseUrl: process.env.KEYCLOAK_BASE_URL,
         realm: process.env.KEYCLOAK_REALM,

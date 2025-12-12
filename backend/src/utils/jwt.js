@@ -1,7 +1,19 @@
 import jwt from "jsonwebtoken";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-jwt-key";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "24h";
+
+// Load Keycloak public key from certs folder
+const KEYCLOAK_PUBLIC_KEY = fs.readFileSync(
+  path.join(__dirname, "../../certs/public.pem"),
+  "utf8"
+);
 
 /**
  * Generate JWT token
@@ -18,11 +30,25 @@ export const generateToken = (payload) => {
 };
 
 /**
- * Verify JWT token
+ * Verify JWT token using Keycloak public key (RS256) or fallback to JWT_SECRET
  * @param {string} token - JWT token
  * @returns {Object} Decoded token payload
  */
 export const verifyToken = (token) => {
+  const decoded = jwt.decode(token, { complete: true });
+
+  if (!decoded) {
+    throw new Error("Invalid token");
+  }
+
+  const { header } = decoded;
+
+  // If token uses RS256, verify with Keycloak public key
+  if (header.alg === "RS256") {
+    return jwt.verify(token, KEYCLOAK_PUBLIC_KEY, { algorithms: ["RS256"] });
+  }
+
+  // Fallback to JWT_SECRET for HS256 tokens
   return jwt.verify(token, JWT_SECRET);
 };
 
@@ -40,9 +66,8 @@ export const decodeToken = (token) => {
  * @param {string} token - JWT token
  * @returns {boolean} True if expired, false otherwise
  */
-export const isTokenExpired = (token) => {
+export const isTokenExpired = (decoded) => {
   try {
-    const decoded = decodeToken(token);
     if (!decoded || !decoded.exp) return true;
 
     const currentTime = Math.floor(Date.now() / 1000);

@@ -47,6 +47,23 @@ const menuItems = [
     icon: "ph:link",
     to: "/hyperlinks",
   },
+  {
+    id: "persuratan",
+    name: "Persuratan",
+    icon: "ph:file-text",
+    children: [
+      {
+        id: "penomoran",
+        name: "Penomoran",
+        to: "/persuratan/penomoran",
+      },
+      {
+        id: "template-file",
+        name: "Template File",
+        to: "/persuratan/template-file",
+      },
+    ],
+  },
 ];
 
 const isActive = (path) => {
@@ -135,14 +152,14 @@ watch(isCollapsed, (newValue) => {
         >
           <UIcon name="ph:caret-left" class="h-4 w-4" />
         </button>
-        <NuxtImg
-          src="/images/logo.svg"
+        <img
+          src="/images/logo.png"
           alt="Logo"
-          class="h-10 w-10 flex-shrink-0"
+          :class="[isCollapsed ? 'h-8 w-16' : 'h-10 w-12']"
         />
         <div v-show="!isCollapsed" class="transition-opacity duration-300">
           <h1 class="text-gray-title text-lg font-semibold">
-            BPHJ Admin Panel
+            BPHJ SuperApp Admin Panel
           </h1>
         </div>
       </div>
