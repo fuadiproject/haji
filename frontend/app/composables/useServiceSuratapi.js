@@ -384,9 +384,9 @@ export const useServiceSuratapi = () => {
   };
 
   // User Management
-  const getAllUsers = async ({ search = "", limit = 20 }) => {
+  const getAllUsers = async ({ search = "", limit = 20, all = undefined }) => {
     return $fetch(`${BASE_URL}/users/list`, {
-      params: { search, limit },
+      params: all ? { search, limit, all } : { search, limit },
       headers: {
         Authorization: `Bearer ${getToken()}`,
       },
