@@ -38,6 +38,8 @@ const penerimaList = ref([
   },
 ]);
 
+const hasSelectAll = ref(false);
+
 // Validasi form
 const isValidForm = computed(() => {
   return (
@@ -151,6 +153,8 @@ watch(
     @close="emit('close')"
   >
     <div class="space-y-4">
+      <USwitch v-model="hasSelectAll" label="Aktifkan pilih semua penerima" />
+
       <!-- List Penerima -->
       <div
         v-for="(penerima, index) in penerimaList"
@@ -175,6 +179,7 @@ watch(
 
         <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
           <FormSelectUserListComponent
+            :has-select-all="hasSelectAll"
             :model-value="penerima.nik_penerima"
             :label="TEXT.nikPenerima"
             @update:model-value="

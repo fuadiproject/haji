@@ -1,7 +1,7 @@
 <script setup>
 import { TEXT } from "@/constants/text";
 
-defineProps({
+const props = defineProps({
   modelValue: {
     type: String,
     default: undefined,
@@ -13,6 +13,10 @@ defineProps({
   placeholder: {
     type: String,
     default: "Pilih penerima",
+  },
+  hasSelectAll: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -30,6 +34,7 @@ const fetchUsers = async (searchTerm = "") => {
     const response = await suratApiService.getAllUsers({
       search: searchTerm,
       limit: 50,
+      all: props.hasSelectAll || undefined,
     });
     if (response.success) {
       usersList.value = response.data.map((user) => ({
@@ -66,6 +71,13 @@ const handleSearch = (searchTerm) => {
 onMounted(() => {
   fetchUsers();
 });
+
+watch(
+  () => props.hasSelectAll,
+  () => {
+    fetchUsers();
+  },
+);
 
 onUnmounted(() => {
   if (searchTimeout) {
