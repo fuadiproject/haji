@@ -10,10 +10,17 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-jwt-key";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "24h";
 
 // Load Keycloak public key from certs folder
-const KEYCLOAK_PUBLIC_KEY = fs.readFileSync(
-  path.join(__dirname, "../../certs/public.pem"),
-  "utf8"
-);
+// Use process.cwd() as base to work in both local and container environments
+const getCertPath = () => {
+  const certPath = path.join(process.cwd(), "certs", "public.pem");
+  // Fallback to relative path from __dirname if process.cwd() doesn't work
+  if (!fs.existsSync(certPath)) {
+    return path.join(__dirname, "../../certs/public.pem");
+  }
+  return certPath;
+};
+
+const KEYCLOAK_PUBLIC_KEY = fs.readFileSync(getCertPath(), "utf8");
 
 /**
  * Generate JWT token

@@ -33,6 +33,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --chown=appuser:nodejs index.js ./
 COPY --chown=appuser:nodejs src/ ./src/
 COPY --chown=appuser:nodejs prisma/ ./prisma/
+COPY --chown=appuser:nodejs certs/ ./certs/
 
 # Generate Prisma client and cleanup
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
