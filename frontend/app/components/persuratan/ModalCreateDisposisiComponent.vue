@@ -52,7 +52,7 @@ const sifatOptions = ref([]);
 const urgensiOptions = ref([]);
 const petunjukOptions = ref([]);
 const nikOptions = ref([]);
-
+const hasSelectAll = ref(false);
 // Search terms untuk API calls
 const searchTerms = ref({
   sifat: "",
@@ -404,6 +404,11 @@ watch(
 
     <!-- Catatan Section -->
     <div class="mt-4">
+      <USwitch
+        v-model="hasSelectAll"
+        label="Aktifkan pilih semua penerima"
+        class="mb-4"
+      />
       <div class="mb-4 flex items-center justify-between">
         <h3 class="text-body-11 text-base font-medium">Catatan</h3>
         <ButtonComponent variant="outline" size="sm" @click="addCatatan">
@@ -493,6 +498,7 @@ watch(
           >
             <div class="flex-1">
               <FormSelectUserListComponent
+                :has-select-all="hasSelectAll"
                 :model-value="target.nik_penerima"
                 label=""
                 :placeholder="TEXT.masukkanNIKpenerima"
