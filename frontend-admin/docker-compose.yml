@@ -4,6 +4,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - API_BASE_URL=${API_BASE_URL}
+        - API_BPH_URL=${API_BPH_URL}
+        - API_MASTER_DATA_URL=${API_MASTER_DATA_URL}
+        - API_SUPER_APP_URL=${API_SUPER_APP_URL}
+        - API_PERSURATAN_URL=${API_PERSURATAN_URL}
+        - KEYCLOAK_BASE_URL=${KEYCLOAK_BASE_URL}
+        - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+        - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
+        - KEYCLOAK_REDIRECT_URL=${KEYCLOAK_REDIRECT_URL}
+        - KEYCLOAK_LOGOUT_URL=${KEYCLOAK_LOGOUT_URL}
     ports:
       - "3002:3001"
     env_file:
