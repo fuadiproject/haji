@@ -3,7 +3,7 @@ import { TEXT } from "@/constants/text";
 import ModalSignTTEComponent from "@/components/persuratan/ModalSignTTEComponent.vue";
 import ModalRejectTTEComponent from "@/components/persuratan/ModalRejectTTEComponent.vue";
 
-defineProps({
+const props = defineProps({
   suratId: {
     type: String,
     required: true,
@@ -45,10 +45,15 @@ defineProps({
     required: false,
     default: null,
   },
-  tteLogs: {
+  tteLogsCount: {
     type: Number,
     required: false,
     default: 0,
+  },
+  tteLogs: {
+    type: Array,
+    required: false,
+    default: () => [],
   },
   urutanTte: {
     type: Number,
@@ -74,34 +79,38 @@ const emit = defineEmits([
 const isModalViewFileOpen = ref(false);
 const isModalSignOpen = ref(false);
 const isModalRejectOpen = ref(false);
+
+const currentTteLog = computed(() => {
+  return props.tteLogs[0] || null;
+});
 </script>
 
 <template>
   <CardComponent :class="{ 'border! border-green-600!': isInbox }">
     <div class="relative space-y-3">
       <div
-        v-if="type === 'suratKeluar' && (isInbox || tteLogs > 0)"
+        v-if="type === 'suratKeluar' && (isInbox || tteLogsCount > 0)"
         class="flex items-center gap-2"
       >
         <UBadge v-if="isInbox" variant="solid" class="w-fit bg-green-600">
           {{ TEXT.inbox }}
         </UBadge>
         <UBadge
-          v-if="tteLogs > 0 && urutanTte > 0 && urutanTte <= tteLogs"
+          v-if="tteLogsCount > 0 && urutanTte > 0 && urutanTte <= tteLogsCount"
           variant="solid"
           class="w-fit bg-green-800"
         >
-          {{ TEXT.progress }} : {{ urutanTte - 1 }} / {{ tteLogs }}
+          {{ TEXT.progress }} : {{ urutanTte - 1 }} / {{ tteLogsCount }}
         </UBadge>
         <UBadge
-          v-if="tteLogs > 0 && urutanTte === 0"
+          v-if="tteLogsCount > 0 && urutanTte === 0"
           variant="solid"
           class="w-fit bg-red-600"
         >
           {{ TEXT.rejected }}
         </UBadge>
         <UBadge
-          v-if="tteLogs > 0 && urutanTte > 0 && urutanTte > tteLogs"
+          v-if="tteLogsCount > 0 && urutanTte > 0 && urutanTte > tteLogsCount"
           variant="outline"
           class="w-fit border-green-600! text-green-600! ring-green-600!"
         >
@@ -138,7 +147,9 @@ const isModalRejectOpen = ref(false);
         </div>
         <div
           v-if="
-            isInbox && !(tteLogs > 0 && urutanTte === 0) && urutanTte <= tteLogs
+            isInbox &&
+            !(tteLogsCount > 0 && urutanTte === 0) &&
+            urutanTte <= tteLogsCount
           "
           class="absolute top-0 right-0 flex items-center gap-2"
         >
@@ -149,7 +160,7 @@ const isModalRejectOpen = ref(false);
             @click="isModalSignOpen = true"
           >
             <UIcon name="ph:signature-bold" class="h-4 w-4" />
-            <span>{{ TEXT.tte }}</span>
+            <span>{{ currentTteLog?.jenis }}</span>
           </ButtonComponent>
         </div>
       </div>
@@ -193,8 +204,8 @@ const isModalRejectOpen = ref(false);
             <div
               v-if="
                 isInbox &&
-                !(tteLogs > 0 && urutanTte === 0) &&
-                urutanTte <= tteLogs
+                !(tteLogsCount > 0 && urutanTte === 0) &&
+                urutanTte <= tteLogsCount
               "
             >
               <ButtonComponent
@@ -229,7 +240,7 @@ const isModalRejectOpen = ref(false);
               </ButtonComponent>
             </div>
 
-            <div v-if="type === 'suratKeluar' && tteLogs === 0">
+            <div v-if="type === 'suratKeluar' && tteLogsCount === 0">
               <ButtonComponent
                 size="sm"
                 variant="primary"
@@ -256,7 +267,7 @@ const isModalRejectOpen = ref(false);
   <ModalSignTTEComponent
     v-if="isModalSignOpen"
     :is-open="isModalSignOpen"
-    :title="`${TEXT.tte}: ${nomorSurat}`"
+    :title="`${currentTteLog?.jenis}: ${nomorSurat}`"
     :surat-id="suratId"
     :file-id="fileId"
     @close="isModalSignOpen = false"

@@ -114,7 +114,7 @@ export const TEXT = {
   inbox: "Inbox TTE",
   progress: "Progress",
   signSurat: "Sign Surat",
-  rejectTTE: "Reject TTE",
+  rejectTTE: "Reject",
   rejectTTEMessage: "Apakah Anda yakin ingin menolak TTE ini?",
   reject: "Reject",
   rejected: "Rejected",
