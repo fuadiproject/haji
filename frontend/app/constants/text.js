@@ -118,7 +118,7 @@ export const TEXT = {
   rejectTTEMessage: "Apakah Anda yakin ingin menolak TTE ini?",
   reject: "Reject",
   rejected: "Rejected",
-  searchUserPlaceholder: "Cari nama, NIP, atau NIK...",
+  searchUserPlaceholder: "Cari nama...",
   signed: "Signed",
   izin: "Izin",
   buatIzin: "Buat Izin",
