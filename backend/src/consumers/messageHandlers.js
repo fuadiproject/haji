@@ -2,7 +2,7 @@ import notificationModel from "../models/notificationModel.js";
 import userModel from "../models/userModel.js";
 import { sendPushNotification } from "../utils/oneSignal.js";
 
-const pushToOneSignal = process.env.PUSH_TO_ONESIGNAL === "true";
+const pushToOneSignal = process.env.PUSH_TO_ONESIGNAL === true;
 
 export async function handleNotificationRequest(data) {
   console.log("🔔 Processing notification request:", data);
@@ -11,7 +11,6 @@ export async function handleNotificationRequest(data) {
     if (data.type === "blast") {
       const notifications = await handleBlastNotification(data);
       console.log("✅ Notification processed:", notifications.length);
-
       // Send push notification for blast
       await pushNotifications({
         title: data.title,
@@ -20,7 +19,6 @@ export async function handleNotificationRequest(data) {
     } else {
       const notification = await handleSingleNotification(data);
       console.log("✅ Notification processed:", notification.id);
-
       // Send push notification for single user
       await pushNotifications({
         title: notification.title,
@@ -67,10 +65,6 @@ async function handleSingleNotification(data) {
 
 // TODO: Check the scenario if let's say the subscriber is more than 1000, how to handle it? reference: https://documentation.onesignal.com/reference/rate-limits
 async function pushNotifications(notification) {
-  if (!pushToOneSignal) {
-    return;
-  }
-
   try {
     // Prepare notification data for OneSignal
     const pushOptions = {
@@ -88,6 +82,7 @@ async function pushNotifications(notification) {
       // by storing OneSignal Player IDs in your user model
       pushOptions.external_user_id = [notification.userId];
     }
+
     // Send push notification via OneSignal
     const response = await sendPushNotification(pushOptions);
     console.log("✅ OneSignal push notification sent:", response.id);
