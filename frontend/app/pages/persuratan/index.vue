@@ -329,7 +329,8 @@ const handleOpenTemplateFiles = () => {
                 :file-id="surat.file?.id"
                 :file-name="surat.file?.filename"
                 :file-url="surat.file?.filepath"
-                :tte-logs="surat._count?.tteLogs || 0"
+                :tte-logs-count="surat._count?.tteLogs || 0"
+                :tte-logs="surat.tteLogs"
                 :urutan-tte="surat.urutan_tte"
                 @disposisi="
                   modalAddDisposisi.isOpen = true;

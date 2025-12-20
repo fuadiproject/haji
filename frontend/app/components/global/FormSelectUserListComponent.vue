@@ -38,7 +38,7 @@ const fetchUsers = async (searchTerm = "") => {
     });
     if (response.success) {
       usersList.value = response.data.map((user) => ({
-        label: `${user.nama} (${user.nik})`,
+        label: `${user.nama}`,
         value: user.nik,
         nik: user.nik,
         nama: user.nama,
