@@ -18,7 +18,7 @@ watch(
     if (!isOneSignalReady()) return;
 
     if (isLoggedIn) {
-      const userId = jwtInfo.value?.sub;
+      const userId = jwtInfo.value?.nik;
       // FOR NOW WE WILL ALWAYS LOGIN THE USER AND SUBSCRIBE TO THE NOTIFICATIONS
       if (userId) {
         await loginOneSignal(userId);
