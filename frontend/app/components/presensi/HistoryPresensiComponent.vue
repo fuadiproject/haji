@@ -85,18 +85,18 @@ const formatTime = (timeString) => {
   return timeString;
 };
 
-const formatCurrency = (amount) => {
-  if (amount == null) return "-";
-  try {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    }).format(amount);
-  } catch {
-    return `${amount}`;
-  }
-};
+// const formatCurrency = (amount) => {
+//   if (amount == null) return "-";
+//   try {
+//     return new Intl.NumberFormat("id-ID", {
+//       style: "currency",
+//       currency: "IDR",
+//       maximumFractionDigits: 0,
+//     }).format(amount);
+//   } catch {
+//     return `${amount}`;
+//   }
+// };
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -225,31 +225,31 @@ const getPemotonganColor = (pemotongan) => {
                 </span>
               </div>
             </div>
-            <div v-if="infoPegawai" class="flex items-center justify-between">
+            <!-- <div v-if="infoPegawai" class="flex items-center justify-between">
               <span class="text-body-3 text-xs">Tunjangan Kinerja Awal</span>
               <span class="text-body-2 text-sm font-semibold">
                 {{ formatCurrency(infoPegawai.tunkin_awal) }}
               </span>
-            </div>
+            </div> -->
             <div v-if="summaryBulanan" class="mt-2 grid grid-cols-3 gap-2">
-              <div class="flex flex-col">
+              <!-- <div class="flex flex-col">
                 <span class="text-body-3 text-[10px]">Total Potongan</span>
                 <span class="text-body-2 text-xs font-semibold">
                   {{ formatCurrency(summaryBulanan.total_potongan_bulan_ini) }}
                 </span>
-              </div>
+              </div> -->
               <div class="flex flex-col">
-                <span class="text-body-3 text-[10px]">Persentase</span>
+                <span class="text-body-3 text-[10px]">Persentase Potongan</span>
                 <span class="text-body-2 text-xs font-semibold">
                   {{ summaryBulanan.persentase_potongan }}%
                 </span>
               </div>
-              <div class="flex flex-col text-right">
+              <!-- <div class="flex flex-col text-right">
                 <span class="text-body-3 text-[10px]">Tunkin Diterima</span>
                 <span class="text-body-2 text-xs font-semibold">
                   {{ formatCurrency(summaryBulanan.tunkin_diterima) }}
                 </span>
-              </div>
+              </div> -->
             </div>
           </div>
         </CardComponent>

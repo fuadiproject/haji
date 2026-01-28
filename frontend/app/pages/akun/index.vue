@@ -62,18 +62,18 @@ const infoAkunMenu = computed(() => [
     name: "Timezone",
     value: profileData.value?.kantor?.timezone,
   },
-  {
-    id: "kelas_jabatan",
-    name: "Kelas Jabatan",
-    value: profileData.value?.kelasJabatan?.kelas_jabatan,
-  },
-  {
-    id: "tunkin",
-    name: "Tunjangan Kinerja",
-    value: profileData.value?.kelasJabatan?.tunkin
-      ? `Rp. ${new Intl.NumberFormat("id-ID").format(profileData.value?.kelasJabatan?.tunkin)}`
-      : "-",
-  },
+  // {
+  //   id: "kelas_jabatan",
+  //   name: "Kelas Jabatan",
+  //   value: profileData.value?.kelasJabatan?.kelas_jabatan,
+  // },
+  // {
+  //   id: "tunkin",
+  //   name: "Tunjangan Kinerja",
+  //   value: profileData.value?.kelasJabatan?.tunkin
+  //     ? `Rp. ${new Intl.NumberFormat("id-ID").format(profileData.value?.kelasJabatan?.tunkin)}`
+  //     : "-",
+  // },
 ]);
 
 const handleBack = () => {
