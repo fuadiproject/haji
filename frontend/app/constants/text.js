@@ -16,7 +16,6 @@ export const TEXT = {
   laporanKehadiran: "Laporan Kehadiran",
   jadwalKerja: "Jadwal Kerja",
   stafKhusus: "Staf Khusus",
-  stafKhususDescription: "08:00 - 17:00",
   persenPemotongan: "Persentase Pemotongan",
   infoKehadiran: "Klik tombol di atas untuk mencatat kehadiran Anda",
   riwayatKehadiran: "Riwayat Kehadiran",

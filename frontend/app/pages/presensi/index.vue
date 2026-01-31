@@ -18,9 +18,17 @@ const {
 const { currentTime, currentDate } = useRealtimeClock();
 
 const isEmpty = ref(false);
-const maxJamDatangHariIni = ref("08:00");
-const maxJamPulangHariIni = ref("17:00");
 const isModalHistoryPresensiOpen = ref(false);
+
+// Jam kerja berdasarkan hari
+// Senin - Kamis: 07:30 - 16:00
+// Jumat: 07:30 - 16:30
+const isFriday = computed(() => new Date().getDay() === 5);
+const maxJamDatangHariIni = computed(() => "07:30");
+const maxJamPulangHariIni = computed(() => (isFriday.value ? "16:30" : "16:00"));
+const jadwalKerjaHariIni = computed(() =>
+  isFriday.value ? "07:30 - 16:30" : "07:30 - 16:00",
+);
 const isModalCreateIzinOpen = ref(false);
 const isModalHistoryIzinOpen = ref(false);
 const refreshIzinKey = ref(0);
@@ -116,9 +124,7 @@ const handleRefreshIzin = () => {
         <p class="text-body-3 text-sm leading-4 font-medium">
           {{ TEXT.jadwalKerja }}:
         </p>
-        <p class="text-body-2 text-base font-semibold">
-          {{ TEXT.stafKhususDescription }}
-        </p>
+        <p class="text-body-2 text-base font-semibold">{{ jadwalKerjaHariIni }}</p>
       </div>
 
       <div
