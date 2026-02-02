@@ -1,0 +1,1766 @@
+{
+  "info": {
+    "_postman_id": "6ecd9f2e-22db-4bf9-b49d-02632e1ac163",
+    "name": "Presensi Kemenhaj API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49530068",
+    "_collection_link": "https://go.postman.co/collection/49530068-6ecd9f2e-22db-4bf9-b49d-02632e1ac163?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Pegawai",
+      "item": [
+        {
+          "name": "Get All Pegawai",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTadmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/pegawai",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "pegawai"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pegwai by NIP",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTadmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/pegawai/198001012000121001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "pegawai",
+                "198001012000121001"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pegawai by Satker",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTadmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/pegawai/by-kantor/01000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "pegawai",
+                "by-kantor",
+                "01000000"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Pegawai",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTadmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"jabatan\": \"Staf Administrasi\",\r\n    \"pangkat\": \"Penata\",\r\n    \"golongan\": \"III/c\",\r\n    \"kelas_jabatan_id\": 2\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/pegawai/198001012000121001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "pegawai",
+                "198001012000121001"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Pegwai",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTadmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/pegawai/199508172022031001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "pegawai",
+                "199508172022031001"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create New Pegawai",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nip\": \"1996080320181230002\",\n    \"nama\": \"Nahla Safira\",\n    \"gelar_depan\": \"H.\",\n    \"gelar_belakang\": \"S.Kom\",\n    \"jabatan\": \"Pranata Komputer\",\n    \"pangkat\": \"Penata Muda\",\n    \"golongan\": \"III/a\",\n    \"kode_satker\": \"k001\",\n    \"kelas_jabatan_id\": 2\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/pegawai",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "pegawai"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Kantor",
+      "item": [
+        {
+          "name": "Create New",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"kode_satker\": \"k003\",\r\n    \"nama\": \"UPT Asrama Haji Embarkasi Makassar\",\r\n    \"tipe\": \"asrama\",\r\n    \"timezone\": \"Asia/Makassar\",\r\n    \"latitude\": -5.084786,\r\n    \"longitude\": 119.5363305\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/kantor",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "kantor"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update by kode satker",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \r\n            \"nama\": \"Kantor Kementerian Haji dan Umrah RI Pusat\",\r\n            \"tipe\": \"pusat\",\r\n            \"timezone\": \"Asia/Jakarta\",\r\n            \"latitude\" : -6.1839225,\r\n            \"longitude\" : 106.82012\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/kantor/k001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "kantor",
+                "k001"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/kantor",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "kantor"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get by Kode Satker",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/kantor/01000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "kantor",
+                "01000000"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTadmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/kantor/{hapus_is_kode_satker}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "kantor",
+                "{hapus_is_kode_satker}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "kehadiran",
+      "item": [
+        {
+          "name": "check-in",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTkeycloak}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\r\n\"latitude\": -5.084786,\r\n\"longitude\": 119.5363305\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/kehadiran/check-in",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "kehadiran",
+                "check-in"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "check-out",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTkeycloak}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\r\n\"latitude\": -5.084786,\r\n\"longitude\": 119.5363305\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/kehadiran/check-out",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "kehadiran",
+                "check-out"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "rekapbulan",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTkeycloak}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/kehadiran/rekap?bulan=10&tahun=2025",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "kehadiran",
+                "rekap"
+              ],
+              "query": [
+                {
+                  "key": "bulan",
+                  "value": "10"
+                },
+                {
+                  "key": "tahun",
+                  "value": "2025"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "history-today",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTkeycloak}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/kehadiran/history-today?nip=198001012000121001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "kehadiran",
+                "history-today"
+              ],
+              "query": [
+                {
+                  "key": "nip",
+                  "value": "198001012000121001"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "rekap-per-satker",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTadmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/kehadiran/rekap-satker?kode_satker=01000000&bulan=01&tahun=2026",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "kehadiran",
+                "rekap-satker"
+              ],
+              "query": [
+                {
+                  "key": "kode_satker",
+                  "value": "01000000"
+                },
+                {
+                  "key": "bulan",
+                  "value": "01"
+                },
+                {
+                  "key": "tahun",
+                  "value": "2026"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "kelas-jabatan",
+      "item": [
+        {
+          "name": "Create New",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"kelas_jabatan\": 4,\r\n    \"tunkin\": 2500000\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/kelas-jabatan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "kelas-jabatan"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update by id",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n   \r\n    \"tunkin\": 2600000\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/kelas-jabatan/4",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "kelas-jabatan",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/kelas-jabatan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "kelas-jabatan"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/kelas-jabatan/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "kelas-jabatan",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/kantor/k003",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "kantor",
+                "k003"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "libur-nasional",
+      "item": [
+        {
+          "name": "Create New",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTadmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"tanggal\": \"2025-12-25\",\r\n    \"nama\": \"Hari Raya Natal\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/libur-nasional",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "libur-nasional"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update by id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTadmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"tanggal\": \"2025-10-24\",\r\n    \"nama\": \"Hari Raya Idul Fitri\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/libur-nasional/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "libur-nasional",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/libur-nasional",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "libur-nasional"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get by id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTadmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/libur-nasional/2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "libur-nasional",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTadmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/libur-nasional/3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "libur-nasional",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "izin",
+      "item": [
+        {
+          "name": "Create New",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nip\": \"198001012000121001\",\r\n  \"kode_satker\": \"k001\",\r\n  \"kategori\": \"cuti_sakit\",\r\n  \"tanggal_awal\": \"2025-10-27\",\r\n  \"tanggal_akhir\": \"2025-10-28\",\r\n  \"alasan\": \"Perlu istirahat karena demam tinggi, surat dokter terlampir.\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/izin",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "izin"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update by id",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\r\n  \"status_persetujuan\": \"disetujui\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/izin/5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "izin",
+                "5"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/izin",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "izin"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get by satker",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/izin?kode_satker=k001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "izin"
+              ],
+              "query": [
+                {
+                  "key": "kode_satker",
+                  "value": "k001"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/izin/5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "izin",
+                "5"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "item": [
+        {
+          "name": "Create New",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTadmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nama_satker\": \"Sekretariat Jenderal\",\r\n    \"username\": \"admin_sekjen\",\r\n    \"password\": \"password123\",\r\n    \"kode_satker\": \"01000000\",\r\n    \"role\": \"admin_satker\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let jsonData = pm.response.json();\r",
+                  "\r",
+                  "// Simpan token ke environment variable\r",
+                  "pm.environment.set(\"tokenJWTadmin\", jsonData.token);\r",
+                  "\r",
+                  "// Tambahan: cek token berhasil disimpan\r",
+                  "pm.test(\"Token berhasil disimpan\", function () {\r",
+                  "    pm.expect(pm.environment.get(\"tokenJWTadmin\")).to.not.be.undefined;\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\r\n    \"username\": \"admin_pusat\",\r\n    \"password\": \"password123\"\r\n\r\n}\r\n \r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/users/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "users",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update by id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTadmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"nama_satker\": \"Kantor Kementerian Haji dan Umrah RI Pusat\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/users/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "users",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTadmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Au",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get user by id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTadmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/users/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "users",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTadmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/presensi/v1/users/3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "presensi",
+                "v1",
+                "users",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "pengguna",
+      "item": [
+        {
+          "name": "check-out",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTkeycloak}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\r\n\"latitude\": -5.084786,\r\n\"longitude\": 119.5363305\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/kehadiran/check-out",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "kehadiran",
+                "check-out"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "check-in",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTkeycloak}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\r\n\"latitude\": -5.084786,\r\n\"longitude\": 119.5363305\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/kehadiran/check-in",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "kehadiran",
+                "check-in"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login-Keycloak",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let jsonData = pm.response.json();\r",
+                  "\r",
+                  "// Simpan token ke environment variable\r",
+                  "pm.environment.set(\"tokenJWTkeycloak\", jsonData.access_token);\r",
+                  "\r",
+                  "// Tambahan: cek token berhasil disimpan\r",
+                  "pm.test(\"Token berhasil disimpan\", function () {\r",
+                  "    pm.expect(pm.environment.get(\"tokenJWTkeycloak\")).to.not.be.undefined;\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "inherit"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "password",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "bph-client",
+                  "type": "text"
+                },
+                {
+                  "key": "client_secret",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "username",
+                  "value": "199608032018121001",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "123456",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://keycloak.haji.go.id/realms/kemenhaj/protocol/openid-connect/token",
+              "protocol": "https",
+              "host": [
+                "keycloak",
+                "haji",
+                "go",
+                "id"
+              ],
+              "path": [
+                "realms",
+                "kemenhaj",
+                "protocol",
+                "openid-connect",
+                "token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create izin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTkeycloak}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\r\n  \"kategori\": \"cuti_sakit\",\r\n  \"tanggal_awal\": \"2025-11-5\",\r\n  \"tanggal_akhir\": \"2025-11-6\",\r\n  \"alasan\": \"Perlu istirahat karena demam tinggi, surat dokter terlampir.\",\r\n  \"lampiran\" : \"{{file_lampiran}}\",\r\n  \"nama_lampiran\" : \"testing-dokumen.pdf\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pengguna/izin",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "pengguna",
+                "izin"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get izin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTkeycloak}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pengguna/my-izin",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "pengguna",
+                "my-izin"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "rekapbulan",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTkeycloak}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/kehadiran/rekap?bulan=11&tahun=2025",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "kehadiran",
+                "rekap"
+              ],
+              "query": [
+                {
+                  "key": "bulan",
+                  "value": "11"
+                },
+                {
+                  "key": "tahun",
+                  "value": "2025"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "jadwal-kerja",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTkeycloak}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Au",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pengguna/jadwal-kerja",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "pengguna",
+                "jadwal-kerja"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "history-today",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTkeycloak}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Au",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pengguna/history-today",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "pengguna",
+                "history-today"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "profil",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJWTkeycloak}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pengguna/profil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "pengguna",
+                "profil"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "jadwal-kerja",
+      "item": [
+        {
+          "name": "Create New",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nip\": \"198001012000121001\",\r\n    \"tanggal\": \"2025-10-26\",\r\n    \"kode_satker\": \"k001\",\r\n    \"status\": \"wfh\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jadwal-kerja",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jadwal-kerja"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update by id",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nip\": \"198001012000121001\",\r\n    \"tanggal\": \"2025-10-28\",\r\n    \"kode_satker\": \"k001\",\r\n    \"status\": \"wfh\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jadwal-kerja/5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jadwal-kerja",
+                "5"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jadwal-kerja",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jadwal-kerja"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get by NIP",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jadwal-kerja/by-nip/198001012000121001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jadwal-kerja",
+                "by-nip",
+                "198001012000121001"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get by satker dan tanggal",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jadwal-kerja/by-satker?kode_satker=k001&tanggal=2025-10-26",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jadwal-kerja",
+                "by-satker"
+              ],
+              "query": [
+                {
+                  "key": "kode_satker",
+                  "value": "k001"
+                },
+                {
+                  "key": "tanggal",
+                  "value": "2025-10-26"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get by satker",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jadwal-kerja/all-by-satker?kode_satker=k001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jadwal-kerja",
+                "all-by-satker"
+              ],
+              "query": [
+                {
+                  "key": "kode_satker",
+                  "value": "k001"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jadwal-kerja/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jadwal-kerja",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}
