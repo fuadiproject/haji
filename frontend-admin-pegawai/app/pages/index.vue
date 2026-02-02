@@ -6,7 +6,7 @@ definePageMeta({
 const { user } = useAuth();
 
 const roleLabel = computed(() => {
-  return user.value?.role === "admin_pusat" ? "Admin Pusat" : "Admin Satker";
+  return user.value?.role === "admin" ? "Admin Pusat" : "Admin Satker";
 });
 </script>
 

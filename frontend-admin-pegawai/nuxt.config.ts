@@ -16,10 +16,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBaseUrl: process.env.API_BASE_URL,
-      apiBphUrl: process.env.API_BPH_URL,
-      apiMasterDataUrl: process.env.API_MASTER_DATA_URL,
-      apiSuperAppUrl: process.env.API_SUPER_APP_URL,
-      apiPersuratanUrl: process.env.API_PERSURATAN_URL,
+      apiUserPresensiUrl: process.env.API_USER_PRESENSI_URL
     },
   },
 });

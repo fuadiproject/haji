@@ -51,7 +51,7 @@ const adminSatkerMenu = [
 ];
 
 const menuItems = computed(() => {
-  return user.value?.role === "admin_pusat" ? adminPusatMenu : adminSatkerMenu;
+  return user.value?.role === "admin" ? adminPusatMenu : adminSatkerMenu;
 });
 
 const isActive = (path) => {

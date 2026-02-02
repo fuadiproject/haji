@@ -12,15 +12,20 @@ const handleLogin = async () => {
   error.value = "";
   isLoading.value = true;
 
-  const result = login(username.value, password.value);
+  try {
+    const result = await login(username.value, password.value);
 
-  if (result.success) {
-    await navigateTo("/");
-  } else {
-    error.value = result.error;
+    if (result.success) {
+      await navigateTo("/");
+    } else {
+      error.value = result.error;
+    }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (err) {
+    error.value = "Terjadi kesalahan jaringan. Silakan coba lagi.";
+  } finally {
+    isLoading.value = false;
   }
-
-  isLoading.value = false;
 };
 
 definePageMeta({

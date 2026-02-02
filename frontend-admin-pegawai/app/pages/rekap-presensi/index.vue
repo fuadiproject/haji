@@ -5,8 +5,14 @@ definePageMeta({
 });
 
 const { user, hasRole } = useAuth();
+const { getAllKantor, getRekapSatker } = usePresensiApi();
+const toast = useToast();
 
-const isAdminPusat = hasRole("admin_pusat");
+const isAdminPusat = hasRole("admin");
+
+// Loading states
+const isLoading = ref(false);
+const isLoadingKantor = ref(false);
 
 // Modal state
 const isDetailModalOpen = ref(false);
@@ -16,7 +22,7 @@ const selectedItem = ref(null);
 const currentDate = new Date();
 const selectedMonth = ref(currentDate.getMonth() + 1);
 const selectedYear = ref(currentDate.getFullYear());
-const selectedSatker = ref("all");
+const selectedSatker = ref(null);
 
 // Filter options
 const monthOptions = [
@@ -40,61 +46,11 @@ const yearOptions = [
   { label: "2026", value: 2026 },
 ];
 
-const satkerOptions = [
-  { label: "Semua Satker", value: "all" },
-  { label: "Sekretariat Jenderal", value: "01000000" },
-  { label: "Inspektorat Jenderal", value: "02000000" },
-  { label: "Direktorat Jenderal Penyelenggaraan Haji", value: "03000000" },
-];
+// Dynamic satker options from API
+const satkerOptions = ref([]);
 
 // Data
-const presensiData = ref([
-  {
-    nip: "199001012020011001",
-    nama: "Ahmad Fauzi",
-    hadir: 20,
-    izin: 1,
-    sakit: 1,
-    alfa: 0,
-    total_hari_kerja: 22,
-  },
-  {
-    nip: "199203152021012002",
-    nama: "Siti Rahayu",
-    hadir: 21,
-    izin: 0,
-    sakit: 1,
-    alfa: 0,
-    total_hari_kerja: 22,
-  },
-  {
-    nip: "198807202019031003",
-    nama: "Budi Santoso",
-    hadir: 19,
-    izin: 2,
-    sakit: 0,
-    alfa: 1,
-    total_hari_kerja: 22,
-  },
-  {
-    nip: "199505102022011004",
-    nama: "Dewi Lestari",
-    hadir: 22,
-    izin: 0,
-    sakit: 0,
-    alfa: 0,
-    total_hari_kerja: 22,
-  },
-  {
-    nip: "199112252020021005",
-    nama: "Rizki Pratama",
-    hadir: 18,
-    izin: 1,
-    sakit: 2,
-    alfa: 1,
-    total_hari_kerja: 22,
-  },
-]);
+const presensiData = ref([]);
 
 // Table columns configuration
 const columns = [
@@ -111,42 +67,30 @@ const columns = [
   {
     key: "nama",
     label: "Nama",
-    width: "20%",
-  },
-  {
-    key: "hadir",
-    label: "Hadir",
-    width: "10%",
-    headerClass: "text-center",
-  },
-  {
-    key: "izin",
-    label: "Izin",
-    width: "10%",
-    headerClass: "text-center",
-  },
-  {
-    key: "sakit",
-    label: "Sakit",
-    width: "10%",
-    headerClass: "text-center",
-  },
-  {
-    key: "alfa",
-    label: "Alfa",
-    width: "10%",
-    headerClass: "text-center",
+    width: "22%",
   },
   {
     key: "total_hari_kerja",
     label: "Total Hari Kerja",
-    width: "12%",
+    width: "15%",
+    headerClass: "text-center",
+  },
+  {
+    key: "total_pelanggaran",
+    label: "Total Pelanggaran",
+    width: "15%",
+    headerClass: "text-center",
+  },
+  {
+    key: "persentase_potongan",
+    label: "Persentase Potongan",
+    width: "15%",
     headerClass: "text-center",
   },
   {
     key: "actions",
     label: "Aksi",
-    width: "5%",
+    width: "10%",
   },
 ];
 
@@ -168,8 +112,12 @@ const paginationConfig = ref({
 // Computed properties
 const tableData = computed(() => {
   return presensiData.value.map((item, index) => ({
-    ...item,
     no: index + 1,
+    nip: item.nip,
+    nama: item.nama,
+    total_hari_kerja: item.summary_bulanan?.total_hari_kerja || 0,
+    total_pelanggaran: item.summary_bulanan?.total_pelanggaran || 0,
+    persentase_potongan: item.summary_bulanan?.persentase_potongan || 0,
   }));
 });
 
@@ -178,16 +126,73 @@ const selectedMonthLabel = computed(() => {
   return month?.label || "";
 });
 
+const selectedSatkerLabel = computed(() => {
+  if (isAdminPusat) {
+    const satker = satkerOptions.value.find((s) => s.value === selectedSatker.value);
+    return satker?.label || "";
+  }
+  return user.value?.nama_satker || "";
+});
+
 // Helper functions
-const getAttendancePercentage = (item) => {
-  if (!item || item.total_hari_kerja === 0) return 0;
-  return Math.round((item.hadir / item.total_hari_kerja) * 100);
+const getPotonganColor = (percentage) => {
+  if (percentage === 0) return "text-green-600";
+  if (percentage <= 50) return "text-yellow-600";
+  return "text-red-600";
 };
 
-const getAttendanceColor = (percentage) => {
-  if (percentage >= 90) return "text-green-600";
-  if (percentage >= 75) return "text-yellow-600";
-  return "text-red-600";
+// Fetch kantor list from API (for admin_pusat)
+const fetchKantor = async () => {
+  isLoadingKantor.value = true;
+  try {
+    const response = await getAllKantor();
+    satkerOptions.value =
+      (response?.data || response)?.map((kantor) => ({
+        label: kantor.nama,
+        value: kantor.kode_satker,
+      })) || [];
+  } catch (error) {
+    toast.add({
+      title: "Error",
+      description: "Gagal memuat data satker",
+      color: "error",
+    });
+  } finally {
+    isLoadingKantor.value = false;
+  }
+};
+
+// Fetch rekap data from API
+const fetchRekapPresensi = async () => {
+  // For admin_pusat, wait until satker is selected
+  if (isAdminPusat && !selectedSatker.value) {
+    presensiData.value = [];
+    return;
+  }
+
+  isLoading.value = true;
+  try {
+    // Determine kode_satker based on role
+    const kodeSatker = isAdminPusat
+      ? selectedSatker.value
+      : user.value?.kode_satker;
+
+    // Format month as 2-digit string
+    const bulan = String(selectedMonth.value).padStart(2, "0");
+    const tahun = String(selectedYear.value);
+
+    const response = await getRekapSatker(kodeSatker, bulan, tahun);
+    presensiData.value = response?.data || [];
+  } catch (error) {
+    toast.add({
+      title: "Error",
+      description: "Gagal memuat data rekap presensi",
+      color: "error",
+    });
+    presensiData.value = [];
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 // Action handlers
@@ -201,10 +206,61 @@ const handleCloseDetail = () => {
   selectedItem.value = null;
 };
 
+const handleExportExcel = async () => {
+  if (tableData.value.length === 0) {
+    toast.add({
+      title: "Info",
+      description: "Tidak ada data untuk di-export",
+      color: "warning",
+    });
+    return;
+  }
+
+  // Prepare data for export
+  const exportData = tableData.value.map((item) => ({
+    "No": item.no,
+    "NIP": item.nip,
+    "Nama": item.nama,
+    "Total Hari Kerja": item.total_hari_kerja,
+    "Total Pelanggaran": item.total_pelanggaran,
+    "Presentase Potongan": `${item.persentase_potongan}%`,
+  }));
+
+  // Create workbook and worksheet
+  const XLSX = await import("xlsx");
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap Presensi");
+
+  // Generate filename
+  const monthLabel = selectedMonthLabel.value.toLowerCase();
+  const satkerName = selectedSatkerLabel.value.toLowerCase().replace(/\s+/g, "_");
+  const fileName = `rekap_presensi_${monthLabel}_${selectedYear.value}_${satkerName}.xlsx`;
+
+  // Download file
+  XLSX.writeFile(workbook, fileName);
+};
+
 // Table event handlers
 const handlePaginationUpdate = (newPagination) => {
   paginationConfig.value = { ...newPagination };
 };
+
+// Watch filters and fetch on change
+watch([selectedMonth, selectedYear, selectedSatker], () => {
+  fetchRekapPresensi();
+});
+
+// Initialize on mount
+onMounted(async () => {
+  if (isAdminPusat) {
+    await fetchKantor();
+    if (satkerOptions.value.length > 0) {
+      selectedSatker.value = satkerOptions.value[0].value;
+    }
+  }
+  fetchRekapPresensi();
+});
 </script>
 
 <template>
@@ -237,7 +293,15 @@ const handlePaginationUpdate = (newPagination) => {
           <label class="mb-2 block text-sm font-medium text-gray-700">
             Satker
           </label>
-          <USelect v-model="selectedSatker" :items="satkerOptions" size="lg" class="w-full" />
+          <USelect
+            v-model="selectedSatker"
+            :items="satkerOptions"
+            :loading="isLoadingKantor"
+            :disabled="isLoadingKantor"
+            placeholder="Pilih Satker"
+            size="lg"
+            class="w-full"
+          />
         </div>
         <div v-else class="flex items-end pb-2">
           <div
@@ -251,7 +315,7 @@ const handlePaginationUpdate = (newPagination) => {
         </div>
 
          <div class="ml-auto">
-          <UButton color="primary" size="lg" icon="ph:export">
+          <UButton color="primary" size="lg" icon="ph:export" @click="handleExportExcel">
             Export
           </UButton>
         </div>
@@ -263,6 +327,7 @@ const handlePaginationUpdate = (newPagination) => {
       :data="tableData"
       :columns="columns"
       :pagination="paginationConfig"
+      :loading="isLoading"
       @update:pagination="handlePaginationUpdate"
     >
       <!-- Custom slot for no column -->
@@ -289,41 +354,35 @@ const handlePaginationUpdate = (newPagination) => {
         </div>
       </template>
 
-      <!-- Custom slot for hadir column -->
-      <template #hadir-data="{ row }">
-        <div class="text-center">
-          <span class="text-sm font-medium text-green-600">{{ row.hadir }}</span>
-        </div>
-      </template>
-
-      <!-- Custom slot for izin column -->
-      <template #izin-data="{ row }">
-        <div class="text-center">
-          <span class="text-sm font-medium text-blue-600">{{ row.izin }}</span>
-        </div>
-      </template>
-
-      <!-- Custom slot for sakit column -->
-      <template #sakit-data="{ row }">
-        <div class="text-center">
-          <span class="text-sm font-medium text-yellow-600">
-            {{ row.sakit }}
-          </span>
-        </div>
-      </template>
-
-      <!-- Custom slot for alfa column -->
-      <template #alfa-data="{ row }">
-        <div class="text-center">
-          <span class="text-sm font-medium text-red-600">{{ row.alfa }}</span>
-        </div>
-      </template>
-
       <!-- Custom slot for total_hari_kerja column -->
       <template #total_hari_kerja-data="{ row }">
         <div class="text-center">
           <span class="text-sm font-medium text-gray-900">
             {{ row.total_hari_kerja }}
+          </span>
+        </div>
+      </template>
+
+      <!-- Custom slot for total_pelanggaran column -->
+      <template #total_pelanggaran-data="{ row }">
+        <div class="text-center">
+          <span
+            class="text-sm font-medium"
+            :class="row.total_pelanggaran > 0 ? 'text-red-600' : 'text-green-600'"
+          >
+            {{ row.total_pelanggaran }}
+          </span>
+        </div>
+      </template>
+
+      <!-- Custom slot for persentase_potongan column -->
+      <template #persentase_potongan-data="{ row }">
+        <div class="text-center">
+          <span
+            class="text-sm font-medium"
+            :class="getPotonganColor(row.persentase_potongan)"
+          >
+            {{ row.persentase_potongan }}%
           </span>
         </div>
       </template>
@@ -375,62 +434,47 @@ const handlePaginationUpdate = (newPagination) => {
         </div>
 
         <!-- Attendance Summary -->
-        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div class="rounded-lg border border-green-200 bg-green-50 p-4 text-center">
-            <p class="text-2xl font-bold text-green-600">
-              {{ selectedItem.hadir }}
-            </p>
-            <p class="text-sm text-green-700">Hadir</p>
-          </div>
+        <div class="grid grid-cols-3 gap-4">
           <div class="rounded-lg border border-blue-200 bg-blue-50 p-4 text-center">
             <p class="text-2xl font-bold text-blue-600">
-              {{ selectedItem.izin }}
+              {{ selectedItem.total_hari_kerja }}
             </p>
-            <p class="text-sm text-blue-700">Izin</p>
-          </div>
-          <div class="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-center">
-            <p class="text-2xl font-bold text-yellow-600">
-              {{ selectedItem.sakit }}
-            </p>
-            <p class="text-sm text-yellow-700">Sakit</p>
+            <p class="text-sm text-blue-700">Total Hari Kerja</p>
           </div>
           <div class="rounded-lg border border-red-200 bg-red-50 p-4 text-center">
             <p class="text-2xl font-bold text-red-600">
-              {{ selectedItem.alfa }}
+              {{ selectedItem.total_pelanggaran }}
             </p>
-            <p class="text-sm text-red-700">Alfa</p>
+            <p class="text-sm text-red-700">Total Pelanggaran</p>
           </div>
-        </div>
-
-        <!-- Attendance Percentage -->
-        <div class="rounded-lg border border-gray-200 bg-white p-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-600">Persentase Kehadiran</p>
-              <p class="text-sm text-gray-500">
-                {{ selectedItem.hadir }} dari {{ selectedItem.total_hari_kerja }} hari kerja
-              </p>
-            </div>
+          <div
+            class="rounded-lg border p-4 text-center"
+            :class="
+              selectedItem.persentase_potongan === 0
+                ? 'border-green-200 bg-green-50'
+                : selectedItem.persentase_potongan <= 50
+                  ? 'border-yellow-200 bg-yellow-50'
+                  : 'border-red-200 bg-red-50'
+            "
+          >
             <p
-              class="text-3xl font-bold"
-              :class="getAttendanceColor(getAttendancePercentage(selectedItem))"
+              class="text-2xl font-bold"
+              :class="getPotonganColor(selectedItem.persentase_potongan)"
             >
-              {{ getAttendancePercentage(selectedItem) }}%
+              {{ selectedItem.persentase_potongan }}%
             </p>
-          </div>
-          <!-- Progress Bar -->
-          <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-gray-200">
-            <div
-              class="h-full rounded-full transition-all duration-300"
+            <p
+              class="text-sm"
               :class="
-                getAttendancePercentage(selectedItem) >= 90
-                  ? 'bg-green-500'
-                  : getAttendancePercentage(selectedItem) >= 75
-                    ? 'bg-yellow-500'
-                    : 'bg-red-500'
+                selectedItem.persentase_potongan === 0
+                  ? 'text-green-700'
+                  : selectedItem.persentase_potongan <= 50
+                    ? 'text-yellow-700'
+                    : 'text-red-700'
               "
-              :style="{ width: `${getAttendancePercentage(selectedItem)}%` }"
-            />
+            >
+              Persentase Potongan
+            </p>
           </div>
         </div>
       </div>

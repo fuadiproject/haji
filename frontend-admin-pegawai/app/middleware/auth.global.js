@@ -6,7 +6,15 @@ export default defineNuxtRouteMiddleware((to) => {
   const publicPages = ["/auth/login"];
   const isPublicPage = publicPages.includes(to.path);
 
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, checkTokenExpiration } = useAuth();
+
+  // Check token expiration on every navigation (except public pages)
+  if (!isPublicPage) {
+    const isExpired = checkTokenExpiration();
+    if (isExpired) {
+      return navigateTo("/auth/login");
+    }
+  }
 
   if (isPublicPage) {
     if (isAuthenticated.value) {

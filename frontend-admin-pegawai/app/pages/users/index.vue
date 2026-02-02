@@ -6,11 +6,18 @@ definePageMeta({
   description: "Kelola data user dan admin",
 });
 
-const { hasRole } = useAuth();
+const { hasRole, checkTokenExpiration } = useAuth();
+const { getAllUsers, getAllKantor, createUser, updateUser, deleteUser } = usePresensiApi();
 
-if (!hasRole("admin_pusat")) {
+if (!hasRole("admin")) {
   navigateTo("/");
 }
+
+// Loading states
+const isLoadingUsers = ref(true);
+const isLoadingKantor = ref(true);
+const isSaving = ref(false);
+const isDeleting = ref(false);
 
 // Modal state
 const isModalOpen = ref(false);
@@ -20,20 +27,7 @@ const itemToEdit = ref(null);
 const modalMode = ref("add");
 
 // Data
-const users = ref([
-  {
-    id: 1,
-    username: "admin_pusat",
-    nama_satker: "Pusat",
-    role: "admin_pusat",
-  },
-  {
-    id: 2,
-    username: "admin_satker",
-    nama_satker: "Sekretariat Jenderal",
-    role: "admin_satker",
-  },
-]);
+const users = ref([]);
 
 // Form data
 const formData = ref({
@@ -41,6 +35,7 @@ const formData = ref({
   password: "",
   role: "admin_satker",
   nama_satker: "",
+  kode_satker: "",
 });
 
 // Form validation errors
@@ -48,19 +43,11 @@ const formErrors = ref({});
 
 // Options
 const roleOptions = [
-  { label: "Admin Pusat", value: "admin_pusat" },
+  { label: "Admin Pusat", value: "admin" },
   { label: "Admin Satker", value: "admin_satker" },
 ];
 
-const satkerOptions = [
-  { label: "Pusat", value: "Pusat" },
-  { label: "Sekretariat Jenderal", value: "Sekretariat Jenderal" },
-  { label: "Inspektorat Jenderal", value: "Inspektorat Jenderal" },
-  {
-    label: "Direktorat Jenderal Penyelenggaraan Haji",
-    value: "Direktorat Jenderal Penyelenggaraan Haji",
-  },
-];
+const satkerOptions = ref([]);
 
 // Table columns configuration
 const columns = [
@@ -120,6 +107,58 @@ const tableData = computed(() => {
   }));
 });
 
+// Fetch users from API
+const fetchUsers = async () => {
+  if (checkTokenExpiration()) return;
+
+  isLoadingUsers.value = true;
+  try {
+    const response = await getAllUsers();
+    if (response?.data) {
+      users.value = response.data;
+    } else if (Array.isArray(response)) {
+      users.value = response;
+    }
+  } catch (error) {
+    toast.add({
+      title: "Error",
+      description: "Gagal memuat data user",
+      color: "error",
+    });
+  } finally {
+    isLoadingUsers.value = false;
+  }
+};
+
+// Fetch kantor/satker options from API
+const fetchKantor = async () => {
+  isLoadingKantor.value = true;
+  try {
+    const response = await getAllKantor();
+    if (response?.data) {
+      satkerOptions.value = response.data.map((kantor) => ({
+        label: kantor.nama,
+        value: kantor.kode_satker,
+        kode_satker: kantor.kode_satker,
+      }));
+    } else if (Array.isArray(response)) {
+      satkerOptions.value = response.map((kantor) => ({
+        label: kantor.nama,
+        value: kantor.kode_satker,
+        kode_satker: kantor.kode_satker,
+      }));
+    }
+  } catch (error) {
+    toast.add({
+      title: "Error",
+      description: "Gagal memuat data satker",
+      color: "error",
+    });
+  } finally {
+    isLoadingKantor.value = false;
+  }
+};
+
 // Form validation
 const validateForm = () => {
   const errors = {};
@@ -132,7 +171,7 @@ const validateForm = () => {
     errors.password = "Password wajib diisi";
   }
 
-  if (!formData.value.nama_satker) {
+  if (!formData.value.kode_satker) {
     errors.nama_satker = "Satker wajib dipilih";
   }
 
@@ -147,6 +186,7 @@ const resetForm = () => {
     password: "",
     role: "admin_satker",
     nama_satker: "",
+    kode_satker: "",
   };
   formErrors.value = {};
 };
@@ -169,6 +209,7 @@ const handleAddEditUser = (type, item) => {
       password: "",
       role: item?.role || "admin_satker",
       nama_satker: item?.nama_satker || "",
+      kode_satker: item?.kode_satker || "",
     };
     formErrors.value = {};
     isModalOpen.value = true;
@@ -183,6 +224,7 @@ const handleAddEditUser = (type, item) => {
       password: "",
       role: item?.role || "admin_satker",
       nama_satker: item?.nama_satker || "",
+      kode_satker: item?.kode_satker || "",
     };
     formErrors.value = {};
     isModalOpen.value = true;
@@ -194,41 +236,66 @@ const handleSaveUser = async () => {
     return;
   }
 
-  if (itemToEdit.value) {
-    // Edit mode
-    const idx = users.value.findIndex((u) => u.id === itemToEdit.value.id);
-    if (idx !== -1) {
-      users.value[idx] = {
-        ...users.value[idx],
+  if (checkTokenExpiration()) return;
+
+  isSaving.value = true;
+
+  // Get selected satker details
+  const selectedSatker = satkerOptions.value.find(
+    (s) => s.value === formData.value.kode_satker
+  );
+
+  try {
+    if (itemToEdit.value) {
+      // Edit mode
+      const updateData = {
         username: formData.value.username,
         role: formData.value.role,
-        nama_satker: formData.value.nama_satker,
+        nama_satker: selectedSatker?.label || formData.value.nama_satker,
+        kode_satker: formData.value.kode_satker,
       };
+
+      // Only include password if provided
+      if (formData.value.password.trim()) {
+        updateData.password = formData.value.password;
+      }
+
+      await updateUser(itemToEdit.value.id, updateData);
+
+      toast.add({
+        title: "Berhasil",
+        description: "User berhasil diubah",
+        color: "success",
+      });
+    } else {
+      // Add mode
+      await createUser({
+        username: formData.value.username,
+        password: formData.value.password,
+        role: formData.value.role,
+        nama_satker: selectedSatker?.label || "",
+        kode_satker: formData.value.kode_satker,
+      });
+
+      toast.add({
+        title: "Berhasil",
+        description: "User berhasil ditambahkan",
+        color: "success",
+      });
     }
 
+    isModalOpen.value = false;
+    resetForm();
+    await fetchUsers();
+  } catch (error) {
     toast.add({
-      title: "Berhasil",
-      description: "User berhasil diubah",
-      color: "success",
+      title: "Error",
+      description: error?.data?.message || "Gagal menyimpan user",
+      color: "error",
     });
-  } else {
-    // Add mode
-    users.value.push({
-      id: Date.now(),
-      username: formData.value.username,
-      role: formData.value.role,
-      nama_satker: formData.value.nama_satker,
-    });
-
-    toast.add({
-      title: "Berhasil",
-      description: "User berhasil ditambahkan",
-      color: "success",
-    });
+  } finally {
+    isSaving.value = false;
   }
-
-  isModalOpen.value = false;
-  resetForm();
 };
 
 const handleCancelAdd = () => {
@@ -243,15 +310,33 @@ const handleDeleteUser = (item) => {
 };
 
 const handleConfirmDelete = async () => {
-  if (itemToDelete.value) {
-    users.value = users.value.filter((u) => u.id !== itemToDelete.value.id);
+  if (!itemToDelete.value) {
+    handleCancelDelete();
+    return;
+  }
+
+  if (checkTokenExpiration()) return;
+
+  isDeleting.value = true;
+
+  try {
+    await deleteUser(itemToDelete.value.id);
     toast.add({
       title: "Berhasil",
       description: "User berhasil dihapus",
       color: "success",
     });
+    await fetchUsers();
+  } catch (error) {
+    toast.add({
+      title: "Error",
+      description: error?.data?.message || "Gagal menghapus user",
+      color: "error",
+    });
+  } finally {
+    isDeleting.value = false;
+    handleCancelDelete();
   }
-  handleCancelDelete();
 };
 
 const handleCancelDelete = () => {
@@ -266,14 +351,19 @@ const handlePaginationUpdate = (newPagination) => {
 
 // Helper functions
 const getRoleLabel = (role) => {
-  return role === "admin_pusat" ? "Admin Pusat" : "Admin Satker";
+  return role === "admin" ? "Admin Pusat" : "Admin Satker";
 };
 
 const getRoleClass = (role) => {
-  return role === "admin_pusat"
+  return role === "admin"
     ? "bg-purple-100 text-purple-800"
     : "bg-green-100 text-green-800";
 };
+
+// Fetch data on mount
+onMounted(async () => {
+  await Promise.all([fetchUsers(), fetchKantor()]);
+});
 </script>
 
 <template>
@@ -295,8 +385,17 @@ const getRoleClass = (role) => {
       </div>
     </div>
 
+    <!-- Loading State -->
+    <div v-if="isLoadingUsers" class="flex items-center justify-center py-12">
+      <div class="text-center">
+        <UIcon name="ph:spinner" class="h-8 w-8 animate-spin text-primary-600" />
+        <p class="mt-2 text-gray-600">Memuat data user...</p>
+      </div>
+    </div>
+
     <!-- Data Table -->
     <DataTableComponent
+      v-else
       :data="tableData"
       :columns="columns"
       :pagination="paginationConfig"
@@ -403,13 +502,15 @@ const getRoleClass = (role) => {
           </p>
         </div>
 
-        <!-- Password Field (only for add mode) -->
-        <div v-if="modalMode === 'add'">
+        <!-- Password Field (only for add mode or optionally for edit) -->
+        <div v-if="modalMode === 'add' || modalMode === 'edit'">
           <label
             for="password"
             class="mb-2 block text-sm font-medium text-gray-700"
           >
-            Password <span class="text-red-500">*</span>
+            Password
+            <span v-if="modalMode === 'add'" class="text-red-500">*</span>
+            <span v-else class="text-gray-400 text-xs">(kosongkan jika tidak ingin mengubah)</span>
           </label>
           <UInput
             id="password"
@@ -447,15 +548,16 @@ const getRoleClass = (role) => {
         <!-- Satker Field -->
         <div>
           <label
-            for="nama_satker"
+            for="kode_satker"
             class="mb-2 block text-sm font-medium text-gray-700"
           >
             Satker <span class="text-red-500">*</span>
           </label>
           <USelect
-            id="nama_satker"
-            v-model="formData.nama_satker"
+            id="kode_satker"
+            v-model="formData.kode_satker"
             :items="satkerOptions"
+            :loading="isLoadingKantor"
             size="lg"
             :color="formErrors.nama_satker ? 'red' : 'primary'"
             class="w-full"
@@ -485,6 +587,7 @@ const getRoleClass = (role) => {
             type="button"
             color="primary"
             size="lg"
+            :loading="isSaving"
             @click="handleSaveUser"
           >
             Simpan User
@@ -502,6 +605,7 @@ const getRoleClass = (role) => {
         {
           variant: 'primary',
           text: 'Hapus',
+          loading: isDeleting,
         },
         {
           variant: 'secondary',
