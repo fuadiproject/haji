@@ -77,6 +77,24 @@ watch(
   { deep: true },
 );
 
+const stickyRightStyles = computed(() => {
+  const styles = {};
+  let currentRight = "0px";
+  [...props.columns].reverse().forEach((col) => {
+    if (col.sticky) {
+      styles[col.key] = { right: currentRight };
+      if (col.width) {
+        currentRight = `calc(${currentRight} + ${col.width})`;
+      } else {
+        console.warn(
+          `[DataTableComponent] Sticky column with key "${col.key}" has no width defined. This might cause layout issues.`,
+        );
+      }
+    }
+  });
+  return styles;
+});
+
 // Computed properties for pagination
 const totalItems = computed(() => props.data.length);
 
@@ -145,7 +163,7 @@ const hasCustomSlot = (column) => {
       </div>
       <!-- Table Content -->
       <div v-else-if="data.length > 0" class="overflow-x-auto">
-        <table :class="['w-full', tableClass]">
+        <table :class="['w-full table-fixed', tableClass]">
           <!-- Table Header -->
           <thead class="border-b border-gray-200 bg-gray-50">
             <tr>
@@ -155,8 +173,12 @@ const hasCustomSlot = (column) => {
                 :class="[
                   'px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase',
                   column.headerClass || '',
+                  { 'sticky z-20 bg-gray-50': column.sticky },
                 ]"
-                :style="column.width ? { width: column.width } : {}"
+                :style="[
+                  column.width ? { width: column.width } : {},
+                  column.sticky ? stickyRightStyles[column.key] : {},
+                ]"
               >
                 {{ column.label }}
               </th>
@@ -168,6 +190,7 @@ const hasCustomSlot = (column) => {
               v-for="(row, rowIndex) in paginatedData"
               :key="row.id || rowIndex"
               :class="[
+                'group isolate',
                 hoverable ? 'transition-colors hover:bg-gray-50' : '',
                 row.rowClass || '',
               ]"
@@ -176,7 +199,15 @@ const hasCustomSlot = (column) => {
               <td
                 v-for="column in columns"
                 :key="column.key"
-                :class="['px-6 py-4 whitespace-nowrap', column.cellClass || '']"
+                :class="[
+                  'px-6 py-4 whitespace-nowrap',
+                  column.cellClass || '',
+                  {
+                    'sticky z-10 bg-white': column.sticky,
+                    'group-hover:bg-gray-50': column.sticky && hoverable,
+                  },
+                ]"
+                :style="column.sticky ? stickyRightStyles[column.key] : {}"
               >
                 <!-- Custom slot for column -->
                 <slot

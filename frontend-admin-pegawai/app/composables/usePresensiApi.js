@@ -4,6 +4,7 @@ export const usePresensiApi = () => {
 
   const BASE_URL = `${config.public.apiUserPresensiUrl}/presensi/v1`
 
+
   const handleError = (error) => {
     if (error?.status === 401 || error?.status === 403) {
       logout()
@@ -93,6 +94,44 @@ export const usePresensiApi = () => {
     })
   }
 
+  const getIzinBySatker = async(kode_satker) => {
+      return $fetch(`${BASE_URL}/izin?kode_satker=${kode_satker}`, {
+      headers: {
+        Authorization: `Bearer ${token.value}`
+      }      
+    }).catch((error) => {
+      handleError(error)
+    })
+  }
+
+  const setujuiIzin = async (id) => {
+    return $fetch(`${BASE_URL}/izin/${id}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token.value}`
+      },
+      body: {
+        "status_persetujuan": "disetujui"
+      }
+    }).catch((error) => {
+      handleError(error)
+    })
+  }
+
+  const rejectIzin = async (id) => {
+    return $fetch(`${BASE_URL}/izin/${id}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token.value}`
+      },
+      body: {
+        "status_persetujuan": "tidak disetujui"
+      }
+    }).catch((error) => {
+      handleError(error)
+    })
+  }
+
   return {
     getAllUsers,
     getUserById,
@@ -101,6 +140,9 @@ export const usePresensiApi = () => {
     deleteUser,
     getAllKantor,
     getSatkerByKode,
-    getRekapSatker
+    getRekapSatker,
+    getIzinBySatker,
+    setujuiIzin,
+    rejectIzin
   }
 }

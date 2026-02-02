@@ -1,13 +1,15 @@
 <script setup>
+import { ref, computed, onMounted } from "vue";
+
 const toast = useToast();
 const { formatDate } = useDateUtil();
+const { hasRole, user } = useAuth();
+const { getIzinBySatker, setujuiIzin, rejectIzin } = usePresensiApi();
 
 definePageMeta({
   title: "Approval Izin",
   description: "Kelola persetujuan izin pegawai",
 });
-
-const { hasRole } = useAuth();
 
 if (!hasRole("admin_satker")) {
   navigateTo("/");
@@ -18,89 +20,41 @@ const isDetailModalOpen = ref(false);
 const isConfirmModalOpen = ref(false);
 const selectedItem = ref(null);
 const confirmAction = ref(null);
+const isLoading = ref(true);
 
 // Data
-const izinData = ref([
-  {
-    id: 1,
-    nip: "199001012020011001",
-    nama: "Ahmad Fauzi",
-    kategori: "Cuti Tahunan",
-    tanggal: "2026-02-05",
-    alasan: "Keperluan keluarga",
-    status: "pending",
-  },
-  {
-    id: 2,
-    nip: "199203152021012002",
-    nama: "Siti Rahayu",
-    kategori: "Izin Sakit",
-    tanggal: "2026-02-03",
-    alasan: "Sakit demam",
-    status: "pending",
-  },
-  {
-    id: 3,
-    nip: "198807202019031003",
-    nama: "Budi Santoso",
-    kategori: "Cuti Tahunan",
-    tanggal: "2026-02-10",
-    alasan: "Acara pernikahan keluarga",
-    status: "approved",
-  },
-  {
-    id: 4,
-    nip: "199505102022011004",
-    nama: "Dewi Lestari",
-    kategori: "Izin Tidak Masuk",
-    tanggal: "2026-02-01",
-    alasan: "Urusan pribadi",
-    status: "rejected",
-  },
-]);
+const izinData = ref([]);
+
+const fetchIzinData = async () => {
+  if (!user.value?.kode_satker) return;
+  isLoading.value = true;
+  try {
+    const { data } = await getIzinBySatker(user.value.kode_satker);
+    izinData.value = data;
+  } catch (error) {
+    const _ = error;
+    toast.add({
+      title: "Error",
+      description: "Gagal memuat data izin.",
+      color: "red",
+    });
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+onMounted(fetchIzinData);
 
 // Table columns configuration
 const columns = [
-  {
-    key: "no",
-    label: "No",
-    width: "5%",
-  },
-  {
-    key: "nip",
-    label: "NIP",
-    width: "15%",
-  },
-  {
-    key: "nama",
-    label: "Nama",
-    width: "15%",
-  },
-  {
-    key: "kategori",
-    label: "Kategori",
-    width: "12%",
-  },
-  {
-    key: "tanggal",
-    label: "Tanggal",
-    width: "12%",
-  },
-  {
-    key: "alasan",
-    label: "Alasan",
-    width: "18%",
-  },
-  {
-    key: "status",
-    label: "Status",
-    width: "10%",
-  },
-  {
-    key: "actions",
-    label: "Aksi",
-    width: "13%",
-  },
+  { key: "no", label: "No", width: "5%" },
+  { key: "nip", label: "NIP", width: "15%" },
+  { key: "nama", label: "Nama", width: "15%" },
+  { key: "kategori", label: "Kategori", width: "12%" },
+  { key: "tanggal", label: "Tanggal", width: "18%" },
+  { key: "alasan", label: "Alasan", width: "18%" },
+  { key: "status_persetujuan", label: "Status", width: "150px", sticky: true },
+  { key: "actions", label: "Aksi", width: "140px", sticky: true },
 ];
 
 // Pagination configuration
@@ -122,7 +76,12 @@ const paginationConfig = ref({
 const tableData = computed(() => {
   return izinData.value.map((item, index) => ({
     ...item,
-    no: index + 1,
+    no:
+      (paginationConfig.value.currentPage - 1) *
+        paginationConfig.value.itemsPerPage +
+      index +
+      1,
+    nama: item.pegawai?.nama || "-",
   }));
 });
 
@@ -141,9 +100,9 @@ const confirmModalTitle = computed(() => {
 // Helper functions
 const getStatusClass = (status) => {
   switch (status) {
-    case "approved":
+    case "disetujui":
       return "bg-green-100 text-green-800";
-    case "rejected":
+    case "tidak disetujui":
       return "bg-red-100 text-red-800";
     default:
       return "bg-yellow-100 text-yellow-800";
@@ -152,9 +111,9 @@ const getStatusClass = (status) => {
 
 const getStatusLabel = (status) => {
   switch (status) {
-    case "approved":
+    case "disetujui":
       return "Disetujui";
-    case "rejected":
+    case "tidak disetujui":
       return "Ditolak";
     default:
       return "Menunggu";
@@ -162,14 +121,17 @@ const getStatusLabel = (status) => {
 };
 
 const getCategoryClass = (kategori) => {
-  switch (kategori) {
-    case "Cuti Tahunan":
-      return "bg-blue-100 text-blue-800";
-    case "Izin Sakit":
-      return "bg-orange-100 text-orange-800";
-    default:
-      return "bg-gray-100 text-gray-800";
+  // Simple styling for different categories. Expand as needed.
+  if (kategori?.toLowerCase().includes("dinas")) {
+    return "bg-blue-100 text-blue-800";
   }
+  if (kategori?.toLowerCase().includes("sakit")) {
+    return "bg-orange-100 text-orange-800";
+  }
+  if (kategori?.toLowerCase().includes("cuti")) {
+    return "bg-purple-100 text-purple-800";
+  }
+  return "bg-gray-100 text-gray-800";
 };
 
 // Action handlers
@@ -196,22 +158,35 @@ const handleRejectClick = (item) => {
 };
 
 const handleConfirmAction = async () => {
-  if (selectedItem.value && confirmAction.value) {
-    const item = izinData.value.find((i) => i.id === selectedItem.value.id);
-    if (item) {
-      item.status = confirmAction.value === "approve" ? "approved" : "rejected";
+  if (!selectedItem.value || !confirmAction.value) return;
 
+  try {
+    if (confirmAction.value === "approve") {
+      await setujuiIzin(selectedItem.value.id);
       toast.add({
         title: "Berhasil",
-        description:
-          confirmAction.value === "approve"
-            ? "Izin berhasil disetujui"
-            : "Izin berhasil ditolak",
-        color: "success",
+        description: "Izin berhasil disetujui",
+        color: "green",
+      });
+    } else if (confirmAction.value === "reject") {
+      await rejectIzin(selectedItem.value.id);
+      toast.add({
+        title: "Berhasil",
+        description: "Izin berhasil ditolak",
+        color: "green",
       });
     }
+    await fetchIzinData();
+  } catch (error) {
+    const _ = error;
+    toast.add({
+      title: "Error",
+      description: `Gagal ${confirmAction.value === 'approve' ? 'menyetujui' : 'menolak'} izin.`,
+      color: "red",
+    });
+  } finally {
+    handleCancelConfirm();
   }
-  handleCancelConfirm();
 };
 
 const handleCancelConfirm = () => {
@@ -222,7 +197,7 @@ const handleCancelConfirm = () => {
 
 // Table event handlers
 const handlePaginationUpdate = (newPagination) => {
-  paginationConfig.value = { ...newPagination };
+  paginationConfig.value = { ...paginationConfig.value, ...newPagination };
 };
 </script>
 
@@ -242,6 +217,7 @@ const handlePaginationUpdate = (newPagination) => {
       :data="tableData"
       :columns="columns"
       :pagination="paginationConfig"
+      :loading="isLoading"
       @update:pagination="handlePaginationUpdate"
     >
       <!-- Custom slot for no column -->
@@ -263,7 +239,7 @@ const handlePaginationUpdate = (newPagination) => {
             <UIcon name="ph:user" class="text-primary-600 h-4 w-4" />
           </div>
           <span class="font-medium text-gray-900">
-            {{ row.nama }}
+            {{ row.pegawai.nama }}
           </span>
         </div>
       </template>
@@ -271,16 +247,19 @@ const handlePaginationUpdate = (newPagination) => {
       <!-- Custom slot for kategori column -->
       <template #kategori-data="{ row }">
         <span
-          class="inline-flex rounded-full px-2 py-1 text-xs font-semibold leading-5"
+          class="inline-flex rounded-full px-2 py-1 text-xs font-semibold leading-5 capitalize"
           :class="getCategoryClass(row.kategori)"
         >
-          {{ row.kategori }}
+          {{ row.kategori.replace(/_/g, " ") }}
         </span>
       </template>
 
       <!-- Custom slot for tanggal column -->
       <template #tanggal-data="{ row }">
-        <span class="text-sm text-gray-600">{{ formatDate(row.tanggal) }}</span>
+        <span class="text-sm text-gray-600"
+          >{{ formatDate(row.tanggal_awal) }} -
+          {{ formatDate(row.tanggal_akhir) }}</span
+        >
       </template>
 
       <!-- Custom slot for alasan column -->
@@ -289,12 +268,12 @@ const handlePaginationUpdate = (newPagination) => {
       </template>
 
       <!-- Custom slot for status column -->
-      <template #status-data="{ row }">
+      <template #status_persetujuan-data="{ row }">
         <span
           class="inline-flex rounded-full px-2 py-1 text-xs font-semibold leading-5"
-          :class="getStatusClass(row.status)"
+          :class="getStatusClass(row.status_persetujuan)"
         >
-          {{ getStatusLabel(row.status) }}
+          {{ getStatusLabel(row.status_persetujuan) }}
         </span>
       </template>
 
@@ -308,7 +287,7 @@ const handlePaginationUpdate = (newPagination) => {
             :ui="{ rounded: 'rounded-full' }"
             @click="handleViewDetail(row)"
           />
-          <template v-if="row.status === 'pending'">
+          <template v-if="row.status_persetujuan === 'menunggu'">
             <UButton
               icon="ph:check"
               size="sm"
@@ -326,7 +305,25 @@ const handlePaginationUpdate = (newPagination) => {
               @click="handleRejectClick(row)"
             />
           </template>
-          <span v-else class="text-sm text-gray-400">-</span>
+          <a
+            v-if="row.lampiran"
+            :href="row.lampiran"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <UButton
+              icon="ph:file-pdf"
+              size="sm"
+              color="blue"
+              variant="soft"
+              :ui="{ rounded: 'rounded-full' }"
+            />
+          </a>
+          <span
+            v-if="row.status_persetujuan !== 'menunggu' && !row.lampiran"
+            class="text-sm text-gray-400"
+            >-</span
+          >
         </div>
       </template>
     </DataTableComponent>
@@ -348,7 +345,7 @@ const handlePaginationUpdate = (newPagination) => {
           </div>
           <div>
             <h3 class="text-lg font-semibold text-gray-900">
-              {{ selectedItem.nama }}
+              {{ selectedItem.pegawai.nama }}
             </h3>
             <p class="font-mono text-sm text-gray-600">
               {{ selectedItem.nip }}
@@ -363,17 +360,20 @@ const handlePaginationUpdate = (newPagination) => {
               Kategori
             </label>
             <span
-              class="inline-flex rounded-full px-3 py-1 text-sm font-semibold"
+              class="inline-flex rounded-full px-3 py-1 text-sm font-semibold capitalize"
               :class="getCategoryClass(selectedItem.kategori)"
             >
-              {{ selectedItem.kategori }}
+              {{ selectedItem.kategori.replace(/_/g, " ") }}
             </span>
           </div>
           <div>
             <label class="mb-1 block text-sm font-medium text-gray-500">
-              Tanggal
+              Tanggal Izin
             </label>
-            <p class="text-gray-900">{{ formatDate(selectedItem.tanggal) }}</p>
+            <p class="text-gray-900">
+              {{ formatDate(selectedItem.tanggal_awal) }} -
+              {{ formatDate(selectedItem.tanggal_akhir) }}
+            </p>
           </div>
           <div>
             <label class="mb-1 block text-sm font-medium text-gray-500">
@@ -381,10 +381,24 @@ const handlePaginationUpdate = (newPagination) => {
             </label>
             <span
               class="inline-flex rounded-full px-3 py-1 text-sm font-semibold"
-              :class="getStatusClass(selectedItem.status)"
+              :class="getStatusClass(selectedItem.status_persetujuan)"
             >
-              {{ getStatusLabel(selectedItem.status) }}
+              {{ getStatusLabel(selectedItem.status_persetujuan) }}
             </span>
+          </div>
+          <div v-if="selectedItem.lampiran">
+            <label class="mb-1 block text-sm font-medium text-gray-500">
+              Lampiran
+            </label>
+            <a
+              :href="selectedItem.lampiran"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-primary-600 hover:text-primary-800 flex items-center gap-1"
+            >
+              <UIcon name="ph:file-pdf" />
+              Lihat Lampiran
+            </a>
           </div>
         </div>
 
@@ -411,7 +425,7 @@ const handlePaginationUpdate = (newPagination) => {
           >
             Tutup
           </UButton>
-          <template v-if="selectedItem?.status === 'pending'">
+          <template v-if="selectedItem?.status_persetujuan === 'menunggu'">
             <UButton
               type="button"
               color="red"
