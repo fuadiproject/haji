@@ -8,19 +8,19 @@ useHead({
     {
       name: "description",
       content:
-        "Dashboard Admin Kementerian Haji dan Umrah untuk kepegawaian dan persuratan",
+        "Dashboard Admin Kementerian Haji dan Umrah untuk presensi & kepegawaian",
     },
     { name: "theme-color", content: "#019eab" },
     { property: "og:title", content: "BPHJ" },
     {
       property: "og:description",
       content:
-        "Dashboard Admin Kementerian Haji dan Umrah untuk kepegawaian dan persuratan",
+        "Dashboard Admin Kementerian Haji dan Umrah untuk presensi & kepegawaian",
     },
     { property: "og:type", content: "website" },
   ],
   link: [
-    { rel: "icon", type: "image/svg+xml", href: "/icons/icon-192x192.svg" },
+    { rel: "icon", type: "image/svg+xml", href: "/images/logo.png" },
   ],
 });
 

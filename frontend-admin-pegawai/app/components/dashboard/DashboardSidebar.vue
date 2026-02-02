@@ -155,7 +155,7 @@ watch(isCollapsed, (newValue) => {
         />
         <div v-show="!isCollapsed" class="transition-opacity duration-300">
           <h1 class="text-gray-title text-lg font-semibold">
-            Presensi Admin BPHJ
+            Presensi Admin Kementerian Haji dan Umrah RI
           </h1>
         </div>
       </div>
