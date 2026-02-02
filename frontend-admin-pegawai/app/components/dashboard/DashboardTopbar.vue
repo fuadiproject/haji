@@ -146,14 +146,7 @@ const breadcrumbs = computed(() => {
           </div>
           <!-- User Avatar & Dropdown -->
           <UDropdownMenu
-            :items="[
-              [
-                {
-                  label: 'Profile',
-                  icon: 'ph:user',
-                  to: '/akun',
-                },
-              ],
+            :items="[              
               [
                 {
                   label: 'Logout',

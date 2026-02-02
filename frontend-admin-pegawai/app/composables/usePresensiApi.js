@@ -75,6 +75,12 @@ export const usePresensiApi = () => {
     })
   }
 
+  const getSatkerByKode = async (kode) => {
+    return $fetch(`${BASE_URL}/kantor/${kode}`).catch((error) => {
+      handleError(error)
+    })
+  }
+
   // Rekap Kehadiran
   const getRekapSatker = async (kode_satker, bulan, tahun) => {
     return $fetch(`${BASE_URL}/kehadiran/rekap-satker`, {
@@ -94,6 +100,7 @@ export const usePresensiApi = () => {
     updateUser,
     deleteUser,
     getAllKantor,
+    getSatkerByKode,
     getRekapSatker
   }
 }

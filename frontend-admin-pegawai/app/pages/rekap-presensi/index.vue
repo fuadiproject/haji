@@ -5,7 +5,7 @@ definePageMeta({
 });
 
 const { user, hasRole } = useAuth();
-const { getAllKantor, getRekapSatker } = usePresensiApi();
+const { getAllKantor, getRekapSatker, getSatkerByKode } = usePresensiApi();
 const toast = useToast();
 
 const isAdminPusat = hasRole("admin");
@@ -51,6 +51,8 @@ const satkerOptions = ref([]);
 
 // Data
 const presensiData = ref([]);
+
+const namaSatker = ref();
 
 // Table columns configuration
 const columns = [
@@ -131,8 +133,24 @@ const selectedSatkerLabel = computed(() => {
     const satker = satkerOptions.value.find((s) => s.value === selectedSatker.value);
     return satker?.label || "";
   }
-  return user.value?.nama_satker || "";
+  return user.value?.kode_satker || "";
 });
+
+const fetchNamaSatkerByKode = async() => {
+   try {
+    const response = await getSatkerByKode(user.value?.kode_satker);
+
+    namaSatker.value = (response?.data || response)?.nama;
+    
+  } catch (error) {
+    const _ = error
+    toast.add({
+      title: "Error",
+      description: "Gagal memuat data satker",
+      color: "error",
+    });
+  }
+};
 
 // Helper functions
 const getPotonganColor = (percentage) => {
@@ -152,6 +170,7 @@ const fetchKantor = async () => {
         value: kantor.kode_satker,
       })) || [];
   } catch (error) {
+    const _ = error
     toast.add({
       title: "Error",
       description: "Gagal memuat data satker",
@@ -184,6 +203,7 @@ const fetchRekapPresensi = async () => {
     const response = await getRekapSatker(kodeSatker, bulan, tahun);
     presensiData.value = response?.data || [];
   } catch (error) {
+    const _ = error
     toast.add({
       title: "Error",
       description: "Gagal memuat data rekap presensi",
@@ -233,8 +253,12 @@ const handleExportExcel = async () => {
   XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap Presensi");
 
   // Generate filename
-  const monthLabel = selectedMonthLabel.value.toLowerCase();
-  const satkerName = selectedSatkerLabel.value.toLowerCase().replace(/\s+/g, "_");
+  const monthLabel = selectedMonthLabel.value.toLowerCase();  
+  let satkerName = namaSatker;
+  if (isAdminPusat) {
+    satkerName = selectedSatkerLabel
+  }
+  satkerName =  satkerName.value.toLowerCase().replace(/\s+/g, "_");
   const fileName = `rekap_presensi_${monthLabel}_${selectedYear.value}_${satkerName}.xlsx`;
 
   // Download file
@@ -257,8 +281,12 @@ onMounted(async () => {
     await fetchKantor();
     if (satkerOptions.value.length > 0) {
       selectedSatker.value = satkerOptions.value[0].value;
-    }
+    }    
+  }else {
+    await fetchNamaSatkerByKode();
   }
+
+  
   fetchRekapPresensi();
 });
 </script>
@@ -276,19 +304,21 @@ onMounted(async () => {
 
     <!-- Filter Section -->
     <div class="border-neutral-9 rounded-lg border bg-white p-3 shadow-sm">
-      <div class="flex flex-wrap items-center gap-4">
+      <div class="flex flex-wrap items-end gap-4">
         <div class="w-40">
           <label class="mb-2 block text-sm font-medium text-gray-700">
             Bulan
           </label>
           <USelect v-model="selectedMonth" :items="monthOptions" size="lg" class="w-full" />
         </div>
+
         <div class="w-32">
           <label class="mb-2 block text-sm font-medium text-gray-700">
             Tahun
           </label>
           <USelect v-model="selectedYear" :items="yearOptions" size="lg" class="w-full" />
         </div>
+
         <div v-if="isAdminPusat" class="w-72">
           <label class="mb-2 block text-sm font-medium text-gray-700">
             Satker
@@ -303,13 +333,14 @@ onMounted(async () => {
             class="w-full"
           />
         </div>
-        <div v-else class="flex items-end pb-2">
+
+        <div v-else class="flex items-end">
           <div
-            class="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2"
+            class="flex items-end gap-2 rounded-lg bg-gray-100 px-3 py-2"
           >
             <UIcon name="ph:buildings" class="h-4 w-4 text-gray-600" />
             <span class="text-sm text-gray-600">
-              Satker: {{ user?.nama_satker }}
+              Satker: {{ namaSatker }}
             </span>
           </div>
         </div>

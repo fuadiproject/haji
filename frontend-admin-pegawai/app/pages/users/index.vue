@@ -120,6 +120,7 @@ const fetchUsers = async () => {
       users.value = response;
     }
   } catch (error) {
+    const _ = error
     toast.add({
       title: "Error",
       description: "Gagal memuat data user",
@@ -149,6 +150,7 @@ const fetchKantor = async () => {
       }));
     }
   } catch (error) {
+    const _ = error
     toast.add({
       title: "Error",
       description: "Gagal memuat data satker",
