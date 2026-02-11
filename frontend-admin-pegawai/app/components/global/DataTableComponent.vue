@@ -163,7 +163,7 @@ const hasCustomSlot = (column) => {
       </div>
       <!-- Table Content -->
       <div v-else-if="data.length > 0" class="overflow-x-auto">
-        <table :class="['w-full table-fixed', tableClass]">
+        <table :class="['w-full table-auto', tableClass]">
           <!-- Table Header -->
           <thead class="border-b border-gray-200 bg-gray-50">
             <tr>
@@ -176,7 +176,7 @@ const hasCustomSlot = (column) => {
                   { 'sticky z-20 bg-gray-50': column.sticky },
                 ]"
                 :style="[
-                  column.width ? { width: column.width } : {},
+                  column.width ? { minWidth: column.width, width: column.width } : {},
                   column.sticky ? stickyRightStyles[column.key] : {},
                 ]"
               >

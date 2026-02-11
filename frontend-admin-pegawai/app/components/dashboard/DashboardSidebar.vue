@@ -32,6 +32,12 @@ const adminPusatMenu = [
     icon: "ph:calendar-check",
     to: "/rekap-presensi",
   },
+  {
+    id: "approval-izin",
+    name: "Approval Izin",
+    icon: "ph:check-circle",
+    to: "/approval-izin",
+  },
 ];
 
 const adminSatkerMenu = [

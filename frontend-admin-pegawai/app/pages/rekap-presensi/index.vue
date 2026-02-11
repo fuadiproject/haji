@@ -294,13 +294,13 @@ onMounted(async () => {
 <template>
   <div class="space-y-4">
     <!-- Page Header -->
-    <div class="border-neutral-9 rounded-lg border bg-white p-6 shadow-sm">
+    <!-- <div class="border-neutral-9 rounded-lg border bg-white p-6 shadow-sm">
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-gray-title text-2xl font-bold">Rekap Presensi</h1>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Filter Section -->
     <div class="border-neutral-9 rounded-lg border bg-white p-3 shadow-sm">

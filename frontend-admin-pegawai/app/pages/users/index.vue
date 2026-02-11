@@ -370,21 +370,16 @@ onMounted(async () => {
 
 <template>
   <div class="space-y-4">
-    <!-- Page Header -->
-    <div class="border-neutral-9 rounded-lg border bg-white p-6 shadow-sm">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-gray-title text-2xl font-bold">Manajemen User</h1>
-        </div>
-        <UButton
-          icon="ph:plus"
-          size="lg"
-          class="bg-primary-main"
-          @click="handleAddEditUser('add')"
-        >
-          Tambah User
-        </UButton>
-      </div>
+    <!-- Action Button -->
+    <div class="flex justify-end">
+      <UButton
+        icon="ph:plus"
+        size="lg"
+        class="bg-primary-main"
+        @click="handleAddEditUser('add')"
+      >
+        Tambah User
+      </UButton>
     </div>
 
     <!-- Loading State -->

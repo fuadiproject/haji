@@ -1,19 +1,21 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 
 const toast = useToast();
 const { formatDate } = useDateUtil();
 const { hasRole, user } = useAuth();
-const { getIzinBySatker, setujuiIzin, rejectIzin } = usePresensiApi();
+const { getIzinBySatker, setujuiIzin, rejectIzin, getAllKantor } = usePresensiApi();
 
 definePageMeta({
   title: "Approval Izin",
   description: "Kelola persetujuan izin pegawai",
 });
 
-if (!hasRole("admin_satker")) {
+if (!hasRole("admin_satker") && !hasRole("admin")) {
   navigateTo("/");
 }
+
+const isAdminPusat = hasRole("admin");
 
 // Modal state
 const isDetailModalOpen = ref(false);
@@ -21,15 +23,45 @@ const isConfirmModalOpen = ref(false);
 const selectedItem = ref(null);
 const confirmAction = ref(null);
 const isLoading = ref(true);
+const isLoadingKantor = ref(false);
+
+// Satker filter (for admin_pusat)
+const selectedSatker = ref(null);
+const satkerOptions = ref([]);
 
 // Data
 const izinData = ref([]);
 
+const fetchKantor = async () => {
+  isLoadingKantor.value = true;
+  try {
+    const response = await getAllKantor();
+    satkerOptions.value =
+      (response?.data || response)?.map((kantor) => ({
+        label: kantor.nama,
+        value: kantor.kode_satker,
+      })) || [];
+  } catch (error) {
+    const _ = error;
+    toast.add({
+      title: "Error",
+      description: "Gagal memuat data satker",
+      color: "error",
+    });
+  } finally {
+    isLoadingKantor.value = false;
+  }
+};
+
 const fetchIzinData = async () => {
-  if (!user.value?.kode_satker) return;
+  const kodeSatker = isAdminPusat
+    ? selectedSatker.value
+    : user.value?.kode_satker;
+
+  if (!kodeSatker) return;
   isLoading.value = true;
   try {
-    const { data } = await getIzinBySatker(user.value.kode_satker);
+    const { data } = await getIzinBySatker(kodeSatker);
     izinData.value = data;
   } catch (error) {
     const _ = error;
@@ -43,17 +75,29 @@ const fetchIzinData = async () => {
   }
 };
 
-onMounted(fetchIzinData);
+watch(selectedSatker, () => {
+  fetchIzinData();
+});
+
+onMounted(async () => {
+  if (isAdminPusat) {
+    await fetchKantor();
+    if (satkerOptions.value.length > 0) {
+      selectedSatker.value = satkerOptions.value[0].value;
+    }
+  }
+  fetchIzinData();
+});
 
 // Table columns configuration
 const columns = [
-  { key: "no", label: "No", width: "5%" },
-  { key: "nip", label: "NIP", width: "15%" },
-  { key: "nama", label: "Nama", width: "15%" },
-  { key: "kategori", label: "Kategori", width: "12%" },
-  { key: "tanggal", label: "Tanggal", width: "18%" },
-  { key: "alasan", label: "Alasan", width: "18%" },
-  { key: "status_persetujuan", label: "Status", width: "150px", sticky: true },
+  { key: "no", label: "No", width: "50px" },
+  { key: "nip", label: "NIP", width: "140px" },
+  { key: "nama", label: "Nama", width: "180px", cellClass: "!whitespace-normal" },
+  { key: "kategori", label: "Kategori", width: "120px" },
+  { key: "tanggal", label: "Tanggal", width: "180px", cellClass: "!whitespace-normal" },
+  { key: "alasan", label: "Alasan", width: "200px", cellClass: "!whitespace-normal" },
+  { key: "status_persetujuan", label: "Status", width: "120px", sticky: true },
   { key: "actions", label: "Aksi", width: "140px", sticky: true },
 ];
 
@@ -204,10 +248,30 @@ const handlePaginationUpdate = (newPagination) => {
 <template>
   <div class="space-y-4">
     <!-- Page Header -->
-    <div class="border-neutral-9 rounded-lg border bg-white p-6 shadow-sm">
+    <!-- <div class="border-neutral-9 rounded-lg border bg-white p-6 shadow-sm">
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-gray-title text-2xl font-bold">Approval Izin</h1>
+        </div>
+      </div>
+    </div> -->
+
+    <!-- Filter Section (Satker dropdown for admin_pusat) -->
+    <div v-if="isAdminPusat" class="border-neutral-9 rounded-lg border bg-white p-3 shadow-sm">
+      <div class="flex flex-wrap items-end gap-4">
+        <div class="w-72">
+          <label class="mb-2 block text-sm font-medium text-gray-700">
+            Satker
+          </label>
+          <USelect
+            v-model="selectedSatker"
+            :items="satkerOptions"
+            :loading="isLoadingKantor"
+            :disabled="isLoadingKantor"
+            placeholder="Pilih Satker"
+            size="lg"
+            class="w-full"
+          />
         </div>
       </div>
     </div>
