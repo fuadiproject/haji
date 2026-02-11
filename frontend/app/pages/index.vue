@@ -47,7 +47,7 @@ const defaultMainMenu = [
     id: "Persuratan",
     name: TEXT.persuratan,
     icon: "EnvelopeSimple",
-    to: "/persuratan",
+    to: "https://satu-nadine.kemenkeu.go.id/",
   },
   {
     id: "Regulasi",
