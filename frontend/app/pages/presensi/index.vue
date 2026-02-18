@@ -20,14 +20,31 @@ const { currentTime, currentDate } = useRealtimeClock();
 const isEmpty = ref(false);
 const isModalHistoryPresensiOpen = ref(false);
 
-// Jam kerja berdasarkan hari
-// Senin - Kamis: 07:30 - 16:00
-// Jumat: 07:30 - 16:30
+// Jadwal kerja: ubah isRamadhan untuk switch jadwal
+// Normal: Senin-Kamis 07:30-16:00, Jumat 07:30-16:30
+// Ramadhan: Senin-Kamis 08:00-15:00, Jumat 08:00-15:30
+const isRamadhan = true;
 const isFriday = computed(() => new Date().getDay() === 5);
-const maxJamDatangHariIni = computed(() => "07:30");
-const maxJamPulangHariIni = computed(() => (isFriday.value ? "16:30" : "16:00"));
+const maxJamDatangHariIni = computed(() =>
+  isRamadhan ? "08:00" : "07:30",
+);
+const maxJamPulangHariIni = computed(() =>
+  isRamadhan
+    ? isFriday.value
+      ? "15:30"
+      : "15:00"
+    : isFriday.value
+      ? "16:30"
+      : "16:00",
+);
 const jadwalKerjaHariIni = computed(() =>
-  isFriday.value ? "07:30 - 16:30" : "07:30 - 16:00",
+  isRamadhan
+    ? isFriday.value
+      ? "08:00 - 15:30"
+      : "08:00 - 15:00"
+    : isFriday.value
+      ? "07:30 - 16:30"
+      : "07:30 - 16:00",
 );
 const isModalCreateIzinOpen = ref(false);
 const isModalHistoryIzinOpen = ref(false);
