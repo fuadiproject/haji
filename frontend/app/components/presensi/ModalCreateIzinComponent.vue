@@ -52,6 +52,14 @@ const kategoriIzinOptions = ref([
     label: TEXT.izinTidakMasuk,
     value: "izin_tidak_masuk",
   },
+  {
+    label: TEXT.lupaAbsen,
+    value: "lupa_absen",
+  },
+  {
+    label: TEXT.absenError,
+    value: "absen_error",
+  },
 ]);
 
 const schema = z.object({

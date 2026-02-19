@@ -142,6 +142,8 @@ export const TEXT = {
   cutiAlasanPenting: "Cuti Alasan Penting",
   cutiLuarTanggunganNegara: "Cuti Luar Tanggungan Negara",
   izinTidakMasuk: "Izin Tidak Masuk",
+  lupaAbsen: "Lupa Absen",
+  absenError: "Absen Error",
   status: "Status",
   tanggal: "Tanggal",
   namaSurat: "Nama Surat",

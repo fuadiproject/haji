@@ -45,6 +45,8 @@ const getKategoriLabel = (kategori) => {
     cuti_alasan_penting: TEXT.cutiAlasanPenting,
     cuti_luar_tanggungan_negara: TEXT.cutiLuarTanggunganNegara,
     izin_tidak_masuk: TEXT.izinTidakMasuk,
+    lupa_absen: TEXT.lupaAbsen,
+    absen_error: TEXT.absenError,
   };
   return map[kategori] || kategori;
 };
