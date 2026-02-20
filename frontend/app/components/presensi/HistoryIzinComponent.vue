@@ -147,7 +147,7 @@ const handleOpenLampiran = (lampiran) => {
       <!-- Izin List -->
       <div v-else class="flex flex-col gap-3">
         <CardComponent
-          v-for="item in [...sortedIzinData, ...sortedIzinData]"
+          v-for="item in sortedIzinData"
           :key="item.id || item.tanggal_awal"
         >
           <!-- Header -->
