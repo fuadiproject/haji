@@ -105,6 +105,17 @@ export const useServicePresensiapi = () => {
     });
   };
 
+  const deleteIzin = async (id) => {
+    return $fetch(`${BASE_URL}/pengguna/izin/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }).catch((error) => {
+      handleError(error);
+    });
+  };
+
   const getProfile = async () => {
     return $fetch(`${BASE_URL}/pengguna/profil`, {
       headers: {
@@ -122,6 +133,7 @@ export const useServicePresensiapi = () => {
     historyToday,
     createIzin,
     getAllIzin,
+    deleteIzin,
     getProfile,
   };
 };

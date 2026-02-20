@@ -1,8 +1,13 @@
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { TEXT } from "@/constants/text";
+import ModalConfirmComponent from "@/components/global/ModalConfirmComponent.vue";
 
 const presensiapiService = useServicePresensiapi();
+const toast = useToast();
+
+const izinToDelete = ref(null);
+const isDeleting = ref(false);
 
 const {
   data: izinData,
@@ -103,6 +108,46 @@ const getStatusText = (status) => {
       return "Ditolak";
     default:
       return status;
+  }
+};
+
+const isPendingStatus = (status) => {
+  if (!status) return true;
+  const s = status.toLowerCase();
+  return s === "pending" || s === "menunggu";
+};
+
+const openDeleteConfirm = (item) => {
+  izinToDelete.value = item;
+};
+
+const closeDeleteConfirm = () => {
+  izinToDelete.value = null;
+};
+
+const handleConfirmDelete = async () => {
+  if (!izinToDelete.value?.id) return;
+  isDeleting.value = true;
+  try {
+    await presensiapiService.deleteIzin(izinToDelete.value.id);
+    toast.add({
+      title: "Berhasil",
+      description: "Pengajuan izin berhasil dibatalkan.",
+      color: "success",
+    });
+    closeDeleteConfirm();
+    await refresh();
+  } catch (err) {
+    toast.add({
+      title: "Gagal",
+      description:
+        err?.data?.message ||
+        err?.message ||
+        "Gagal membatalkan pengajuan izin.",
+      color: "error",
+    });
+  } finally {
+    isDeleting.value = false;
   }
 };
 
@@ -220,9 +265,44 @@ const handleOpenLampiran = (lampiran) => {
                 </ButtonComponent>
               </div>
             </div>
+
+            <!-- Hapus (hanya untuk status menunggu) -->
+            <div
+              v-if="isPendingStatus(item.status_persetujuan)"
+              class="border-border-main mt-3 border-t pt-3"
+            >
+              <ButtonComponent
+                variant="outline"
+                size="sm"
+                class="w-full !border-red-300 !text-red-600"
+                :loading="isDeleting && izinToDelete?.id === item.id"
+                @click="openDeleteConfirm(item)"
+              >
+                <UIcon name="ph:trash-bold" class="h-3.5 w-3.5" />
+                Batalkan pengajuan
+              </ButtonComponent>
+            </div>
           </div>
         </CardComponent>
       </div>
     </div>
+
+    <!-- Modal konfirmasi hapus izin -->
+    <ModalConfirmComponent
+      :is-open="!!izinToDelete"
+      title="Batalkan pengajuan izin?"
+      message="Apakah Anda yakin ingin membatalkan pengajuan izin ini? Data yang dibatalkan tidak dapat dikembalikan."
+      :buttons="[
+        {
+          variant: 'primary',
+          text: 'Hapus',
+          loading: isDeleting,
+          preventClose: true,
+        },
+        { variant: 'secondary', text: 'Batal' },
+      ]"
+      @confirm="handleConfirmDelete()"
+      @update:is-open="$event ? null : closeDeleteConfirm()"
+    />
   </div>
 </template>
