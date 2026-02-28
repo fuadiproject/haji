@@ -30,9 +30,6 @@ const {
   error,
   refresh,
 } = await useAsyncData(
-  computed(
-    () => `history-presensi-${selectedYear.value}-${selectedMonth.value}`,
-  ),
   async () => {
     const response = await presensiapiService.rekapKehadiran({
       bulan: selectedMonth.value + 1,
@@ -157,6 +154,68 @@ const getPemotonganColor = (pemotongan) => {
   if (value <= 1) return "text-yellow-600";
   return "text-red-600";
 };
+
+const isExporting = ref(false);
+
+const exportToExcel = async () => {
+  if (sortedHistoryData.value.length === 0 || isExporting.value) return;
+  isExporting.value = true;
+  try {
+    const XLSX = await import("xlsx");
+    const rows = [];
+
+    // Info pegawai
+    if (infoPegawai.value) {
+      rows.push(["Nama", infoPegawai.value.nama || "-"]);
+      rows.push(["NIP", infoPegawai.value.nip || "-"]);
+      rows.push([]);
+    }
+
+    // Header tabel
+    rows.push([
+      "Tanggal",
+      "Hari",
+      "Status",
+      TEXT.clockIn,
+      TEXT.clockOut,
+      TEXT.pemotongan + " (%)",
+    ]);
+
+    // Data presensi
+    for (const item of sortedHistoryData.value) {
+      const dateObj = new Date(item.tanggal);
+      const hari = dateObj.toLocaleDateString("id-ID", { weekday: "long" });
+      rows.push([
+        item.tanggal,
+        hari,
+        getStatusText(item),
+        formatTime(item.checkin),
+        formatTime(item.checkout),
+        item.persentase_potongan_harian ?? "-",
+      ]);
+    }
+
+    // Ringkasan bulanan
+    if (summaryBulanan.value) {
+      rows.push([]);
+      rows.push([
+        "Persentase Potongan Bulanan",
+        `${summaryBulanan.value.persentase_potongan}%`,
+      ]);
+    }
+
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Riwayat Presensi");
+
+    const fileName = `Riwayat_Presensi_${selectedMonthName.value}_${selectedYear.value}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+  } catch (err) {
+    console.error("Export Excel gagal:", err);
+  } finally {
+    isExporting.value = false;
+  }
+};
 </script>
 
 <template>
@@ -187,6 +246,19 @@ const getPemotonganColor = (pemotongan) => {
           @click="changeMonth('next')"
         >
           <UIcon name="ph:caret-right-bold" class="text-body-2 h-4 w-4" />
+        </button>
+      </div>
+
+      <!-- Tombol Export Excel -->
+      <div class="mt-3 flex justify-center">
+        <button
+          type="button"
+          class="border-border-main bg-container-main flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+          :disabled="isLoading || sortedHistoryData.length === 0 || isExporting"
+          @click="exportToExcel"
+        >
+          <UIcon name="ph:file-xls" class="h-4 w-4" />
+          {{ isExporting ? "Mengekspor..." : TEXT.exportExcel }}
         </button>
       </div>
     </div>

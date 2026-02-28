@@ -147,4 +147,6 @@ export const TEXT = {
   status: "Status",
   tanggal: "Tanggal",
   namaSurat: "Nama Surat",
+  exportExcel: "Export Excel",
+  riwayatPresensi: "Riwayat Presensi",
 };
